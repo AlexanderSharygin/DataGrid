@@ -14,7 +14,7 @@ Create an application that reads data from the data.txt file and shows it on the
 
 
 ### Implementation details
-We'll work in a .NET console app.
-Use only simplest things implementing this task. Don't use 3-rd party libraries to parse the file. Don't use .NET collections, like List or Stack, or any collection utility methods, like Sort(). Use only arrays and simple types. Feel free to implement all routines on your own, create any classes and utility methods you need, and decompose your project as required =)
+We'll work in a .NET console app and write code on C#.
+Use only simplest things. Don't use 3-rd party libraries. Don't use .NET collections (as List or Stack), or any collection utility methods, like Sort(). Use only arrays and simple types. Feel free to create any routines on your own and keep your project following rapidly changing business requirements =)
 
 Waiting for your commit.
