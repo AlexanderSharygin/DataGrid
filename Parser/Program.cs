@@ -20,8 +20,9 @@ namespace Parser
     {
         public static string GetSource()
         {
-           StreamReader FileReader = new StreamReader("data.txt");
-           return FileReader.ReadToEnd();
+            // StreamReader FileReader = new StreamReader();
+            // return FileReader.ReadToEnd();
+            return  Properties.Resources.data;
         }
         public static void SetResult(ParsedObject[] obj)
         {
@@ -164,7 +165,7 @@ namespace Parser
                 while (counter < temp.Length)
                 {
                     //находим начало строки и ждём конец строки если он не в ковычках
-                    if (temp[counter] == '\r' && temp[counter + 1] == '\n')
+                    if ((temp[counter] == '\r' && temp[counter + 1] == '\n')|| (temp[counter] == '\n') || (temp[counter] == '\r'))
                     {
                         stringStartPosition = counter;
                         for (int i = ++counter; i < temp.Length - 1; i++)
@@ -188,7 +189,7 @@ namespace Parser
                                 }
                             }
                             // находим конец строки и выпиливаем строку
-                            if (temp[counter] == '\r' && temp[counter + 1] == '\n')
+                            if ((temp[counter] == '\r' && temp[counter + 1] == '\n')|| (temp[counter] == '\r' && temp[counter - 1] != '\n') || (temp[counter] == '\n' && temp[counter - 1] != '\r'))
                             {
                                 stringEndPosition = i;
                                 counter = i;
