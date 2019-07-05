@@ -59,37 +59,5 @@ namespace Parser.Properties {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   Ищет локализованную строку, похожую на [{
-        ///    &quot;ID&quot;: 1,
-        ///    &quot;FirstName&quot;: &quot;John&quot;,
-        ///    &quot;LastName&quot;: &quot;Heart&quot;,
-        ///    &quot;Prefix&quot;: &quot;Mr.&quot;,
-        ///    &quot;Position&quot;: &quot;CEO&quot;,
-        ///    &quot;BirthDate&quot;: &quot;1964/03/16&quot;,
-        ///    &quot;HireDate&quot;: &quot;1995/01/15&quot;,
-        ///    &quot;Notes&quot;: &quot;John has been in the Audio/Video industry since 1990. He has led DevAv as its CEO since 2003.\r\n\r\nWhen not working hard as the CEO, John loves to golf and bowl. He once bowled a perfect game of 300.&quot;,
-        ///    &quot;Address&quot;: &quot;351 S Hill St.&quot;,
-        ///    &quot;StateID&quot;: 5
-        ///}, {
-        ///    &quot;ID&quot;: 2,
-        ///    &quot;FirstName&quot;: &quot;Olivia&quot;,
-        ///    &quot;LastName&quot; [остаток строки не уместился]&quot;;.
-        /// </summary>
-        internal static string data {
-            get {
-                return ResourceManager.GetString("data", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Ищет локализованную строку, похожую на .
-        /// </summary>
-        internal static string Files {
-            get {
-                return ResourceManager.GetString("Files", resourceCulture);
-            }
-        }
     }
 }

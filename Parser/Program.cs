@@ -3,41 +3,41 @@ using System.IO;
 
 namespace Parser
 {
+    public static class StringExtension
+    {
+        public static void ParseSimpleJSON(this String str)
+        {
+            SimpleJSONParser.ParseSimpleJSON(str);
+        }
+    }
     class Program
     {
         static void Main(string[] args)
         {
-            IOWork.GetSource();
-            Parser Parsing = new Parser(IOWork.GetSource());
-            Parsing.getObjects();
-            Parsing.parseObjectstoStrings();
-            Parsing.parseStringsOfObject();
-            IOWork.SetResult(Parsing.ParsResult);                         
+           OutpuAndInputData.GetTextOfSimpleJSON().ParseSimpleJSON();          
         }
     }
-    // класс для работы с консолью (такой вот нонче фронтенд)
-    static class IOWork
+    static class OutpuAndInputData
     {
-        public static string GetSource()
+        public static string GetTextOfSimpleJSON()
         {
-            // StreamReader FileReader = new StreamReader();
-            // return FileReader.ReadToEnd();
-            return  Properties.Resources.data;
+            StreamReader FileReader = new StreamReader(AppDomain.CurrentDomain.BaseDirectory + "data.txt" );
+            return FileReader.ReadToEnd();          
         }
-        public static void SetResult(ParsedObject[] obj)
+        public static void ShowResult(ParsedJSONObject[] parsedObject)
         {
             var rowCounter = 0;
             var columnShift = 5;
-            var FirstNameMaxLength = 9;
-            var LastNameMaxLength = 9;
-            for (var i = 0; i < obj.Length; i++)
+            var FirstNameMaxLength = "FirstName".Length;
+            var LastNameMaxLength = "LastName".Length;
+            for (var i = 0; i < parsedObject.Length; i++)
             {
-                var FirstNameLength = obj[i].FirstName.Length;
+                var FirstNameLength = parsedObject[i].FirstName.Length;
                 if (FirstNameLength > FirstNameMaxLength)
                 {
                     FirstNameMaxLength = FirstNameLength;
                 }
-                var LastNameLength = obj[i].LastName.Length;
+                var LastNameLength = parsedObject[i].LastName.Length;
                 if (LastNameLength > LastNameMaxLength)
                 {
                     {
@@ -57,259 +57,203 @@ namespace Parser
             }
             rowCounter++;
             Console.SetCursorPosition(0, rowCounter); ;
-            for (var i = 0; i < obj.Length; i++)
+            for (var i = 0; i < parsedObject.Length; i++)
             {
                
                 Console.SetCursorPosition(0, rowCounter);
-                Console.Write(obj[i].FirstName);
+                Console.Write(parsedObject[i].FirstName);
                 Console.SetCursorPosition(FirstNameMaxLength + columnShift, rowCounter);
-                Console.Write(obj[i].LastName);
+                Console.Write(parsedObject[i].LastName);
                 rowCounter++;
             }
             Console.ReadLine();
         }
     }
-    //класс парсинга
-    class Parser
+    static class SimpleJSONParser
     {
-        public Parser(string sourceToParse)
+        public static void ParseSimpleJSON(string simpleJSONFileText)
         {
-            _SourсeToParse = sourceToParse;
-            _ObjectsToParse = new string[0];
-            _ParsResults = new ParsedObject[0];
+            string[] TextOfJSONObjects= GetTextOfJSOONObjects(simpleJSONFileText);
+            ParsedJSONObject[] SimpleJSONObjects = ParseObjectstoStrings(TextOfJSONObjects);
+            ParseStringsOfEachJSONObject(SimpleJSONObjects);
+            OutpuAndInputData.ShowResult(SimpleJSONObjects);
         }
-        //Распарсеные данные в виде объектов
-        private ParsedObject[] _ParsResults;
-        public ParsedObject[] ParsResult
+        private static string[] GetTextOfJSOONObjects(string simpleJSONText)
         {
-            get
-            {
-                return _ParsResults;
-            }
-        }
-        private string _SourсeToParse;
-        //побитый на объекты JSON
-        private string [] _ObjectsToParse;
-        private int _CountOfObectsToParse;      
-        //Разобъём весь JSON на отдельные объекты 
-        public void getObjects()
-        {
-            var source = _SourсeToParse;
+            string[] textOfJSONObjects = new string[0];
             var counter = 0;
-            var character = ' ';
-            var objectStartPositon = 0;
-            var objectEndPosition = 0;
-            while (counter <= source.Length - 1)
+            var objectStartPositonInText = 0;
+            var objectEndPositionInText = 0;
+            var objectNumber = 0;
+            while (counter < simpleJSONText.Length )
             {
-                character = source[counter];
-                //начало объекта - символ {
-                if (character == '{')
+                if (simpleJSONText[counter] == '{')
                 {
-                    objectStartPositon = counter;
-                    for (var i = counter; i < source.Length - 1; i++)
-                    {
-                        //если встречаем ковычки - ищём где они закрываются и пропускаем этот отрезок
-                        character = source[i];
-                        if (character == '"')
-                        {
-                            counter = ++i;
-                            for (var j = counter; j < source.Length - 1; j++)
-                            {
-                                character = source[j];
-                                if (character == '"')
-                                {
-                                    counter = j;
-                                    counter++;
-                                    i = counter;
-                                    break;
-                                }
-                                else
-                                {
-                                    counter++;
-                                }
-                            }
-                        }
-                        // как только находим } не в ковычках - выделили объект
-                        // выпиливаем его из общего текста и кидаем в массив 
-                        if (character == '}')
-                        {
-                            objectEndPosition = i;
-                            _CountOfObectsToParse++;
-                            counter = i;
-                            counter++;
-                            Array.Resize(ref _ObjectsToParse, _ObjectsToParse.Length + 1);
-                            _ObjectsToParse[_CountOfObectsToParse - 1] = source.Substring(objectStartPositon, objectEndPosition - objectStartPositon + 1);
-                            break;
-                        }
-                    }
+                    objectStartPositonInText = counter;
+                    objectEndPositionInText = GetObjectEndPositionInText(simpleJSONText, counter);
+                    Array.Resize(ref textOfJSONObjects, objectNumber + 1);
+                    textOfJSONObjects[objectNumber] = simpleJSONText.Substring(objectStartPositonInText, objectEndPositionInText - objectStartPositonInText + 1);
+                    objectNumber++;
+                    counter = objectEndPositionInText;
                 }
                 else
                 {
                     counter++;
                 }
             }
+            return textOfJSONObjects;
         }
-        // распарсим каждый объектна отдельые строки в которых есть нужные нам данные
-        public void parseObjectstoStrings()
+        private static int GetObjectEndPositionInText(string simpleJSONText, int counter)
         {
-            // на этом этапе уже будем записывать сроки в готовые объекты
-            
-            for (int k = 0; k < _ObjectsToParse.Length; k++)
+            int endObjectPosition = 0;
+            for (var i = counter; i < simpleJSONText.Length; i++)
             {
-                string[] result = new string[0];
-                var countOfString= 0;
-                var counter = 0;
-                var stringStartPosition = 0;
-                var stringEndPosition = 0;
-                string temp = _ObjectsToParse[k];
-                while (counter < temp.Length)
+                if (simpleJSONText[i] == '"')
                 {
-                    //находим начало строки и ждём конец строки если он не в ковычках
-                    if ((temp[counter] == '\r' && temp[counter + 1] == '\n')|| (temp[counter] == '\n') || (temp[counter] == '\r'))
+                    counter = GetPositionOfClosingComma(simpleJSONText, ++i);
+                }
+                if (simpleJSONText[i] == '}')
+                {
+                    endObjectPosition = i;
+                    break;
+                }
+            }
+            return endObjectPosition - 1;
+        }
+        private static int GetPositionOfClosingComma(string simpleJSONText, int counter)
+        {
+            int positionOfClosingComma = 0;
+            for (var i = counter; i < simpleJSONText.Length; i++)
+            {
+                if (simpleJSONText[i] == '"')
+                {
+                    counter = i;
+                    counter++;
+                    positionOfClosingComma = counter;
+                    break;
+                }
+                else
+                {
+                    counter++;
+                }
+            }
+            return positionOfClosingComma;
+        }
+        private static int GetEndOfStringInJSOObject(string simpleJSONText, int counter)
+        {
+            int endStringPosition = 0;
+            for (int i = ++counter; i < simpleJSONText.Length - 1; i++)
+            {
+                if ((simpleJSONText[counter] == '\r' && simpleJSONText[counter + 1] == '\n') || (simpleJSONText[counter] == '\r' && simpleJSONText[counter + 1] != '\n') || (simpleJSONText[counter] == '\n' && simpleJSONText[counter - 1] != '\r'))
+                {
+                    endStringPosition = counter;
+                    break;
+                }
+                if (simpleJSONText[counter] == '"')
+                {
+                    counter = GetPositionOfClosingComma(simpleJSONText, ++counter);
+                }
+                else
+                {
+                    counter++;
+                }
+            }
+            return endStringPosition;
+        }
+        private static ParsedJSONObject[] ParseObjectstoStrings(string[] textOfJSONObjects)
+        {
+            ParsedJSONObject[] ParsedJSONObjects = new ParsedJSONObject[textOfJSONObjects.Length];
+            for (int i = 0; i < textOfJSONObjects.Length; i++)
+            {
+                string[] JSONObjectString = new string[0];
+                var countOfStringInJSONObject = 0;
+                var counter = 0;
+                var startStringPosition = 0;
+                var endStringPosition = 0;
+                string textOfJSONObject = textOfJSONObjects[i];
+                while (counter < textOfJSONObjects[i].Length)
+                {
+                    if ((textOfJSONObject[counter] == '\r' && textOfJSONObject[counter + 1] == '\n') || (textOfJSONObject[counter] == '\r' && textOfJSONObject[counter + 1] != '\n') || (textOfJSONObject[counter] == '\n' && textOfJSONObject[counter - 1] != '\r'))
                     {
-                        stringStartPosition = counter;
-                        for (int i = ++counter; i < temp.Length - 1; i++)
+                        startStringPosition = counter;
+                        endStringPosition = GetEndOfStringInJSOObject(textOfJSONObject, counter + 1);
+                        if (endStringPosition != 0)
                         {
-                            // если ковычки - пропускаем этот текст
-                            if (temp[i] == '"')
-                            {
-                                counter = ++i;
-                                for (int j = counter; j < temp.Length - 1; j++)
-                                {
-                                    if (temp[j] == '"')
-                                    {
-                                        counter = j;
-                                        i = counter;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        counter++;
-                                    }
-                                }
-                            }
-                            // находим конец строки и выпиливаем строку
-                            if ((temp[counter] == '\r' && temp[counter + 1] == '\n')|| (temp[counter] == '\r' && temp[counter - 1] != '\n') || (temp[counter] == '\n' && temp[counter - 1] != '\r'))
-                            {
-                                stringEndPosition = i;
-                                counter = i;
-                                counter = counter - 2;
-                                Array.Resize(ref result, result.Length + 1);
-                                // так как в последней строке нет запятой пеенастраиваем выпиливание
-                                if (temp[counter - 1] == ',')
-                                {
-                                    result[countOfString] = temp.Substring(stringStartPosition, stringEndPosition - stringStartPosition - 1);
-                                }
-                                result[countOfString] = temp.Substring(stringStartPosition, stringEndPosition - stringStartPosition);
-                                countOfString++;
-                                break;
-                            }
-                            else
-                            {
-                                counter++;
-                            }
+                            Array.Resize(ref JSONObjectString, JSONObjectString.Length + 1);                                                  
+                            JSONObjectString[countOfStringInJSONObject] = textOfJSONObject.Substring(startStringPosition, endStringPosition - startStringPosition).Trim(',','\n','\r', Convert.ToChar(" "));
+                            countOfStringInJSONObject++;
+                            counter = endStringPosition;
                         }
-
+                        if (endStringPosition == 0)
+                        {
+                            counter++;
+                        }                    
                     }
                     else
                     {
                         counter++;
                     }
                 }
-                // приходится делать так, потому что какой то Швайн запретил использовать List
-                Array.Resize(ref _ParsResults, _ParsResults.Length + 1);
-                _ParsResults[k] = new ParsedObject(result.Length);
-                _ParsResults[k].StringsToParse = result;               
-            }          
+                ParsedJSONObjects[i] = new ParsedJSONObject(JSONObjectString.Length);
+                ParsedJSONObjects[i].StringsToParse = JSONObjectString;             
+            }
+            return ParsedJSONObjects;
         }
-        // ну и наконей парсим строки и получаем FirstName и LastName
-        public void parseStringsOfObject()
+        private static void ParseStringsOfEachJSONObject(ParsedJSONObject [] JSONObjects)
         {           
-            for (var i = 0; i < _ParsResults.Length; i++)
+            for (var i = 0; i < JSONObjects.Length; i++)
             {
-                string[] stringsOfObject = new string[_ParsResults[i].StringsToParse.Length];
-                stringsOfObject = _ParsResults[i].StringsToParse;
+                string[] stringsOfObject = JSONObjects[i].StringsToParse;
                 for (var j = 0; j < stringsOfObject.Length; j++)
                 {
-                    var a = stringsOfObject[j].IndexOf(':');
-                    var type = stringsOfObject[j].Substring(0, a);
-                    var body = stringsOfObject[j].Substring(a + 1);
-                    var trimStarIndex = type.IndexOf('"');
-                    var trimEndIndex = type.LastIndexOf('"');              
-                    if (trimStarIndex != -1)
+                    var spliter = stringsOfObject[j].IndexOf(':');
+                    if (spliter!=-1)
                     {
-                         type = type.Substring(trimStarIndex + 1, trimEndIndex - trimStarIndex - 1);
+                        var type = stringsOfObject[j].Substring(0, spliter).Trim('"');
+                        var body = stringsOfObject[j].Substring(spliter + 2).Trim('"');
+                        if (type == "FirstName")
+                        {
+                            JSONObjects[i].FirstName = body;
+                        }
+                        if (type == "LastName")
+                        {
+                            JSONObjects[i].LastName = body;
+                        }
                     }
-                    else
+                    if (spliter == -1)
                     {
-                        type = "Неразспознано";
-                    }
-                    trimStarIndex = body.IndexOf('"');
-                    trimEndIndex = body.LastIndexOf('"');                   
-                    if (trimStarIndex != -1)
-                    {
-                        body = body.Substring(trimStarIndex + 1, trimEndIndex - trimStarIndex - 1);
-                    }
-                    else
-                    {
-                        body = "Неразспознано";
-                    }
-                    if (type == "FirstName")
-                    {
-                        _ParsResults[i].FirstName = body;
-                    }
-                    if (type == "LastName")
-                    {
-                        _ParsResults[i].LastName = body;
+                        JSONObjects[i].FirstName = "FirstName";
+                        JSONObjects[i].LastName = "LastName";
                     }
                 }
             }
         }
     }
-    // представим выводимые данные в виде объекта
-    class ParsedObject
+    class ParsedJSONObject
     {
-        private string _FirstName;
-        private string _LastName;
-        private string [] _StringToParse;
-        public ParsedObject(int countStrings)
+        string _FirstName;
+        string _LastName;
+        string [] _StringsToParse;
+        public ParsedJSONObject(int countStrings)
         {
-          _FirstName = "";
-          _LastName = "";
-          _StringToParse = new string[countStrings];
-        }
-        public string [] StringsToParse
-        {
-            get
-            {
-                return _StringToParse;
-            }
-            set
-            {
-                _StringToParse = value;
-            }
+            _FirstName = "";
+            _LastName = "";
+            _StringsToParse = new string[countStrings];
         }
         public string FirstName
         {
-            get
-            {
-                return _FirstName;
-            }
-            set
-            {
-                _FirstName = value;
-            }
+            get => _FirstName;
+            set => _FirstName = value;
         }
         public string LastName
         {
-            get
-            {
-                return _LastName;
-            }
-            set
-            {
-                _LastName = value;
-            }
+            get => _LastName;
+            set => _LastName = value;
+        }
+        public string [] StringsToParse
+        {
+            get => _StringsToParse;
+            set => _StringsToParse = value;
         }
     }   
 }
