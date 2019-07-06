@@ -1,9 +1,10 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 
 namespace Parser
 {
-    public static class StringExtension
+    public static class StringExtensionToSimpleJSONParsing
     {
         public static void ParseSimpleJSON(this String str)
         {
@@ -14,40 +15,40 @@ namespace Parser
     {
         static void Main(string[] args)
         {
-           OutpuAndInputData.GetTextOfSimpleJSON().ParseSimpleJSON();          
+            OutpuAndInputDataLoader.GetTextOfSimpleJSON().ParseSimpleJSON();
         }
-    }
-    static class OutpuAndInputData
-    {
+    }   
+    static class OutpuAndInputDataLoader
+    {        
         public static string GetTextOfSimpleJSON()
         {
-            StreamReader FileReader = new StreamReader(AppDomain.CurrentDomain.BaseDirectory + "data.txt" );
-            return FileReader.ReadToEnd();          
-        }
-        public static void ShowResult(ParsedJSONObject[] parsedObject)
+            StreamReader FileReader = new StreamReader(AppDomain.CurrentDomain.BaseDirectory + "data.txt");
+            return FileReader.ReadToEnd();
+        }        
+        public static void ShowResult(ParsedJSONObject[] parsedObjects)
         {
             var rowCounter = 0;
             var columnShift = 5;
             var FirstNameMaxLength = "FirstName".Length;
             var LastNameMaxLength = "LastName".Length;
-            for (var i = 0; i < parsedObject.Length; i++)
+            for (var i = 0; i < parsedObjects.Length; i++)
             {
-                var FirstNameLength = parsedObject[i].FirstName.Length;
+                var FirstNameLength = parsedObjects[i].FirstName.Length;
                 if (FirstNameLength > FirstNameMaxLength)
                 {
                     FirstNameMaxLength = FirstNameLength;
                 }
-                var LastNameLength = parsedObject[i].LastName.Length;
+                var LastNameLength = parsedObjects[i].LastName.Length;
                 if (LastNameLength > LastNameMaxLength)
                 {
                     {
                         LastNameMaxLength = LastNameLength;
                     }
                 }
-            }           
-            Console.SetCursorPosition(0,rowCounter);
+            }
+            Console.SetCursorPosition(0, rowCounter);
             Console.Write("FirstName");
-            Console.SetCursorPosition(FirstNameMaxLength + columnShift,rowCounter);
+            Console.SetCursorPosition(FirstNameMaxLength + columnShift, rowCounter);
             Console.Write("LastName");
             rowCounter++;
             Console.SetCursorPosition(0, rowCounter);
@@ -57,13 +58,12 @@ namespace Parser
             }
             rowCounter++;
             Console.SetCursorPosition(0, rowCounter); ;
-            for (var i = 0; i < parsedObject.Length; i++)
+            for (var i = 0; i < parsedObjects.Length; i++)
             {
-               
                 Console.SetCursorPosition(0, rowCounter);
-                Console.Write(parsedObject[i].FirstName);
+                Console.Write(parsedObjects[i].FirstName);
                 Console.SetCursorPosition(FirstNameMaxLength + columnShift, rowCounter);
-                Console.Write(parsedObject[i].LastName);
+                Console.Write(parsedObjects[i].LastName);
                 rowCounter++;
             }
             Console.ReadLine();
@@ -73,10 +73,9 @@ namespace Parser
     {
         public static void ParseSimpleJSON(string simpleJSONFileText)
         {
-            string[] TextOfJSONObjects= GetTextOfJSOONObjects(simpleJSONFileText);
-            ParsedJSONObject[] SimpleJSONObjects = ParseObjectstoStrings(TextOfJSONObjects);
-            ParseStringsOfEachJSONObject(SimpleJSONObjects);
-            OutpuAndInputData.ShowResult(SimpleJSONObjects);
+            string[] TextOfJSONObjects = GetTextOfJSOONObjects(simpleJSONFileText);
+            ParsedJSONObject[] SimpleJSONObjects = ParseTextOfJSONObjects(TextOfJSONObjects);
+            OutpuAndInputDataLoader.ShowResult(SimpleJSONObjects);
         }
         private static string[] GetTextOfJSOONObjects(string simpleJSONText)
         {
@@ -85,7 +84,7 @@ namespace Parser
             var objectStartPositonInText = 0;
             var objectEndPositionInText = 0;
             var objectNumber = 0;
-            while (counter < simpleJSONText.Length )
+            while (counter < simpleJSONText.Length)
             {
                 if (simpleJSONText[counter] == '{')
                 {
@@ -160,12 +159,12 @@ namespace Parser
             }
             return endStringPosition;
         }
-        private static ParsedJSONObject[] ParseObjectstoStrings(string[] textOfJSONObjects)
+        private static ParsedJSONObject[] ParseTextOfJSONObjects(string[] textOfJSONObjects)
         {
-            ParsedJSONObject[] ParsedJSONObjects = new ParsedJSONObject[textOfJSONObjects.Length];
+            ParsedJSONObject[] JSONObjects = new ParsedJSONObject[textOfJSONObjects.Length];
             for (int i = 0; i < textOfJSONObjects.Length; i++)
             {
-                string[] JSONObjectString = new string[0];
+                string[] TextStringsOfJSONObject = new string[0];
                 var countOfStringInJSONObject = 0;
                 var counter = 0;
                 var startStringPosition = 0;
@@ -179,52 +178,48 @@ namespace Parser
                         endStringPosition = GetEndOfStringInJSOObject(textOfJSONObject, counter + 1);
                         if (endStringPosition != 0)
                         {
-                            Array.Resize(ref JSONObjectString, JSONObjectString.Length + 1);                                                  
-                            JSONObjectString[countOfStringInJSONObject] = textOfJSONObject.Substring(startStringPosition, endStringPosition - startStringPosition).Trim(',','\n','\r', Convert.ToChar(" "));
+                            Array.Resize(ref TextStringsOfJSONObject, TextStringsOfJSONObject.Length + 1);
+                            TextStringsOfJSONObject[countOfStringInJSONObject] = textOfJSONObject.Substring(startStringPosition, endStringPosition - startStringPosition).Trim(',', '\n', '\r', Convert.ToChar(" "));
                             countOfStringInJSONObject++;
                             counter = endStringPosition;
                         }
                         if (endStringPosition == 0)
                         {
                             counter++;
-                        }                    
+                        }
                     }
                     else
                     {
                         counter++;
                     }
                 }
-                ParsedJSONObjects[i] = new ParsedJSONObject(JSONObjectString.Length);
-                ParsedJSONObjects[i].StringsToParse = JSONObjectString;             
+                JSONObjects[i] = new ParsedJSONObject();
+                ParseStringsOfThisJSONObject(TextStringsOfJSONObject, i, JSONObjects);
             }
-            return ParsedJSONObjects;
+            return JSONObjects;
         }
-        private static void ParseStringsOfEachJSONObject(ParsedJSONObject [] JSONObjects)
-        {           
-            for (var i = 0; i < JSONObjects.Length; i++)
+        private static void ParseStringsOfThisJSONObject(string[] stringsOfObject, int number, ParsedJSONObject[] JSONObjects)
+        {
+            for (var j = 0; j < stringsOfObject.Length; j++)
             {
-                string[] stringsOfObject = JSONObjects[i].StringsToParse;
-                for (var j = 0; j < stringsOfObject.Length; j++)
+                var spliter = stringsOfObject[j].IndexOf(':');
+                if (spliter != -1)
                 {
-                    var spliter = stringsOfObject[j].IndexOf(':');
-                    if (spliter!=-1)
+                    var type = stringsOfObject[j].Substring(0, spliter).Trim('"');
+                    var body = stringsOfObject[j].Substring(spliter + 2).Trim('"');
+                    if (type == "FirstName")
                     {
-                        var type = stringsOfObject[j].Substring(0, spliter).Trim('"');
-                        var body = stringsOfObject[j].Substring(spliter + 2).Trim('"');
-                        if (type == "FirstName")
-                        {
-                            JSONObjects[i].FirstName = body;
-                        }
-                        if (type == "LastName")
-                        {
-                            JSONObjects[i].LastName = body;
-                        }
+                        JSONObjects[number].FirstName = body;
                     }
-                    if (spliter == -1)
+                    if (type == "LastName")
                     {
-                        JSONObjects[i].FirstName = "FirstName";
-                        JSONObjects[i].LastName = "LastName";
+                        JSONObjects[number].LastName = body;
                     }
+                }
+                if (spliter == -1)
+                {
+                    JSONObjects[number].FirstName = "FirstName";
+                    JSONObjects[number].LastName = "LastName";
                 }
             }
         }
@@ -233,13 +228,6 @@ namespace Parser
     {
         string _FirstName;
         string _LastName;
-        string [] _StringsToParse;
-        public ParsedJSONObject(int countStrings)
-        {
-            _FirstName = "";
-            _LastName = "";
-            _StringsToParse = new string[countStrings];
-        }
         public string FirstName
         {
             get => _FirstName;
@@ -250,10 +238,5 @@ namespace Parser
             get => _LastName;
             set => _LastName = value;
         }
-        public string [] StringsToParse
-        {
-            get => _StringsToParse;
-            set => _StringsToParse = value;
-        }
-    }   
+    }
 }
