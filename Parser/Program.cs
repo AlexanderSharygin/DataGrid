@@ -4,8 +4,10 @@ using System.Linq;
 
 namespace Parser
 {
+    // excessive api
     public static class StringExtensionToSimpleJSONParsing
     {
+        // named badly (nb). this method sounds like it returns something. this applies to the method below, too.
         public static void ParseSimpleJSON(this String str)
         {
             SimpleJSONParser.ParseSimpleJSON(str);
@@ -18,19 +20,24 @@ namespace Parser
             OutpuAndInputDataLoader.GetTextOfSimpleJSON().ParseSimpleJSON();
         }
     }   
+    // named badly (nb). there is no clear understanding of what task this class solves.
     static class OutpuAndInputDataLoader
-    {        
-        public static string GetTextOfSimpleJSON()
+    {
+        // nb. the method takes responsibility for something it is not aware of (the json format).
+        public static string GetTextOfSimpleJSON() 
         {
             StreamReader FileReader = new StreamReader(AppDomain.CurrentDomain.BaseDirectory + "data.txt");
             return FileReader.ReadToEnd();
-        }        
+        }
+        // nb. this name doesn't reflect what method actually does.
         public static void ShowResult(ParsedJSONObject[] parsedObjects)
         {
             var rowCounter = 0;
-            var columnShift = 5;
+            var columnShift = 5; // what does this constant mean?
+            // inconsistently named variables. use code style tools to avoid mistakes.
             var FirstNameMaxLength = "FirstName".Length;
             var LastNameMaxLength = "LastName".Length;
+            // refactoring needed. this is a common task that performs some operation over list items.
             for (var i = 0; i < parsedObjects.Length; i++)
             {
                 var FirstNameLength = parsedObjects[i].FirstName.Length;
@@ -46,6 +53,7 @@ namespace Parser
                     }
                 }
             }
+            //
             Console.SetCursorPosition(0, rowCounter);
             Console.Write("FirstName");
             Console.SetCursorPosition(FirstNameMaxLength + columnShift, rowCounter);
@@ -69,14 +77,17 @@ namespace Parser
             Console.ReadLine();
         }
     }
+    // nb.
     static class SimpleJSONParser
     {
+        // nb.
         public static void ParseSimpleJSON(string simpleJSONFileText)
         {
             string[] TextOfJSONObjects = GetTextOfJSOONObjects(simpleJSONFileText);
             ParsedJSONObject[] SimpleJSONObjects = ParseTextOfJSONObjects(TextOfJSONObjects);
             OutpuAndInputDataLoader.ShowResult(SimpleJSONObjects);
         }
+        // nb.
         private static string[] GetTextOfJSOONObjects(string simpleJSONText)
         {
             string[] textOfJSONObjects = new string[0];
@@ -90,9 +101,11 @@ namespace Parser
                 {
                     objectStartPositonInText = counter;
                     objectEndPositionInText = GetObjectEndPositionInText(simpleJSONText, counter);
+                    // refactoring needed.
                     Array.Resize(ref textOfJSONObjects, objectNumber + 1);
                     textOfJSONObjects[objectNumber] = simpleJSONText.Substring(objectStartPositonInText, objectEndPositionInText - objectStartPositonInText + 1);
                     objectNumber++;
+                    //
                     counter = objectEndPositionInText;
                 }
                 else
@@ -102,6 +115,7 @@ namespace Parser
             }
             return textOfJSONObjects;
         }
+        // nb. 'counter' should be more specific, whereas the former less. 
         private static int GetObjectEndPositionInText(string simpleJSONText, int counter)
         {
             int endObjectPosition = 0;
@@ -143,7 +157,9 @@ namespace Parser
             int endStringPosition = 0;
             for (int i = ++counter; i < simpleJSONText.Length - 1; i++)
             {
-                if ((simpleJSONText[counter] == '\r' && simpleJSONText[counter + 1] == '\n') || (simpleJSONText[counter] == '\r' && simpleJSONText[counter + 1] != '\n') || (simpleJSONText[counter] == '\n' && simpleJSONText[counter - 1] != '\r'))
+                if ((simpleJSONText[counter] == '\r' && simpleJSONText[counter + 1] == '\n') 
+                    || (simpleJSONText[counter] == '\r' && simpleJSONText[counter + 1] != '\n') 
+                    || (simpleJSONText[counter] == '\n' && simpleJSONText[counter - 1] != '\r'))
                 {
                     endStringPosition = counter;
                     break;
@@ -224,6 +240,7 @@ namespace Parser
             }
         }
     }
+    // declaration may be shorter.
     class ParsedJSONObject
     {
         string _FirstName;
