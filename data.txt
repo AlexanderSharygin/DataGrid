@@ -1,7 +1,7 @@
 ﻿[{
     "ID": 1,
-    "FirstName": "John",
-    "LastName": "Heart",
+    "FirstName":"John",
+	"LastName":"Heart",
     "Prefix": "Mr.",
     "Position": "CEO",
     "BirthDate": "1964/03/16",
@@ -99,8 +99,7 @@
     "StateID": 26
 }, {
     "ID": 10,
-    "FirstName": "Taylor",
-    "LastName": "Riley",
+    "FirstName": "Taylor","LastName": "Riley",
     "Prefix": "Mr.",
     "Position": "Network Admin",
     "BirthDate": "1982/08/14",
@@ -129,7 +128,7 @@
     "HireDate": "2012/10/13",
     "Notes": "Kelly loves people and that's why she joined DevAV's support department. One of the funniest people in the company, she does stand-up on the weekends at the Laugh Factory.",
     "Address": "1601 W Mountain St.",
-    "StateID": 5
+    "StateID": 5,
 }, {
     "ID": 13,
     "FirstName": "Natalie",
