@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using Parser.Extensions;
 
 namespace Parser
 {
@@ -30,11 +31,21 @@ namespace Parser
             return FileReader.ReadToEnd();
         }
         // nb. this name doesn't reflect what method actually does.
+        static int selectorFirstName(ParsedJSONObject item) 
+            { return item.FirstName.Length; }
+        static int selectorLastName(ParsedJSONObject item) { return item.LastName.Length; }
         public static void ShowResult(ParsedJSONObject[] parsedObjects)
         {
             var rowCounter = 0;
             var columnShift = 5; // what does this constant mean?
-            // inconsistently named variables. use code style tools to avoid mistakes.
+                                 // inconsistently named variables. use code style tools to avoid mistakes.
+           int a = MyLinq.MaxValue(parsedObjects, selectorFirstName);
+           int b = parsedObjects.MaxValue(selectorFirstName);
+            int c = parsedObjects.MaxValue(n => n.FirstName.Length);
+            int d = parsedObjects.MaxValue(n => {
+                int f = n.FirstName.Length;
+                return f;
+            });
             var FirstNameMaxLength = "FirstName".Length;
             var LastNameMaxLength = "LastName".Length;
             // refactoring needed. this is a common task that performs some operation over list items.
@@ -195,7 +206,7 @@ namespace Parser
                         if (endStringPosition != 0)
                         {
                             Array.Resize(ref TextStringsOfJSONObject, TextStringsOfJSONObject.Length + 1);
-                            TextStringsOfJSONObject[countOfStringInJSONObject] = textOfJSONObject.Substring(startStringPosition, endStringPosition - startStringPosition).Trim(',', '\n', '\r', Convert.ToChar(" "));
+                            TextStringsOfJSONObject[countOfStringInJSONObject] = textOfJSONObject.Substring(startStringPosition, endStringPosition - startStringPosition).Trim(',', '\n', '\r', ' ');
                             countOfStringInJSONObject++;
                             counter = endStringPosition;
                         }
