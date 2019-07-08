@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using Parser.Extensions;
 
 namespace Parser
 {
@@ -18,22 +20,32 @@ namespace Parser
         {
             OutpuAndInputDataLoader.GetTextOfSimpleJSON().ParseSimpleJSON();
         }
-    }   
+    }
     // named badly (nb). there is no clear understanding of what task this class solves.
     static class OutpuAndInputDataLoader
     {
         // nb. the method takes responsibility for something it is not aware of (the json format).
-        public static string GetTextOfSimpleJSON() 
+        public static string GetTextOfSimpleJSON()
         {
             StreamReader FileReader = new StreamReader(AppDomain.CurrentDomain.BaseDirectory + "data.txt");
             return FileReader.ReadToEnd();
         }
         // nb. this name doesn't reflect what method actually does.
+        static int selectorFirstName(ParsedJSONObject item)
+            { return item.FirstName.Length; }
+        static int selectorLastName(ParsedJSONObject item) { return item.LastName.Length; }
         public static void ShowResult(ParsedJSONObject[] parsedObjects)
         {
             var rowCounter = 0;
             var columnShift = 5; // what does this constant mean?
-            // inconsistently named variables. use code style tools to avoid mistakes.
+                                 // inconsistently named variables. use code style tools to avoid mistakes.
+           int a = MyLinq.MaxValue(parsedObjects, selectorFirstName);
+           int b = parsedObjects.MaxValue(selectorFirstName);
+            int c = parsedObjects.MaxValue(n => n.FirstName.Length);
+            int d = parsedObjects.MaxValue(n => {
+                int f = n.FirstName.Length;
+                return f;
+            });
             var FirstNameMaxLength = "FirstName".Length;
             var LastNameMaxLength = "LastName".Length;
             // refactoring needed. this is a common task that performs some operation over list items.
@@ -114,7 +126,7 @@ namespace Parser
             }
             return textOfJSONObjects;
         }
-        // nb. 'counter' should be more specific, whereas the former less. 
+        // nb. 'counter' should be more specific, whereas the former less.
         private static int GetObjectEndPositionInText(string simpleJSONText, int counter)
         {
             int endObjectPosition = 0;
@@ -156,8 +168,8 @@ namespace Parser
             int endStringPosition = 0;
             for (int i = ++counter; i < simpleJSONText.Length - 1; i++)
             {
-                if ((simpleJSONText[counter] == '\r' && simpleJSONText[counter + 1] == '\n') 
-                    || (simpleJSONText[counter] == '\r' && simpleJSONText[counter + 1] != '\n') 
+                if ((simpleJSONText[counter] == '\r' && simpleJSONText[counter + 1] == '\n')
+                    || (simpleJSONText[counter] == '\r' && simpleJSONText[counter + 1] != '\n')
                     || (simpleJSONText[counter] == '\n' && simpleJSONText[counter - 1] != '\r'))
                 {
                     endStringPosition = counter;
@@ -194,7 +206,7 @@ namespace Parser
                         if (endStringPosition != 0)
                         {
                             Array.Resize(ref TextStringsOfJSONObject, TextStringsOfJSONObject.Length + 1);
-                            TextStringsOfJSONObject[countOfStringInJSONObject] = textOfJSONObject.Substring(startStringPosition, endStringPosition - startStringPosition).Trim(',', '\n', '\r', Convert.ToChar(" "));
+                            TextStringsOfJSONObject[countOfStringInJSONObject] = textOfJSONObject.Substring(startStringPosition, endStringPosition - startStringPosition).Trim(',', '\n', '\r', ' ');
                             countOfStringInJSONObject++;
                             counter = endStringPosition;
                         }
