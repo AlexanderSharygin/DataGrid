@@ -1,26 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace Parser.Extensions {
-   public static class MyLinq {
-        public static int MaxValue<T>(this IEnumerable<T> items, MaxCalculation<T> selector) {
-            var current = int.MinValue;
+
+namespace Parser.Extensions
+{
+   public static class MyLinq
+    {
+        public static int MaxValue<T>(this IEnumerable<T> items, MaxValueCalculation<T> MaxCalculationContract)
+        {
+            var defaultValue = int.MinValue;
             foreach (var item in items)
             {
-                var a = selector(item);
-                if (a>current)
+                var itemValue = MaxCalculationContract(item);
+                if (itemValue>defaultValue)
                 {
-                    current = a;
+                    defaultValue = itemValue;
                 }
             }
-            return current;
-           
-            
+            return defaultValue;     
         }
     }
-    public delegate int MaxCalculation<TItem>(TItem item);
-        
+    public delegate int MaxValueCalculation<TItem>(TItem item);
 }
