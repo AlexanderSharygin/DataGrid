@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System;
 
 
 namespace Parser.Extensions
@@ -20,4 +21,6 @@ namespace Parser.Extensions
         }
     }
     public delegate int MaxValueCalculation<TItem>(TItem item);
+   
+    
 }

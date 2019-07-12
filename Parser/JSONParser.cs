@@ -1,30 +1,25 @@
 ﻿using System;
 using System.IO;
+using Parser.Extensions;
+using System.Collections.Generic;
 
 namespace Parser
 {
-    // nb.
-    //renamed
-    static class JSONParser
+   static class JSONParser
     {
-        // nb. the method takes responsibility for something it is not aware of (the json format).
-        //renamed
+       
         public static string GetTextToParse(string pathToText)
         {
             StreamReader FileReader = new StreamReader(pathToText);
-            return FileReader.ReadToEnd();
+            return FileReader.ReadToEnd();                 
         }
-        // nb.
-        //renamed
-        public static void ParseSimpleJSON(string inputText)
+       public static void ParseSimpleJSON(string inputText)
         {
             string[] JSONObjectsText = GetJSOONObjectsText(inputText);
             JSONObject[] JSONObjects = ParseJSONObjectsText(JSONObjectsText);
             ConsolePrinter Printer = new ConsolePrinter();
             Printer.PrintJSONOnConsole(JSONObjects);
         }
-        // nb.
-        //renamed
         private static string[] GetJSOONObjectsText(string inputText)
         {
             string[] JSONObjectsText = new string[0];
@@ -38,11 +33,8 @@ namespace Parser
                 {
                     objectStartPositonInText = counter;
                     objectEndPositionInText = GetObjectEndPositionInText(inputText, counter);
-                    // refactoring needed.
-                    Array.Resize(ref JSONObjectsText, objectNumber + 1);
-                    JSONObjectsText[objectNumber] = inputText.Substring(objectStartPositonInText, objectEndPositionInText - objectStartPositonInText + 1);
+                    JSONObjectsText = JSONObjectsText.Add(inputText.Substring(objectStartPositonInText, objectEndPositionInText - objectStartPositonInText + 1));
                     objectNumber++;
-                    //
                     counter = objectEndPositionInText;
                 }
                 else
@@ -52,9 +44,7 @@ namespace Parser
             }
             return JSONObjectsText;
         }
-        // nb. 'counter' should be more specific, whereas the former less.
-        //renamed
-        private static int GetObjectEndPositionInText(string simpleJSONText, int objectStartPosition)
+       private static int GetObjectEndPositionInText(string simpleJSONText, int objectStartPosition)
         {
             int objectEndPosition = 0;
             for (var i = objectStartPosition; i < simpleJSONText.Length; i++)
@@ -122,8 +112,7 @@ namespace Parser
                         endStringPosition = GetEndStringInJSOObject(JSONObjectText, counter + 1);
                         if (endStringPosition != 0)
                         {
-                            Array.Resize(ref JSONObjectStrings, JSONObjectStrings.Length + 1);
-                            JSONObjectStrings[countOfStringInJSONObject] = JSONObjectText.Substring(startStringPosition, endStringPosition - startStringPosition).Trim(',', '\n', '\r', ' ');
+                            JSONObjectStrings = JSONObjectStrings.Add(JSONObjectText.Substring(startStringPosition, endStringPosition - startStringPosition).Trim(',', '\n', '\r', ' '));
                             countOfStringInJSONObject++;
                             counter = endStringPosition;
                         }

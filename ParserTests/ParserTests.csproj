@@ -57,6 +57,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="MyLinqTests.cs" />
+    <Compile Include="MyListTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

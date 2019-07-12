@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MyList.cs" />
     <Compile Include="Printer %28base%29.cs" />
     <Compile Include="JSONObject.cs" />
     <Compile Include="JSONParser.cs" />
