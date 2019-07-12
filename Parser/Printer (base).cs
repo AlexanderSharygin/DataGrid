@@ -9,6 +9,7 @@ namespace Parser
 {
     class Printer
     {
+        // let's call it simpler: GetLastNameLength
        static int SelectorLastNameProperty(JSONObject item)
         {
             return item.LastName.Length;
