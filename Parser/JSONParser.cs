@@ -5,19 +5,44 @@ using System.Collections.Generic;
 
 namespace Parser
 {
+<<<<<<< HEAD
    
    static class JSONParser
     {
       
        public static JSONObject[] ParseSimpleJSON(string inputText)
+=======
+    // it's a good class. let's code a good API for it.
+   static class JSONParser
+    {
+        // I assume that it shouldn't be public. In any case, it has to be removed, as .NET already provides a similar method. 
+        // google: read text in c#
+        public static string GetTextToParse(string pathToText)
+>>>>>>> 9b98c4c4e4ad784d4e6be9c1510165baac25edf8
         {
             OwnList<string> JSONObjectsText = GetObjectsText(inputText);
             return ParseObjectsText(JSONObjectsText);
            
         }
+<<<<<<< HEAD
         private static OwnList<string> GetObjectsText(string inputText)
         {
             OwnList<string> JSONObjectsText = new OwnList<string>();
+=======
+       // Should it be here? If so, should it print something?
+       public static void ParseSimpleJSON(string inputText)
+        {
+            string[] JSONObjectsText = GetJSOONObjectsText(inputText);
+            JSONObject[] JSONObjects = ParseJSONObjectsText(JSONObjectsText);
+            ConsolePrinter Printer = new ConsolePrinter();
+            Printer.PrintJSONOnConsole(JSONObjects);
+        }
+        // Stop repeating 'JSON' in every method since we are within the 'JSON' parser now. 
+        // You likely won't lose anything if name it 'GetObjectsText', or more correct, 'GetObjectStrings' (not sure if 'Texts' possible)
+        private static string[] GetJSOONObjectsText(string inputText)
+        {
+            string[] JSONObjectsText = new string[0];
+>>>>>>> 9b98c4c4e4ad784d4e6be9c1510165baac25edf8
             var counter = 0;
             var objectNumber = 0;
             while (counter < inputText.Length)
