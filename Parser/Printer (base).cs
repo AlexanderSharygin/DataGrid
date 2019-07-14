@@ -9,24 +9,22 @@ namespace Parser
 {
     class Printer
     {
-        // let's call it simpler: GetLastNameLength
-       static int SelectorLastNameProperty(JSONObject item)
+      
+       static int GetLastNameLength(JSONObject item)
         {
             return item.LastName.Length;
         }
-        // nb. this name doesn't reflect what method actually does.
-        // renamed
+       
         public void PrintJSONObjectsPropertiesOnConsole(JSONObject[] parsedObjects)
         {
             var rowCounter = 0;
-            var distanceBetweenColumns = 5; // what does this constant mean?
-                                            // inconsistently named variables. use code style tools to avoid mistakes.
+            var distanceBetweenColumns = 5; 
             #region comments                    
             // int FirstNameMaxLength = MyLinq.MaxValue(parsedObjects, SelectorFirstName);                                       
             // int FirstNameMaxLength = parsedObjects.MaxValue(n => { int f = n.FirstName.Length;    return f; });
             #endregion
             var ParsedObjectsFirstNameMaxLength = parsedObjects.MaxValue(n => n.FirstName.Length);
-            var ParsedObjectsLastNameMaxLength = parsedObjects.MaxValue(SelectorLastNameProperty);
+            var ParsedObjectsLastNameMaxLength = parsedObjects.MaxValue(GetLastNameLength);
             if (ParsedObjectsFirstNameMaxLength < "FirstName".Length)
             {
                 ParsedObjectsFirstNameMaxLength = "FirstName".Length;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace Parser
 {      
@@ -6,8 +7,10 @@ namespace Parser
     {
         static void Main(string[] args)
         {
-            var inputText = JSONParser.GetTextToParse(AppDomain.CurrentDomain.BaseDirectory + "data.txt");
-            JSONParser.ParseSimpleJSON(inputText);
+            var inputText = File.ReadAllText("data.txt");
+            JSONObject [] JSONObjects = JSONParser.ParseSimpleJSON(inputText);
+            ConsolePrinter Printer = new ConsolePrinter();
+            Printer.PrintJSONOnConsole(JSONObjects);
         }
     }
   

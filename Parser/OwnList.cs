@@ -65,9 +65,9 @@ namespace Parser.Extensions
             }
             return -1;
         }
-        public void AddFirst(TypeOfList x) => InsertByIndex(0, x);
+        public void AddFirst(TypeOfList item) => InsertByIndex(0, item);
         public void AddByIndex(int index, TypeOfList item) => InsertByIndex(index, item);
-        public void AddLast(TypeOfList x) => InsertByIndex(List.Length, x);
+        public void AddLast(TypeOfList item) => InsertByIndex(List.Length, item);
         public void Resize(int newSize) => ChangeListSize(newSize);
         public int Length => List.Length;
     }

@@ -5,37 +5,17 @@ using System.Collections.Generic;
 
 namespace Parser
 {
-    // it's a good class. let's code a good API for it.
+   
    static class JSONParser
     {
-        // I assume that it shouldn't be public. In any case, it has to be removed, as .NET already provides a similar method. 
-        // google: read text in c#
-        public static string GetTextToParse(string pathToText)
+      
+       public static JSONObject[] ParseSimpleJSON(string inputText)
         {
-            StreamReader FileReader = new StreamReader(pathToText);
-            return FileReader.ReadToEnd();                 
+            OwnList<string> JSONObjectsText = GetObjectsText(inputText);
+            return ParseObjectsText(JSONObjectsText);
+           
         }
-       // Should it be here? If so, should it print something?
-       public static void ParseSimpleJSON(string inputText)
-        {
-            OwnList<string> JSONObjectsText = GetJSOONObjectsText(inputText);
-            JSONObject[] JSONObjects = ParseJSONObjectsText(JSONObjectsText);
-            ConsolePrinter Printer = new ConsolePrinter();
-            Printer.PrintJSONOnConsole(JSONObjects);
-        }
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        private static OwnList<string> GetJSOONObjectsText(string inputText)
-=======
-=======
->>>>>>> 9b98c4c4e4ad784d4e6be9c1510165baac25edf8
-=======
->>>>>>> 9b98c4c4e4ad784d4e6be9c1510165baac25edf8
-        // Stop repeating 'JSON' in every method since we are within the 'JSON' parser now. 
-        // You likely won't lose anything if name it 'GetObjectsText', or more correct, 'GetObjectStrings' (not sure if 'Texts' possible)
-        private static string[] GetJSOONObjectsText(string inputText)
->>>>>>> 9b98c4c4e4ad784d4e6be9c1510165baac25edf8
+        private static OwnList<string> GetObjectsText(string inputText)
         {
             OwnList<string> JSONObjectsText = new OwnList<string>();
             var counter = 0;
@@ -91,7 +71,7 @@ namespace Parser
             }
             return closingCommaPosition+1;
         }
-        private static int GetEndStringInJSOObject(string JSONObjectText, int startStringPosition)
+        private static int GetEndStringInObject(string JSONObjectText, int startStringPosition)
         {
             int endStringPosition = startStringPosition;
             string temp = JSONObjectText.Substring(startStringPosition);
@@ -109,7 +89,7 @@ namespace Parser
             }
             return endStringPosition;
         }
-        private static JSONObject[] ParseJSONObjectsText(OwnList<string> JSONObjectsText)
+        private static JSONObject[] ParseObjectsText(OwnList<string> JSONObjectsText)
         {
             JSONObject[] JSONObjects = new JSONObject[JSONObjectsText.Length];
             for (int i = 0; i < JSONObjectsText.Length; i++)
@@ -125,7 +105,7 @@ namespace Parser
                     if (JSONObjectText[counter] == ',' || JSONObjectText[counter] == '{')
                     {
                         startStringPosition = counter;
-                        endStringPosition = GetEndStringInJSOObject(JSONObjectText, counter + 1);
+                        endStringPosition = GetEndStringInObject(JSONObjectText, counter + 1);
                         if (endStringPosition != 0)
                         {
                             JSONObjectStrings.AddLast(JSONObjectText.Substring(startStringPosition, endStringPosition - startStringPosition).Trim(',', '\n', '\r', ' '));
@@ -144,11 +124,11 @@ namespace Parser
                 }
                 JSONObjects[i] = new JSONObject();
                 var objectNumber = i;
-                ParseJSONObjectStrings(JSONObjectStrings, objectNumber, JSONObjects);
+                ParseObjectStrings(JSONObjectStrings, objectNumber, JSONObjects);
             }
             return JSONObjects;
         }
-        private static void ParseJSONObjectStrings(OwnList<string> objectStrings, int objectNumber, JSONObject[] JSONObjects)
+        private static void ParseObjectStrings(OwnList<string> objectStrings, int objectNumber, JSONObject[] JSONObjects)
         {
             bool firstNameParsed = false;
             bool lastNameParsed = false;
