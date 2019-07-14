@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Parser.Extensions
 {
-    class OwnList<TypeOfList>
+   class OwnList<TypeOfList>
     {
         private TypeOfList[] List;
         public OwnList()
