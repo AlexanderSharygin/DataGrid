@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="MyLinqTests.cs" />
     <Compile Include="MyListTests.cs" />
+    <Compile Include="NewListTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

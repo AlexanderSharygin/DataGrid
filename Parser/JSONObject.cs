@@ -1,7 +1,7 @@
 ﻿
 namespace Parser
 {
-    class JSONObject
+    public class JSONObject
     {
         public string FirstName
         { get; set; }
