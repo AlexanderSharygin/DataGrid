@@ -1,53 +1,195 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Collections;
+
 
 namespace Parser.Extensions
 {
-    public static class MyList
+    class MyEnumerator<T> : IEnumerator<T>
     {
-        // bad api. You claim that you are extending ICollection, but assume that the API will be used with arrays only.
-        // this code is for arrays, and its API should clearly state this. Besides, ICollection provides Add() out of the box see F12. 
-        // We shouldn't write code that contradicts with existing concepts even in the sandbox. 
+        
 
-        public static T[] Add<T>(this ICollection<T> items, T a)
+        private T[] EnumedMass;
+        int elementIndex;
+        public MyEnumerator(T[] items)
         {
-            T[] mass = new T[items.Count];
-            var counter = 0;
-            foreach (var item in items)
-            {
-                mass[counter] = item;
-                counter++;
-            }
-            // You can avoid using this operation. 
-            // In addition, I suggest you review documentation before using any existing API. 
-            // https://docs.microsoft.com/en-us/dotnet/api/system.array.resize?view=netframework-4.8
-            Array.Resize<T>(ref mass, items.Count + 1);
-            mass[items.Count] = a;
-            items = mass;
-            return mass;
-
+            EnumedMass = items;
+            elementIndex = -1;
         }
-        /*
-                public static void MassAdd<T>(this T [] items, T a)
+
+        public T Current
+        {
+            get
+            {
+                return EnumedMass[elementIndex];
+            }
+        }
+        object IEnumerator.Current => Current;
+
+        public void Dispose()
+        {
+         
+        }
+
+        public bool MoveNext()
+        {
+            elementIndex++;
+            return elementIndex < EnumedMass.Length;
+        }
+       
+        public void Reset()
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class MyList<T> : IList<T>
+    {
+        private int defaultMinLength = 4;
+        private T[] _List;
+        private int _RealLength;
+        static readonly T[] _emptyArray = new T[0];
+
+        private void ThrowIfInvalidInsertIndex(int itemIndex)
+        {
+            if ((itemIndex < 0) || (itemIndex > _List.Length))
+            {
+                throw new IndexOutOfRangeException("Попытка добавить/получить элемент в список типа MyList с недопустимым индексом");
+            }
+        }
+        public MyList()
+        {
+            _RealLength = 0;
+            _List = _emptyArray;
+        }
+        public MyList(int capacity)
+        {
+            _RealLength = 0;
+            if (capacity < 0)
+            { throw new IndexOutOfRangeException("Попытка создать лист отрицательного размера"); }            
+
+            if (capacity == 0)
+            { _List = _emptyArray; }
+            else
+            { _List = new T[capacity]; }
+        }
+        public T this[int elementIndex]
+        {
+            get
+            { 
+            ThrowIfInvalidInsertIndex(elementIndex); 
+            return _List[elementIndex];
+            }
+            set
+            {
+                ThrowIfInvalidInsertIndex(elementIndex);
+                _List[elementIndex] = value;
+            }               
+        }
+        private void IncreaseLength(int minRequiredLength)
+        {
+            if (_List.Length < minRequiredLength)
+            {
+                var newLength=0;
+                var oldLength = _List.Length;
+                if (_List.Length == 0)
                 {
-                    if (items == null)
-                    {
-                        items = new T[items.Length+1];
-                        return;
-                    }
-
-                    if (items.Length != items.Length + 1)
-                    {
-                        T[] newArray = new T[items.Length + 1];
-                        Array.Copy(items, 0, newArray, 0, items.Length > items.Length + 1 ? items.Length + 1 : items.Length);
-                       items = newArray;
-                        items[items.Length-1] = a;
-                    }
-
+                    newLength = defaultMinLength; }
+                else
+                {
+                    newLength = _List.Length * 2;
                 }
-                */
+                T[] temp = new T[newLength];
+                for (int i = 0; i < oldLength; i++)
+                {
+                    temp[i] = _List[i];
+                }
+                _List = temp;
+             }
+        }
+        public int Count => _RealLength;
+
+        public bool IsReadOnly => throw new NotImplementedException();
+
+        public void Add(T item)
+        {
+            Insert(_RealLength, item);
+        }
+
+        public void Clear()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Contains(T item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CopyTo(T[] array, int arrayIndex)
+        {
+            throw new NotImplementedException();
+        }
+   
+        
+         public IEnumerator<T> GetEnumerator()
+         {
+            var Enum = new MyEnumerator<T>(_List);
+             return Enum;
+         }
+
+        public int IndexOf(T item)
+        {
+            int itemFirstIndex = 0;
+            for (int i = 0; i < _RealLength; i++)
+            {
+                T temp = _List[i];
+                if (item.Equals(temp))
+                {
+                    return itemFirstIndex;
+                }
+                itemFirstIndex++;
+            }
+            return -1;
+        }
+
+        public void TrimExcessObjects()
+        {
+            T[] temp = new T[_RealLength];
+            for (int i = 0; i <_RealLength; i++)
+            {
+                temp[i] = _List[i];
+            }
+            _List = temp;
+        }
+        public void Insert(int index, T item)
+        {
+            ThrowIfInvalidInsertIndex(index);
+            if (_RealLength == _List.Length)
+            {
+                IncreaseLength(_List.Length + 1);
+            }
+                        
+            for (var i = _List.Length - 1; i > index; i--)
+            {
+                _List[i] = _List[i - 1];
+            }
+            _List[index] = item;
+            _RealLength++;
+        }
+
+        public bool Remove(T item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveAt(int index)
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

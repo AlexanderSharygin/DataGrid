@@ -1,7 +1,5 @@
-﻿using System;
-using System.IO;
-using Parser.Extensions;
-using System.Collections.Generic;
+﻿using Parser.Extensions;
+
 
 namespace Parser
 {
@@ -10,16 +8,16 @@ namespace Parser
     static class JSONParser
     {
 
-        public static JSONObject[] ParseSimpleJSON(string inputText)
+        public static MyList<JSONObject> ParseSimpleJSON(string inputText)
         {
-            OwnList<string> ObjectsText = GetObjectsText(inputText);
+            MyList<string> ObjectsText = GetObjectsText(inputText);
             return ParseObjectsText(ObjectsText);
 
         }
 
-        private static OwnList<string> GetObjectsText(string inputText)
+        private static MyList<string> GetObjectsText(string inputText)
         {
-            OwnList<string> ObjectsText = new OwnList<string>();
+            MyList<string> ObjectsText = new MyList<string>();
 
             var counter = 0;
             var objectNumber = 0;
@@ -31,7 +29,7 @@ namespace Parser
                 {
                     objectStartPositonInText = counter;
                     objectEndPositionInText = GetObjectEndPositionInText(inputText, counter);
-                    ObjectsText.AddLast(inputText.Substring(objectStartPositonInText, objectEndPositionInText - objectStartPositonInText + 1));
+                    ObjectsText.Add(inputText.Substring(objectStartPositonInText, objectEndPositionInText - objectStartPositonInText + 1));
 
                     objectNumber++;
                     counter = objectEndPositionInText;
@@ -92,12 +90,13 @@ namespace Parser
             }
             return endStringPosition;
         }
-        private static JSONObject[] ParseObjectsText(OwnList<string> ObjectsText)
+        private static MyList<JSONObject> ParseObjectsText(MyList<string> ObjectsText)
         {
-            JSONObject[] Objects = new JSONObject[ObjectsText.Length];
-            for (int i = 0; i < ObjectsText.Length; i++)
+          //  JSONObject[] Objects = new JSONObject[ObjectsText.Count];
+            MyList<JSONObject> Objects = new MyList<JSONObject>();
+            for (int i = 0; i < ObjectsText.Count; i++)
             {
-                OwnList<string> ObjectStrings = new OwnList<string>();
+                MyList<string> ObjectStrings = new MyList<string>();
                 var countOfStringInObject = 0;
                 var counter = 0;
                 var startStringPosition = 0;
@@ -111,7 +110,7 @@ namespace Parser
                         endStringPosition = GetEndStringInObject(ObjectText, counter + 1);
                         if (endStringPosition != 0)
                         {
-                            ObjectStrings.AddLast(ObjectText.Substring(startStringPosition, endStringPosition - startStringPosition).Trim(',', '\n', '\r', ' '));
+                            ObjectStrings.Add(ObjectText.Substring(startStringPosition, endStringPosition - startStringPosition).Trim(',', '\n', '\r', ' '));
                             countOfStringInObject++;
                             counter = endStringPosition;
                         }
@@ -125,17 +124,17 @@ namespace Parser
                         counter++;
                     }
                 }
-                Objects[i] = new JSONObject();
+                Objects.Add( new JSONObject());
                 var objectNumber = i;
                 ParseObjectStrings(ObjectStrings, objectNumber, Objects);
             }
             return Objects;
         }
-        private static void ParseObjectStrings(OwnList<string> objectStrings, int objectNumber, JSONObject[] Objects)
+        private static void ParseObjectStrings(MyList<string> objectStrings, int objectNumber, MyList<JSONObject> Objects)
         {
             bool firstNameParsed = false;
             bool lastNameParsed = false;
-            for (var i = 0; i < objectStrings.Length; i++)
+            for (var i = 0; i < objectStrings.Count; i++)
             {
                 var spliter = objectStrings[i].IndexOf(':');
                 if (spliter != -1)

@@ -6,7 +6,7 @@ namespace Parser
     class ConsolePrinter: Printer
     {
 
-        public void PrintJSONOnConsole(JSONObject[] JSOObjects)
+        public void PrintJSONOnConsole(MyList<JSONObject> JSOObjects)
         {
             PrintJSONObjectsPropertiesOnConsole(JSOObjects);
         }

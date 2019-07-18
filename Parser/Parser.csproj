@@ -45,8 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MyList.cs" />
-    <Compile Include="NewList.cs" />
-    <Compile Include="OwnList.cs" />
+    <None Include="ZTrash.cs" />
     <Compile Include="Printer %28base%29.cs" />
     <Compile Include="JSONObject.cs" />
     <Compile Include="JSONParser.cs" />

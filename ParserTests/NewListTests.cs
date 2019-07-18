@@ -16,7 +16,7 @@ namespace Parser.Tests
         [TestMethod()]
         public void AddTest()
         {
-            NewList<int> a = new NewList<int>();
+            MyList<int> a = new MyList<int>();
             a.Add(5);
             a.Add(10);
             a.Add(21);
@@ -45,7 +45,7 @@ namespace Parser.Tests
         [TestMethod()]
         public void GetEnumeratorTest()
         {
-            NewList<JSONObject> a = new NewList<JSONObject>();
+            MyList<JSONObject> a = new MyList<JSONObject>();
             JSONObject Obj1 = new JSONObject();
             Obj1.FirstName = "FistName1";
             Obj1.LastName = "LastName1";
@@ -70,7 +70,7 @@ namespace Parser.Tests
         [TestMethod()]
         public void IndexOfTest()
         {
-            NewList<int> a = new NewList<int>();
+            MyList<int> a = new MyList<int>();
             a.Add(5);
             a.Add(10);
             a.Add(21);
@@ -81,13 +81,32 @@ namespace Parser.Tests
         [TestMethod()]
         public void InsertTest()
         {
-            NewList<int> a = new NewList<int>();
+            MyList<int> a = new MyList<int>();
             a.Add(5);
             a.Add(10);
             a.Add(21);
             a.Add(12);
             a.Insert(2, 123);
             Assert.AreEqual(123, a[2]);
+        }
+        [TestMethod()]
+        public void AddToListWithPresetCapacityTest()
+        {
+            MyList<int> a = new MyList<int>(10);
+            a.Add(5);
+            a.Add(6);
+            a.Add(7);
+            a.Add(8);
+            a.Add(9);
+            a.Add(10);
+            a.Add(11);
+            a.Add(12);
+            a.Add(13);
+            a.Add(14);
+            a.Add(15);
+            a.Add(16);
+            a.Insert(2, 123);
+            Assert.AreEqual(8, a[4]);
         }
 
         [TestMethod()]

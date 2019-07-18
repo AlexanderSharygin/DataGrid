@@ -16,17 +16,20 @@ namespace Parser
        static int GetLastNameLength(JSONObject item)
 
         {
+
             return item.LastName.Length;
         }
        
-        public void PrintJSONObjectsPropertiesOnConsole(JSONObject[] parsedObjects)
+        public void PrintJSONObjectsPropertiesOnConsole(MyList<JSONObject> parsedObjects)
         {
+            parsedObjects.TrimExcessObjects();
             var rowCounter = 0;
-            var distanceBetweenColumns = 5; 
+            var distanceBetweenColumns = 5;
             #region comments                    
             // int FirstNameMaxLength = MyLinq.MaxValue(parsedObjects, SelectorFirstName);                                       
             // int FirstNameMaxLength = parsedObjects.MaxValue(n => { int f = n.FirstName.Length;    return f; });
             #endregion
+
             var ParsedObjectsFirstNameMaxLength = parsedObjects.MaxValue(n => n.FirstName.Length);
             var ParsedObjectsLastNameMaxLength = parsedObjects.MaxValue(GetLastNameLength);
             if (ParsedObjectsFirstNameMaxLength < "FirstName".Length)
@@ -50,7 +53,7 @@ namespace Parser
             }
             rowCounter++;
             Console.SetCursorPosition(0, rowCounter); ;
-            for (var i = 0; i < parsedObjects.Length; i++)
+            for (var i = 0; i < parsedObjects.Count; i++)
             {
                 Console.SetCursorPosition(0, rowCounter);
                 Console.Write(parsedObjects[i].FirstName);
