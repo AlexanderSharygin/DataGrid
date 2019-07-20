@@ -12,7 +12,8 @@ namespace Parser
             MyList<JSONObject> JSONObjects = JSONParser.ParseSimpleJSON(inputText);                  
             ConsolePrinter Printer = new ConsolePrinter();
             Printer.PrintJSONOnConsole(JSONObjects);
+
         }
-    }
+           }
   
   }

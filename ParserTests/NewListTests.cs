@@ -14,6 +14,22 @@ namespace Parser.Tests
     public class NewListTests
     {
         [TestMethod()]
+        public void IndexatorTest()
+        {
+            MyList<int> a = new MyList<int>();
+            a.Add(5);
+            a.Add(10);
+            a.Add(21);
+            a.Add(12);
+            a.Add(15);                       
+           Assert.AreEqual(15, a[4]);
+            Assert.ThrowsException<IndexOutOfRangeException>(() => a[5]);
+            a[1] = 123;
+            Assert.AreEqual(123, a[1]);
+            Assert.ThrowsException<IndexOutOfRangeException>(() => a[5]=123);
+        }
+       
+        [TestMethod()]
         public void AddTest()
         {
             MyList<int> a = new MyList<int>();
@@ -23,25 +39,7 @@ namespace Parser.Tests
             a.Add(12);
             Assert.AreEqual(12, a[3]);
         }
-
-        [TestMethod()]
-        public void ClearTest()
-        {
-            Assert.Fail();
-        }
-
-        [TestMethod()]
-        public void ContainsTest()
-        {
-            Assert.Fail();
-        }
-
-        [TestMethod()]
-        public void CopyToTest()
-        {
-            Assert.Fail();
-        }
-
+         
         [TestMethod()]
         public void GetEnumeratorTest()
         {
@@ -109,16 +107,9 @@ namespace Parser.Tests
             Assert.AreEqual(8, a[4]);
         }
 
-        [TestMethod()]
-        public void RemoveTest()
-        {
-            Assert.Fail();
-        }
+       
 
-        [TestMethod()]
-        public void RemoveAtTest()
-        {
-            Assert.Fail();
-        }
+        
+       
     }
 }

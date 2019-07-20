@@ -9,19 +9,19 @@ namespace Parser.Extensions
     {
         
 
-        private T[] EnumedMass;
-        int elementIndex;
+        private T[] _EnumedMass;
+        int _elementIndex;
         public MyEnumerator(T[] items)
         {
-            EnumedMass = items;
-            elementIndex = -1;
+            _EnumedMass = items;
+            _elementIndex = -1;
         }
 
         public T Current
         {
             get
             {
-                return EnumedMass[elementIndex];
+                return _EnumedMass[_elementIndex];
             }
         }
         object IEnumerator.Current => Current;
@@ -33,8 +33,8 @@ namespace Parser.Extensions
 
         public bool MoveNext()
         {
-            elementIndex++;
-            return elementIndex < EnumedMass.Length;
+            _elementIndex++;
+            return _elementIndex < _EnumedMass.Length;
         }
        
         public void Reset()
@@ -44,11 +44,18 @@ namespace Parser.Extensions
     }
     public class MyList<T> : IList<T>
     {
-        private int defaultMinLength = 4;
+        private int _defaultMinLength = 4;
         private T[] _List;
         private int _RealLength;
         static readonly T[] _emptyArray = new T[0];
 
+        private void ThrowIfAceessToObjectByIncorrectIndex(int itemIndex)
+        {
+            if ((itemIndex < 0) || (itemIndex > _RealLength-1))
+            {
+                throw new IndexOutOfRangeException("Попытка обратиться к объекту по недопустимому индексу (Индекс < 0 или Индекс > List.Count)");
+            }
+        }
         private void ThrowIfInvalidInsertIndex(int itemIndex)
         {
             if ((itemIndex < 0) || (itemIndex > _List.Length))
@@ -75,13 +82,13 @@ namespace Parser.Extensions
         public T this[int elementIndex]
         {
             get
-            { 
-            ThrowIfInvalidInsertIndex(elementIndex); 
+            {
+            ThrowIfAceessToObjectByIncorrectIndex(elementIndex);               
             return _List[elementIndex];
             }
             set
             {
-                ThrowIfInvalidInsertIndex(elementIndex);
+                ThrowIfAceessToObjectByIncorrectIndex(elementIndex);
                 _List[elementIndex] = value;
             }               
         }
@@ -93,7 +100,7 @@ namespace Parser.Extensions
                 var oldLength = _List.Length;
                 if (_List.Length == 0)
                 {
-                    newLength = defaultMinLength; }
+                    newLength = _defaultMinLength; }
                 else
                 {
                     newLength = _List.Length * 2;
