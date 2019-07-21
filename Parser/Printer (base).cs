@@ -24,7 +24,7 @@ namespace Parser
         {
 
             parsedObjects.TrimExcessObjects();
-            KeyList AllKeys = new KeyList(parsedObjects);
+            AgregatedKeyList AllKeys = new AgregatedKeyList(parsedObjects);
             AllKeys.GetKeys.TrimExcessObjects();
             Console.WriteLine("Выберите набор отображаемых полей - введите номер поля и нажмите Enter.");
             Console.WriteLine("Затем добавьте к набору другие поля или перейдите к выводу выбранного поля/набора полей.");

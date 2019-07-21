@@ -12,20 +12,24 @@ namespace Parser.Extensions.Tests
     public class KeyListTests
     {
         [TestMethod()]
-        public void FillKeyListTest()
+        public void AddKeysFromObjectTest()
         {
-            KeyList kl = new KeyList();
+            AgregatedKeyList kl = new AgregatedKeyList();
+            JSONObject js1 = new JSONObject();
             MyList<string> p_Keys = new MyList<string>();
             p_Keys.Add("Name");
             p_Keys.Add("Surname");
             p_Keys.Add("Range");
+            js1.Fields.Keys = p_Keys;
             MyList<string> r_Keys = new MyList<string>();
+            JSONObject js2 = new JSONObject();
             r_Keys.Add("Name1");
             r_Keys.Add("Surname1");
             r_Keys.Add("Range");
             r_Keys.Add("Range1");
-            kl.FillKeyList(p_Keys);
-            kl.FillKeyList(r_Keys);
+            js2.Fields.Keys = r_Keys;
+            kl.AddKeysFromObject(js1);
+            kl.AddKeysFromObject(js2);
             Assert.AreEqual("Range1", kl[5]);
 
 
@@ -33,7 +37,7 @@ namespace Parser.Extensions.Tests
         [TestMethod()]
         public void IndexatorTest()
         {
-            KeyList kl = new KeyList();
+            AgregatedKeyList kl = new AgregatedKeyList();
            
             kl.Add("Name");
             kl.Add("Surname");
@@ -49,7 +53,7 @@ namespace Parser.Extensions.Tests
         [TestMethod()]
         public void AddTest()
         {
-            KeyList kl = new KeyList();
+            AgregatedKeyList kl = new AgregatedKeyList();
 
             kl.Add("Name");
             kl.Add("Surname");

@@ -15,14 +15,14 @@ namespace Parser.Extensions
             _Keys = new MyList<string>();
             _Values = new MyList<string>();
         }
-        private void ThrowIfUseNonExistKey(string key)
+        private void ThrowIfTryToUseNonExistKey(string key)
         {
             if (_Keys.IndexOf(key) == -1)
             {
                 throw new KeyNotFoundException("Попытка обратиться к несущесвтующему полю объекта");
             }
         }
-        private void ThrowIfKeysValueVariusCount()
+        private void ThrowIfKeysAndValuesHaveVariusCounts()
         {
             if (_Keys.Count != _Values.Count)
             {
@@ -33,7 +33,7 @@ namespace Parser.Extensions
         {
             get
             {
-                ThrowIfKeysValueVariusCount();
+                ThrowIfKeysAndValuesHaveVariusCounts();
                 return _Values.Count;
             }
         }
@@ -41,16 +41,15 @@ namespace Parser.Extensions
         public MyList<string> Keys
         {
             get
-            {
-                return _Keys;
-            }
+            { return _Keys; }
+            set
+            { _Keys = value; }
         }
-
         public string this[string key]
         {
             get
             {
-                ThrowIfUseNonExistKey(key);
+                ThrowIfTryToUseNonExistKey(key);
                 return _Values[_Keys.IndexOf(key)];
             }
         }
@@ -68,57 +67,57 @@ namespace Parser.Extensions
             }
         }
     }
-    public class KeyList : IObjectFields<int>
+    public class AgregatedKeyList : IObjectFields<int>
     {
-        MyList<string> _AllKeys;
-        public KeyList()
+        MyList<string> _AgregatedKeys;
+        public AgregatedKeyList()
         {
-            _AllKeys = new MyList<string>();
+            _AgregatedKeys = new MyList<string>();
         }
-        public int Count => _AllKeys.Count;
-        public MyList<string> GetKeys => _AllKeys;
-
-        public KeyList(MyList<JSONObject> JSONObjects)
+        public AgregatedKeyList(MyList<JSONObject> JSONObjects)
         {
-            _AllKeys = new MyList<string>();
+            _AgregatedKeys = new MyList<string>();
             for (int i = 0; i < JSONObjects.Count-1; i++)
             {
-                FillKeyList(JSONObjects[i].Fields.Keys);
+                AddKeysFromObject(JSONObjects[i]);
             }
         }
-        public void FillKeyList(MyList<string> p_Keys)
+        private void ThrowIfTryAceessToKeyByIncorrectIndex(int itemIndex)
         {
-            for (int i = 0; i < p_Keys.Count; i++)
-            {
-               Add(p_Keys[i]);
-            }
-        }
-        private void ThrowIfAceessToKeyByIncorrectIndex(int itemIndex)
-        {
-            if ((itemIndex < 0) || (itemIndex > _AllKeys.Count - 1))
+            if ((itemIndex < 0) || (itemIndex > _AgregatedKeys.Count - 1))
             {
                 throw new IndexOutOfRangeException("Попытка обратиться к объекту по недопустимому индексу (Индекс < 0 или Индекс > List.Count)");
             }
         }
+        public int Count => _AgregatedKeys.Count;
+        public MyList<string> GetKeys => _AgregatedKeys;
         public string this[int i]
         {
             get
             {
-                ThrowIfAceessToKeyByIncorrectIndex(i);
-                return _AllKeys[i];
+                ThrowIfTryAceessToKeyByIncorrectIndex(i);
+                return _AgregatedKeys[i];
             }
         }
-        public void Add(string p_key)
+       public void Add(string p_key)
         {
-            int index = _AllKeys.IndexOf(p_key);
+            int index = _AgregatedKeys.IndexOf(p_key);
             if (index == -1)
             {
-                _AllKeys.Add(p_key);
+                _AgregatedKeys.Add(p_key);
             }
             else
             {
-                _AllKeys[index] = p_key;
+                _AgregatedKeys[index] = p_key;
                
+            }
+        }
+        public void AddKeysFromObject(JSONObject p_JSONObject)
+        {
+            MyList<string> keys = p_JSONObject.Fields.Keys;
+            for (int i = 0; i < keys.Count; i++)
+            {
+                Add(keys[i]);
             }
         }
     }
