@@ -56,9 +56,11 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="KeyListTests.cs" />
     <Compile Include="MyLinqTests.cs" />
     <Compile Include="MyListTests.cs" />
     <Compile Include="NewListTests.cs" />
+    <Compile Include="ObjectFieldsTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

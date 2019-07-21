@@ -45,11 +45,11 @@ namespace Parser.Tests
         {
             MyList<JSONObject> a = new MyList<JSONObject>();
             JSONObject Obj1 = new JSONObject();
-            Obj1.FirstName = "FistName1";
-            Obj1.LastName = "LastName1";
+            Obj1.Fields.Add("FirstName", "FistName1");
+            Obj1.Fields.Add("LastName", "LastName1");
             JSONObject Obj2 = new JSONObject();
-            Obj2.FirstName = "FirstName2";
-            Obj2.LastName = "LastName2";
+            Obj2.Fields.Add("FirstName", "FistName2");
+            Obj2.Fields.Add("LastName", "LastName2");
             a.Add(Obj1);
             a.Add(Obj2);
             var index = 0;
@@ -58,7 +58,7 @@ namespace Parser.Tests
             {                            
                 if (index == 1)
                 {
-                   TestResult = item.LastName;
+                   TestResult = item.Fields["LastName"];
                 }
                 index++;
             }

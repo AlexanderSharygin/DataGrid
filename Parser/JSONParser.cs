@@ -92,7 +92,7 @@ namespace Parser
         }
         private static MyList<JSONObject> ParseObjectsText(MyList<string> ObjectsText)
         {
-          //  JSONObject[] Objects = new JSONObject[ObjectsText.Count];
+            //  JSONObject[] Objects = new JSONObject[ObjectsText.Count];
             MyList<JSONObject> Objects = new MyList<JSONObject>();
             for (int i = 0; i < ObjectsText.Count; i++)
             {
@@ -124,7 +124,7 @@ namespace Parser
                         counter++;
                     }
                 }
-                Objects.Add( new JSONObject());
+                Objects.Add(new JSONObject());
                 var objectNumber = i;
                 ParseObjectStrings(ObjectStrings, objectNumber, Objects);
             }
@@ -132,36 +132,19 @@ namespace Parser
         }
         private static void ParseObjectStrings(MyList<string> objectStrings, int objectNumber, MyList<JSONObject> Objects)
         {
-            bool firstNameParsed = false;
-            bool lastNameParsed = false;
             for (var i = 0; i < objectStrings.Count; i++)
             {
-                var spliter = objectStrings[i].IndexOf(':');
-                if (spliter != -1)
+                var splitter = objectStrings[i].IndexOf(':');
+                if (splitter != -1)
                 {
-                    var type = objectStrings[i].Substring(0, spliter).Trim('{', '"', '\n', '\r', '\t', ' ');
-                    var body = objectStrings[i].Substring(spliter + 2).Trim('{', '"', '\n', '\r', '\t', ' ');
-                    if (type == "FirstName")
+                    var fieldKey = objectStrings[i].Substring(0, splitter).Trim('{', '"', '\n', '\r', '\t', ' ');
+                    var fieldValue = objectStrings[i].Substring(splitter + 2).Trim('{', '"', '\n', '\r', '\t', ' ');
+                    Objects[objectNumber].Fields.Add(fieldKey, fieldValue);
+                   if (splitter == -1)
                     {
-                        Objects[objectNumber].FirstName = body;
-                        firstNameParsed = true;
+
+                        Objects[objectNumber].Fields.Add(("Error key " + i), ("Error value" + i));
                     }
-                    if (type == "LastName")
-                    {
-                        Objects[objectNumber].LastName = body;
-                        lastNameParsed = true;
-                    }
-                }
-                if (firstNameParsed && lastNameParsed)
-                {
-                    firstNameParsed = false;
-                    lastNameParsed = false;
-                    break;
-                }
-                if (spliter == -1)
-                {
-                    Objects[objectNumber].FirstName = "FirstName";
-                    Objects[objectNumber].LastName = "LastName";
                 }
             }
         }

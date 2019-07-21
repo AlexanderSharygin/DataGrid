@@ -10,27 +10,37 @@ namespace Parser
     class Printer
     {
 
-      
-      
 
-       static int GetLastNameLength(JSONObject item)
+
+
+        static int GetLastNameLength(JSONObject item)
 
         {
 
-            return item.LastName.Length;
+            return item.Fields["LastName"].Length;
         }
        
         public void PrintJSONObjectsPropertiesOnConsole(MyList<JSONObject> parsedObjects)
         {
+
             parsedObjects.TrimExcessObjects();
-            var rowCounter = 0;
+            KeyList AllKeys = new KeyList(parsedObjects);
+            AllKeys.GetKeys.TrimExcessObjects();
+            Console.WriteLine("Выберите набор отображаемых полей - введите номер поля и нажмите Enter.");
+            Console.WriteLine("Затем добавьте к набору другие поля или перейдите к выводу выбранного поля/набора полей.");
+            Console.WriteLine("Для вывода набора выбранных полей - введите 0 и нажмите Enter.");
+            for (int i = 0; i < AllKeys.Count; i++)
+            {
+                Console.WriteLine("{0} - {1}", i+1, AllKeys[i]);
+            }
+            var rowCounter = AllKeys.Count+2;
             var distanceBetweenColumns = 5;
             #region comments                    
             // int FirstNameMaxLength = MyLinq.MaxValue(parsedObjects, SelectorFirstName);                                       
             // int FirstNameMaxLength = parsedObjects.MaxValue(n => { int f = n.FirstName.Length;    return f; });
             #endregion
 
-            var ParsedObjectsFirstNameMaxLength = parsedObjects.MaxValue(n => n.FirstName.Length);
+            var ParsedObjectsFirstNameMaxLength = parsedObjects.MaxValue(n => n.Fields["FirstName"].Length);
             var ParsedObjectsLastNameMaxLength = parsedObjects.MaxValue(GetLastNameLength);
             if (ParsedObjectsFirstNameMaxLength < "FirstName".Length)
             {
@@ -56,9 +66,9 @@ namespace Parser
             for (var i = 0; i < parsedObjects.Count; i++)
             {
                 Console.SetCursorPosition(0, rowCounter);
-                Console.Write(parsedObjects[i].FirstName);
+                Console.Write(parsedObjects[i].Fields["FirstName"]);
                 Console.SetCursorPosition(ParsedObjectsFirstNameMaxLength + distanceBetweenColumns, rowCounter);
-                Console.Write(parsedObjects[i].LastName);
+                Console.Write(parsedObjects[i].Fields["LastName"]);
                 rowCounter++;
             }
             Console.ReadLine();
