@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,16 +7,11 @@ using System.Threading.Tasks;
 
 namespace Parser.Extensions
 {
-    public class ObjectFields : IObjectFields<string>
+    public class ObjectFields 
     {
-        private MyList<string> _Keys;
-        private MyList<string> _Values;
-        public ObjectFields()
-        {
-            _Keys = new MyList<string>();
-            _Values = new MyList<string>();
-        }
-        private void ThrowIfTryToUseNonExistKey(string key)
+        private MyList<string> _Keys = new MyList<string>();
+        private MyList<string> _Values = new MyList<string>();
+       private void ThrowIfTryToUseNonExistKey(string key)
         {
             if (_Keys.IndexOf(key) == -1)
             {
@@ -66,8 +62,10 @@ namespace Parser.Extensions
                 _Values[index] = p_value;
             }
         }
+
+       
     }
-    public class AgregatedKeyList : IObjectFields<int>
+    public class AgregatedKeyList : IEnumerable
     {
         MyList<string> _AgregatedKeys;
         public AgregatedKeyList()
@@ -77,25 +75,19 @@ namespace Parser.Extensions
         public AgregatedKeyList(MyList<JSONObject> JSONObjects)
         {
             _AgregatedKeys = new MyList<string>();
-            for (int i = 0; i < JSONObjects.Count-1; i++)
+            for (int i = 0; i < JSONObjects.Count; i++)
             {
                 AddKeysFromObject(JSONObjects[i]);
             }
         }
-        private void ThrowIfTryAceessToKeyByIncorrectIndex(int itemIndex)
-        {
-            if ((itemIndex < 0) || (itemIndex > _AgregatedKeys.Count - 1))
-            {
-                throw new IndexOutOfRangeException("Попытка обратиться к объекту по недопустимому индексу (Индекс < 0 или Индекс > List.Count)");
-            }
-        }
+     
         public int Count => _AgregatedKeys.Count;
         public MyList<string> GetKeys => _AgregatedKeys;
         public string this[int i]
         {
             get
             {
-                ThrowIfTryAceessToKeyByIncorrectIndex(i);
+                
                 return _AgregatedKeys[i];
             }
         }
@@ -120,13 +112,13 @@ namespace Parser.Extensions
                 Add(keys[i]);
             }
         }
+
+        public IEnumerator GetEnumerator()
+        {
+            return ((IEnumerable)_AgregatedKeys).GetEnumerator();
+        }
+
     }
-    
-    interface IObjectFields<T>
-    {
-        string this[T x]
-        { get; }
-        
-    }
+   
 }
 

@@ -143,8 +143,8 @@ namespace Parser
                 }
                 if (splitter == -1)
                 {
-
-                    obj.Fields.Add(("Error key " + i), ("Error value" + i));
+                   
+                    obj.Fields.Add(("Error field"), ("null"));
                 }
                              
 

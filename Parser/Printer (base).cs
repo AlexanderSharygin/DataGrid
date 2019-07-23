@@ -29,11 +29,14 @@ namespace Parser
             Console.WriteLine("Выберите набор отображаемых полей - введите номер поля и нажмите Enter.");
             Console.WriteLine("Затем добавьте к набору другие поля или перейдите к выводу выбранного поля/набора полей.");
             Console.WriteLine("Для вывода набора выбранных полей - введите 0 и нажмите Enter.");
-            for (int i = 0; i < AllKeys.Count; i++)
-            {
-                Console.WriteLine("{0} - {1}", i+1, AllKeys[i]);
+            int index = 0;
+            foreach (var item in AllKeys.GetKeys)
+           {
+               
+               Console.WriteLine("{0} - {1}", ++index, item);
             }
-            var rowCounter = AllKeys.Count+2;
+         
+            var rowCounter = AllKeys.Count+4;
             var distanceBetweenColumns = 5;
             #region comments                    
             // int FirstNameMaxLength = MyLinq.MaxValue(parsedObjects, SelectorFirstName);                                       

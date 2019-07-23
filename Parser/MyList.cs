@@ -48,21 +48,7 @@ namespace Parser.Extensions
         private T[] _List;
         private int _RealLength;
         static readonly T[] _emptyArray = new T[0];
-
-        private void ThrowIfAceessToObjectByIncorrectIndex(int itemIndex)
-        {
-            if ((itemIndex < 0) || (itemIndex > _RealLength-1))
-            {
-                throw new IndexOutOfRangeException("Попытка обратиться к объекту по недопустимому индексу (Индекс < 0 или Индекс > List.Count)");
-            }
-        }
-        private void ThrowIfInvalidInsertIndex(int itemIndex)
-        {
-            if ((itemIndex < 0) || (itemIndex > _List.Length))
-            {
-                throw new IndexOutOfRangeException("Попытка добавить/получить элемент в список типа MyList с недопустимым индексом");
-            }
-        }
+                      
         public MyList()
         {
             _RealLength = 0;
@@ -72,8 +58,7 @@ namespace Parser.Extensions
         {
             _RealLength = 0;
             if (capacity < 0)
-            { throw new IndexOutOfRangeException("Попытка создать лист отрицательного размера"); }            
-
+            { throw new RankException("Невозможно создать список отрицательного размера"); }            
             if (capacity == 0)
             { _List = _emptyArray; }
             else
@@ -83,13 +68,12 @@ namespace Parser.Extensions
         {
             get
             {
-            ThrowIfAceessToObjectByIncorrectIndex(elementIndex);               
+              
             return _List[elementIndex];
             }
             set
             {
-                ThrowIfAceessToObjectByIncorrectIndex(elementIndex);
-                _List[elementIndex] = value;
+               _List[elementIndex] = value;
             }               
         }
         private void IncreaseLength(int minRequiredLength)
@@ -170,7 +154,6 @@ namespace Parser.Extensions
         }
         public void Insert(int index, T item)
         {
-            ThrowIfInvalidInsertIndex(index);
             if (_RealLength == _List.Length)
             {
                 IncreaseLength(_List.Length + 1);
@@ -196,7 +179,7 @@ namespace Parser.Extensions
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            throw new NotImplementedException();
+            return GetEnumerator();
         }
     }
 }
