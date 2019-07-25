@@ -141,11 +141,11 @@ namespace Parser
                     var fieldValue = objectFieldsStrings[i].Substring(splitter + 2).Trim('{', '"', '\n', '\r', '\t', ' ');
                     obj.Fields.Add(fieldKey, fieldValue);
                 }
-                if (splitter == -1)
+              /*  if (splitter == -1)
                 {
                    
                     obj.Fields.Add(("Error field"), ("null"));
-                }
+                }*/
                              
 
             }

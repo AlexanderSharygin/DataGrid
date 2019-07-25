@@ -152,6 +152,28 @@ namespace Parser.Extensions
             }
             _List = temp;
         }
+        public bool AddUnical(T item)
+        {
+            bool isNotUnical = false;
+            for (int i = 0; i < _List.Length; i++)
+            {
+                if (_List[i] != null)
+                {
+                    isNotUnical = _List[i].Equals(item);
+                    if (isNotUnical)
+                    { break; }
+                }
+            }
+            if (isNotUnical == false)
+            {
+                Insert(_RealLength, item);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
         public void Insert(int index, T item)
         {
             if (_RealLength == _List.Length)
