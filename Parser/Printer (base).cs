@@ -11,32 +11,61 @@ namespace Parser
     {
       
         AgregatedKeyList AllKeys;
-        static int GetLastNameLength(JSONObject item)
+        private int rowCount = 0;
+        static int GetLastNameLength(JSONObject p_item, string key)
 
         {
-            return item.Fields["LastName"].Length;
+            return p_item.Fields[key].Length;
         }
         public void GetDataForPrint(MyList<JSONObject> p_Objects)
         {
             MyList<string> dataKeys = GetKeys();
-            var rowCounter = 20;
-            var distanceBetweenColumns = 5;
-            var columnDefWide = 0;//править
-            Console.SetCursorPosition(0, rowCounter);
+            var startRomNumber = Console.CursorTop;
+            var rowCounter = startRomNumber;
+            var columnsXShift = 5;
+            var columnStartX = 0;//править
+           
+           Console.SetCursorPosition(0, rowCounter);
             for (int i = 0; i < dataKeys.Count; i++)
             {
-                Console.SetCursorPosition(columnDefWide, rowCounter);
+                Console.SetCursorPosition(columnStartX, rowCounter);
                 Console.WriteLine(dataKeys[i]);
                 rowCounter++;
                 for (int j = 0; j < p_Objects.Count; j++)
                 {
-                    Console.SetCursorPosition(columnDefWide, rowCounter);
-                    Console.WriteLine( p_Objects[j].Fields[dataKeys[i]]);
-                    rowCounter++;
+                    Console.SetCursorPosition(columnStartX, rowCounter);
+                    if (p_Objects[j].Fields[dataKeys[i]].Length > 3 * dataKeys[i].Length)
+                    {
+                        Console.WriteLine(p_Objects[j].Fields[dataKeys[i]].Substring(0, dataKeys[i].Length*3) + "...");
+                    }
+                    else
+                    {
+                        Console.WriteLine(p_Objects[j].Fields[dataKeys[i]]);
+                        
+                    }
+                    rowCounter = Console.CursorTop;
                 }
-                columnDefWide = columnDefWide + 30;
-                rowCounter = 20;
-                ;
+                var ObjectsDataKeyFieldMaxLength = p_Objects.MaxValue(dataKeys[i], GetLastNameLength);
+             
+                int def= dataKeys[i].Length;
+                if (ObjectsDataKeyFieldMaxLength > def)
+                {
+                    if (ObjectsDataKeyFieldMaxLength > 3 * def)
+                    {
+                        def = def * 3 + 3;
+                    }
+                    else
+                    {
+                        def = ObjectsDataKeyFieldMaxLength;
+                    }
+                }
+                
+                columnStartX += def;
+                columnStartX = columnStartX+columnsXShift;
+                
+                rowCounter = startRomNumber;
+               
+                
             }
         }
         public MyList<string> GetKeys()
@@ -44,10 +73,14 @@ namespace Parser
             MyList<string> selectedKeys = new MyList<string>();
             while (true)
             {
-                try
+                //  try
+
+
+                Console.Write("Введите значение:");
+                int a = 0;
+                bool bb = Int32.TryParse(Console.ReadLine(), out a);
+                if (bb)
                 {
-                    Console.Write("Введите значение:");
-                    var a = Convert.ToInt32(Console.ReadLine());
                     if (a <= AllKeys.Count && a > 0)
                     {
                         bool b = selectedKeys.AddUnical(AllKeys[a - 1]);
@@ -65,10 +98,10 @@ namespace Parser
                         Console.WriteLine("Введите число в диапазоне от 1 до {0}, или введите 0 для перехода к выводу данных.", AllKeys.Count);
                     }
                 }
-                catch
-                {
+              if(!bb)
+               {
                     Console.WriteLine("Введено не допустимое значение. Повторите ввод");
-                }
+               }
             }
            selectedKeys.TrimExcessObjects();
             return selectedKeys;
@@ -84,21 +117,27 @@ namespace Parser
             
             AllKeys.GetKeys.TrimExcessObjects();
             Console.WriteLine("Выберите набор отображаемых полей - введите номер поля и нажмите Enter.");
+            rowCount++;
             Console.WriteLine("Затем добавьте к набору другие поля или перейдите к выводу выбранного поля/набора полей.");
+            rowCount++;
             Console.WriteLine("Для вывода набора выбранных полей - введите 0 и нажмите Enter.");
+            rowCount++;
+            int index = 0;
+          foreach (var item in AllKeys.GetKeys)
+            {
+                Console.WriteLine("{0} - {1}", ++index, item);
+            }
             GetDataForPrint(parsedObjects);
-            // int index = 0;
-           /* foreach (var item in AllKeys.GetKeys)
-           {               
-               Console.WriteLine("{0} - {1}", ++index, item);
-            }*/
+           
+            
+            
           
 
                  
             
          
-            var rowCounter = AllKeys.Count+4;
-            var distanceBetweenColumns = 5;
+          //  var rowCounter = AllKeys.Count+4;
+           // var distanceBetweenColumns = 5;
             #region comments                    
             // int FirstNameMaxLength = MyLinq.MaxValue(parsedObjects, SelectorFirstName);                                       
             // int FirstNameMaxLength = parsedObjects.MaxValue(n => { int f = n.FirstName.Length;    return f; });

@@ -130,7 +130,7 @@ namespace Parser.Extensions
 
         public int IndexOf(T item)
         {
-            int itemFirstIndex = 0;
+           int itemFirstIndex = 0;
             for (int i = 0; i < _RealLength; i++)
             {
                 T temp = _List[i];

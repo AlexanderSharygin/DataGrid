@@ -6,12 +6,12 @@ namespace Parser.Extensions
 {
    public static class MyLinq
     {
-        public static int MaxValue<T>(this IEnumerable<T> items, MaxValueCalculation<T> MaxCalculationContract)
+        public static int MaxValue<T>(this IEnumerable<T> items, string key, MaxValueCalculation<T> MaxCalculationContract)
         {
             var defaultValue = int.MinValue;
             foreach (var item in items)
             {
-                var itemValue = MaxCalculationContract(item);
+                var itemValue = MaxCalculationContract(item, key);
                 if (itemValue>defaultValue)
                 {
                     defaultValue = itemValue;
@@ -19,8 +19,9 @@ namespace Parser.Extensions
             }
             return defaultValue;     
         }
+      
     }
-    public delegate int MaxValueCalculation<TItem>(TItem item);
+    public delegate int MaxValueCalculation<TItem>(TItem item, string key);
    
     
 }
