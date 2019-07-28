@@ -29,23 +29,26 @@ namespace Parser
                 for (int j = 0; j < p_Objects.Count; j++)
                 {
                     Console.SetCursorPosition(columnStartX, rowCounter);
-                    if (p_Objects[j].Fields[p_slectedKeys[i]].Length > 3 * p_slectedKeys[i].Length)
+                    if (p_Objects[j].Fields.KeyIndexOf(p_slectedKeys[i]) != -1)
                     {
-                        Console.WriteLine(p_Objects[j].Fields[p_slectedKeys[i]].Substring(0, p_slectedKeys[i].Length * 3) + "...");
-                    }
-                    else
-                    {
-                        int a = p_Objects[j].Fields.ValueIndexOf(p_slectedKeys[i]);
-                        if (a != -1)
+
+                        if (p_Objects[j].Fields[p_slectedKeys[i]].Length > 3 * p_slectedKeys[i].Length)
                         {
-                            Console.WriteLine(p_Objects[j].Fields[p_slectedKeys[i]]);
+                            Console.WriteLine(p_Objects[j].Fields[p_slectedKeys[i]].Substring(0, p_slectedKeys[i].Length * 3) + "...");
                         }
                         else
                         {
-                            Console.WriteLine("Не найдено");
-                        }
 
+
+                            Console.WriteLine(p_Objects[j].Fields[p_slectedKeys[i]]);
+                        }
                     }
+                    else
+                    {
+                        Console.WriteLine("Поле не найдено");
+                    }
+
+                    
                     rowCounter = Console.CursorTop;
                 }
                 columnStartX += maxColumnLength + intercolumnShift;

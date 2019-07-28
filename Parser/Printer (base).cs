@@ -9,7 +9,7 @@ namespace Parser
         {
             if (p_item.Fields.KeyIndexOf(key) == -1)
             {
-                return "Не найдено".Length;
+                return "Поле не найдено".Length;
             }
             else
             {
