@@ -62,8 +62,34 @@ namespace Parser.Extensions
                 _Values[index] = p_value;
             }
         }
-
-       
+        public int ValueIndexOf(string key)
+        {
+            int itemFirstIndex = 0;
+            for (int i = 0; i < _Values.Count; i++)
+            {
+                string temp = _Values[i];
+                if (key.Equals(temp))
+                {
+                    return itemFirstIndex;
+                }
+                itemFirstIndex++;
+            }
+            return -1;
+        }
+        public int KeyIndexOf(string key)
+        {
+            int itemFirstIndex = 0;
+            for (int i = 0; i < _Keys.Count; i++)
+            {
+                string temp = _Keys[i];
+                if (key.Equals(temp))
+                {
+                    return itemFirstIndex;
+                }
+                itemFirstIndex++;
+            }
+            return -1;
+        }
     }
     public class AgregatedKeyList : IEnumerable
     {
@@ -79,6 +105,7 @@ namespace Parser.Extensions
             {
                 AddKeysFromObject(JSONObjects[i]);
             }
+           
         }
      
         public int Count => _AgregatedKeys.Count;

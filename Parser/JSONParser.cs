@@ -3,22 +3,16 @@
 
 namespace Parser
 {
-
-
     static class JSONParser
     {
-
         public static MyList<JSONObject> ParseSimpleJSON(string inputText)
         {
             MyList<string> ObjectsText = SplitTextToObjects(inputText);
             return ParseObjectsText(ObjectsText);
-
         }
-
         private static MyList<string> SplitTextToObjects(string inputText)
         {
             MyList<string> ObjectsText = new MyList<string>();
-
             var counter = 0;
             var objectNumber = 0;
             while (counter < inputText.Length)
@@ -141,13 +135,7 @@ namespace Parser
                     var fieldValue = objectFieldsStrings[i].Substring(splitter + 2).Trim('{', '"', '\n', '\r', '\t', ' ');
                     obj.Fields.Add(fieldKey, fieldValue);
                 }
-              /*  if (splitter == -1)
-                {
-                   
-                    obj.Fields.Add(("Error field"), ("null"));
-                }*/
-                             
-
+              
             }
             return obj;
         }

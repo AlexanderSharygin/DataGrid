@@ -68,12 +68,14 @@ namespace Parser.Extensions
         {
             get
             {
-              
-            return _List[elementIndex];
+
+                TrimExcessObjects();
+                return _List[elementIndex];
             }
             set
             {
-               _List[elementIndex] = value;
+                TrimExcessObjects();
+                _List[elementIndex] = value;
             }               
         }
         private void IncreaseLength(int minRequiredLength)
@@ -143,7 +145,7 @@ namespace Parser.Extensions
             return -1;
         }
 
-        public void TrimExcessObjects()
+        private void TrimExcessObjects()
         {
             T[] temp = new T[_RealLength];
             for (int i = 0; i <_RealLength; i++)
@@ -152,7 +154,7 @@ namespace Parser.Extensions
             }
             _List = temp;
         }
-        public bool AddUnical(T item)
+        public bool AddisUniqueItem(T item)
         {
             bool isNotUnical = false;
             for (int i = 0; i < _List.Length; i++)

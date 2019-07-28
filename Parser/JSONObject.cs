@@ -4,10 +4,6 @@ namespace Parser
 {
     public class JSONObject
     {
-        string FirstName
-        { get; set; }
-        string LastName
-        { get; set; }
         public ObjectFields _Fields;
         public JSONObject()
         {
