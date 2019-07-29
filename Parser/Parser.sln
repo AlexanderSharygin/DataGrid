@@ -1,14 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.271
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29001.49
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Parser", "Parser.csproj", "{2DB3CB56-1814-4DEB-98A6-06F192C9A9C5}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3E641B76-4C5B-4B3D-BD05-FEC1387063C0}"
-	ProjectSection(SolutionItems) = preProject
-		..\data.txt = ..\data.txt
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParserTests", "..\ParserTests\ParserTests.csproj", "{FA137923-7242-4262-83A6-6037277E3A3B}"
 EndProject

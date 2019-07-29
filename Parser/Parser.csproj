@@ -45,7 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MyList.cs" />
-    <None Include="ZTrash.cs" />
+    <None Include="Trash\MyList_Trash.cs" />
     <Compile Include="ObjectFields.cs" />
     <Compile Include="Printer %28base%29.cs" />
     <Compile Include="JSONObject.cs" />
