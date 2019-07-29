@@ -3,10 +3,13 @@ using Parser.Extensions;
 
 namespace Parser
 {
+    // Excessive inheritance
     class ConsolePrinter:Printer
     {
-
+        // Is it the only reason why you are declaring this class as non static?
         AgregatedKeyList _AllKeys;
+        // FieldsTable? Are you about p_Objects? It's not a table. Name it as it is.
+        // Why public?
         public void PrintFieldsTableByKeys(MyList<JSONObject> p_Objects, MyList<string> p_slectedKeys)
         {
             var firstRomNumber = Console.CursorTop;
@@ -55,7 +58,7 @@ namespace Parser
                 rowCounter = firstRomNumber + 1;
             }
         }   
-     
+        // Why public?
         public MyList<string> GetSelectedKeys()
         {
             MyList<string> selectedKeys = new MyList<string>();
@@ -89,7 +92,7 @@ namespace Parser
             }
            return selectedKeys;
         }
-       
+        // Print JSON objects as table?
         public void PrintJSONObjectsPropertiesOnConsole(MyList<JSONObject> parsedObjects)
 
         {         
@@ -107,4 +110,3 @@ namespace Parser
         }
     }
 }
-

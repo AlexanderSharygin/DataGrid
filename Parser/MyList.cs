@@ -154,8 +154,10 @@ namespace Parser.Extensions
             }
             _List = temp;
         }
+        // addis abeba? oh jah...
         public bool AddisUniqueItem(T item)
         {
+            // ah, uni call !
             bool isNotUnical = false;
             for (int i = 0; i < _List.Length; i++)
             {
@@ -166,6 +168,7 @@ namespace Parser.Extensions
                     { break; }
                 }
             }
+            // avoid using else where possible
             if (isNotUnical == false)
             {
                 Insert(_RealLength, item);

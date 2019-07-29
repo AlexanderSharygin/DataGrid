@@ -2,6 +2,7 @@
 using Parser.Extensions;
 namespace Parser
 {
+    // excessive abstraction
     public class JSONObject
     {
         public ObjectFields _Fields;
