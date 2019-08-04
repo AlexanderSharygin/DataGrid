@@ -1,16 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using Parser.Extensions;
 
 namespace Parser
 {
-    // Excessive inheritance
-    class ConsolePrinter:Printer
+   
+   static class ConsolePrinter
     {
-        // Is it the only reason why you are declaring this class as non static?
-        AgregatedKeyList _AllKeys;
-        // FieldsTable? Are you about p_Objects? It's not a table. Name it as it is.
-        // Why public?
-        public void PrintFieldsTableByKeys(MyList<JSONObject> p_Objects, MyList<string> p_slectedKeys)
+         private static void PrintFieldsTableByKeys(MyList<JSONObject> p_Objects, MyList<string> p_slectedKeys)
         {
             var firstRomNumber = Console.CursorTop;
             var rowCounter = firstRomNumber + 1;
@@ -21,7 +18,7 @@ namespace Parser
                 Console.SetCursorPosition(columnStartX, rowCounter);
                 Console.WriteLine(p_slectedKeys[i]);
                 rowCounter++;
-                var maxColumnLength = MaxColuntLength(p_Objects, p_slectedKeys[i]);
+                var maxColumnLength = PrintUtilities.MaxColuntLength(p_Objects, p_slectedKeys[i]);
                 Console.SetCursorPosition(columnStartX, rowCounter);
                 for (int j = 0; j < maxColumnLength + intercolumnShift; j++)
                 {
@@ -58,55 +55,133 @@ namespace Parser
                 rowCounter = firstRomNumber + 1;
             }
         }   
-        // Why public?
-        public MyList<string> GetSelectedKeys()
+      
+        private static MyList<string> GetSelectedKeys(AgregatedKeyList _AllKeys)
         {
             MyList<string> selectedKeys = new MyList<string>();
+            List<int> CheckedItems = new List<int>();
+            int b = 0;
+            int cursorPosition = Console.CursorTop;
             while (true)
             {
-                Console.Write("Введите значение:");
-                var keyIndex = 0;
-                bool isInputKeyNumberParsed = Int32.TryParse(Console.ReadLine(), out keyIndex);
-                if (isInputKeyNumberParsed)
+                Console.SetCursorPosition(0, cursorPosition);
+
+                for (int i = 0; i < _AllKeys.Count; i++)
                 {
-                    if (IsInputKeyValid(keyIndex, _AllKeys.Count))
+                    if (i == b)
                     {
-                        if (keyIndex == 0)
-                        {
-                            break;
-                        }
-                        if (selectedKeys.AddisUniqueItem(_AllKeys[keyIndex - 1]) == false)
-                        {
-                            Console.WriteLine("Это значение уже выбрано. Выберите другое");
-                        }
+                        Console.BackgroundColor = ConsoleColor.Blue;
+
                     }
                     else
                     {
-                        Console.WriteLine("Введите число в диапазоне от 1 до {0}, или введите 0 для перехода к выводу данных.", _AllKeys.Count);
+                        Console.BackgroundColor = ConsoleColor.Black;
+
+                    }
+                    if (CheckedItems.IndexOf(i) != -1)
+                    {
+                        Console.WriteLine("[X] {0}", _AllKeys[i]);
+                    }
+                    else
+                    {
+                        Console.WriteLine("[ ] {0}", _AllKeys[i]);
                     }
                 }
-                if (!isInputKeyNumberParsed)
-                {
-                    Console.WriteLine("Введено не допустимое значение. Повторите ввод");
-                }
-            }
-           return selectedKeys;
-        }
-        // Print JSON objects as table?
-        public void PrintJSONObjectsPropertiesOnConsole(MyList<JSONObject> parsedObjects)
+                Console.BackgroundColor = ConsoleColor.Black;
+                ConsoleKey fa = Console.ReadKey().Key;
 
-        {         
-            _AllKeys = new AgregatedKeyList(parsedObjects);
-            Console.WriteLine("Выберите набор отображаемых полей - введите номер поля и нажмите Enter.");
-            Console.WriteLine("Затем добавьте к набору другие поля или перейдите к выводу выбранного поля/набора полей.");
-            Console.WriteLine("Для вывода набора выбранных полей - введите 0 и нажмите Enter.");
-            for (int i = 0; i < _AllKeys.GetKeys.Count; i++)
-            {
-                Console.WriteLine("{0} - {1}", i + 1, _AllKeys.GetKeys[i]);
+                if (fa == ConsoleKey.DownArrow)
+                {
+                    if (b < _AllKeys.Count - 1)
+                    {
+                        b++;
+                    }
+                    continue;
+                }
+                if (fa == ConsoleKey.UpArrow)
+                {
+                    if (b > 0)
+                    {
+                        b--;
+                    }
+
+                    continue;
+                }
+
+                if (fa == ConsoleKey.Spacebar)
+                {
+                    if (CheckedItems.IndexOf(b) == -1)
+                    {
+                        CheckedItems.Add(b);
+
+                    }
+                    else
+                    {
+                        CheckedItems.Remove(b);
+
+                    }
+                    continue;
+                }
+                if (fa == ConsoleKey.Enter)
+                {
+                    for (int i = 0; i < _AllKeys.Count; i++)
+                    {
+                       Console.BackgroundColor = ConsoleColor.Black;
+                                        
+                        if (CheckedItems.IndexOf(i) != -1)
+                        {
+                            Console.WriteLine("[X] {0}", _AllKeys[i]);
+                        }
+                        else
+                        {
+                            Console.WriteLine("[ ] {0}", _AllKeys[i]);
+                        }
+                    }
+                    break;
+                }
+
+
+                else
+                { continue; }
             }
-            MyList<string> slectedKeys = GetSelectedKeys();
-            PrintFieldsTableByKeys(parsedObjects, slectedKeys);
-            Console.ReadLine();
+            for (int i = 0; i < CheckedItems.Count; i++)
+            {
+                var ind = CheckedItems[i];
+                selectedKeys.Add(_AllKeys[ind]);
+            }
+            return selectedKeys;
+        }
+       public static void PrintJSONObjectsAsTable(MyList<JSONObject> parsedObjects)
+
+        {
+            bool foolCycle = true;
+            AgregatedKeyList _AllKeys = new AgregatedKeyList(parsedObjects);
+            while (foolCycle)
+            {
+             Console.WriteLine("Выберите набор отображаемых полей - выберите поле в списке и нажмите пробел");
+            Console.WriteLine("Для вывода набора выбранных полей - нажмите Enter.");
+                MyList<string> slectedKeys = GetSelectedKeys(_AllKeys);
+                PrintFieldsTableByKeys(parsedObjects, slectedKeys);
+                Console.CursorTop++;
+                Console.WriteLine("Повторить процедуру? (Y - возврат к выбору полейб, N - выход");
+                while (true)
+                {
+                    ConsoleKey fa = Console.ReadKey().Key;
+                    if (fa == ConsoleKey.N)
+                    {
+                        foolCycle = false;
+                        break;
+                    }
+                    if (fa == ConsoleKey.Y)
+                    {
+                        foolCycle = true;
+                        Console.Clear();
+                        break;
+                    }
+                }
+
+            }
+       
         }
     }
 }

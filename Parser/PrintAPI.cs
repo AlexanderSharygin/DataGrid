@@ -5,7 +5,7 @@ namespace Parser
 {
     // Printer means that it prints something. But it looks more like utility methods for a specific task.
     // Besides, it's probably an excessive abstraction.
-    class Printer
+    static class PrintUtilities
     {            
        static int GetFieldValueLength(JSONObject p_item, string key)
         {
@@ -22,13 +22,14 @@ namespace Parser
             }
         }       
         // what?
+        //сделать константу
         public static int MaxColuntLength(MyList<JSONObject> p_Objects, string p_key)
         {
             var maxColumnLength = p_Objects.MaxValue(p_key, GetFieldValueLength);
             var currentColumnLength = p_key.Length;
             if (maxColumnLength > currentColumnLength)
             {
-                if (IsVeryLengthFieldForColumn(maxColumnLength, currentColumnLength))
+                if (IsFieldForColumnToLong(maxColumnLength, currentColumnLength))
                 {
                     currentColumnLength = currentColumnLength * 3 + 3;
                 }
@@ -39,8 +40,7 @@ namespace Parser
             }
             return currentColumnLength;
         }
-        // google translate 'слишком длинный'
-        public static bool IsVeryLengthFieldForColumn(int p_maxFieldLength, int p_columnLength)
+        public static bool IsFieldForColumnToLong(int p_maxFieldLength, int p_columnLength)
         {
             if (p_maxFieldLength > 3 * p_columnLength)
             {

@@ -76,7 +76,7 @@
     <None Include="packages.config" />
     <None Include="Trash\MyList_Trash.cs" />
     <Compile Include="ObjectFields.cs" />
-    <Compile Include="Printer %28base%29.cs" />
+    <Compile Include="PrintAPI.cs" />
     <Compile Include="JSONObject.cs" />
     <Compile Include="JSONParser.cs" />
     <Compile Include="ConsolePrinter.cs" />
@@ -102,7 +102,9 @@
     <Folder Include="bin\Debug\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Files\Data.txt" />
+    <Content Include="Files\Data.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="packages\Microsoft.CodeAnalysis.Analyzers.2.6.2\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />

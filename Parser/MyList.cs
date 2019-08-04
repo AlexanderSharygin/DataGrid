@@ -10,18 +10,18 @@ namespace Parser.Extensions
         
 
         private T[] _EnumedMass;
-        int _elementIndex;
+        int _ElementIndex;
         public MyEnumerator(T[] items)
         {
             _EnumedMass = items;
-            _elementIndex = -1;
+            _ElementIndex = -1;
         }
 
         public T Current
         {
             get
             {
-                return _EnumedMass[_elementIndex];
+                return _EnumedMass[_ElementIndex];
             }
         }
         object IEnumerator.Current => Current;
@@ -33,8 +33,8 @@ namespace Parser.Extensions
 
         public bool MoveNext()
         {
-            _elementIndex++;
-            return _elementIndex < _EnumedMass.Length;
+            _ElementIndex++;
+            return _ElementIndex < _EnumedMass.Length;
         }
        
         public void Reset()
