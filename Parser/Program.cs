@@ -17,7 +17,7 @@ namespace Parser
             // No, you didn't read the trello card and didn't follow the suggested approach.
             // Read about System.IO.Path
 
-           
+          
 
             string inputTextFilePath = AppDomain.CurrentDomain.BaseDirectory.Replace("\\bin\\Debug\\", "\\Files\\");                   
             var inputText = File.ReadAllText(inputTextFilePath + "data.txt");

@@ -46,8 +46,8 @@ namespace Parser.Extensions.Tests
             kl.Add("Surname1");
             kl.Add("Range");
             kl.Add("Range1");
-             Assert.AreEqual("Range1", kl[5]);
-            Assert.ThrowsException<IndexOutOfRangeException>(() => kl[6]);
+            Assert.AreEqual("Range1", kl[5]);
+            Assert.ThrowsException<IndexOutOfRangeException>(() => kl[20]);
 
         }
         [TestMethod()]

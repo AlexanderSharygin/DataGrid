@@ -23,12 +23,26 @@ namespace Parser.Tests
             a.Add(12);
             a.Add(15);                       
            Assert.AreEqual(15, a[4]);
-            Assert.ThrowsException<IndexOutOfRangeException>(() => a[5]);
+            Assert.ThrowsException<IndexOutOfRangeException>(() => a[10]);
             a[1] = 123;
             Assert.AreEqual(123, a[1]);
-            Assert.ThrowsException<IndexOutOfRangeException>(() => a[5]=123);
+            Assert.ThrowsException<IndexOutOfRangeException>(() => a[10]=123);
         }
-       
+        [TestMethod()]
+        public void RemoveTest()
+        {
+            MyList<int> test = new MyList<int>();
+            test.Add(1);
+            test.Add(2);
+            test.Add(3);
+            test.Add(4);
+            test.Add(5);
+            test.Remove(3);
+            test.Add(56);
+            Assert.AreEqual(4, test[2]);
+            Assert.AreEqual(56, test[4]);
+        }
+
         [TestMethod()]
         public void AddTest()
         {

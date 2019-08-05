@@ -59,7 +59,7 @@ namespace Parser
         private static MyList<string> GetSelectedKeys(AgregatedKeyList _AllKeys)
         {
             MyList<string> selectedKeys = new MyList<string>();
-            List<int> CheckedItems = new List<int>();
+            MyList<int> CheckedItems = new MyList<int>();
             int b = 0;
             int cursorPosition = Console.CursorTop;
             while (true)

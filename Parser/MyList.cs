@@ -68,14 +68,12 @@ namespace Parser.Extensions
         {
             get
             {
-
                 TrimExcessObjects();
                 return _List[elementIndex];
             }
             set
             {
-                TrimExcessObjects();
-                _List[elementIndex] = value;
+              _List[elementIndex] = value;
             }               
         }
         private void IncreaseLength(int minRequiredLength)
@@ -154,30 +152,29 @@ namespace Parser.Extensions
             }
             _List = temp;
         }
-        // addis abeba? oh jah...
-        public bool AddisUniqueItem(T item)
+    
+        public bool AddIsUniqueItem(T item)
         {
-            // ah, uni call !
-            bool isNotUnical = false;
+          
+            bool isNotUnique = false;
             for (int i = 0; i < _List.Length; i++)
             {
                 if (_List[i] != null)
                 {
-                    isNotUnical = _List[i].Equals(item);
-                    if (isNotUnical)
+                    isNotUnique = _List[i].Equals(item);
+                    if (isNotUnique)
                     { break; }
                 }
-            }
-            // avoid using else where possible
-            if (isNotUnical == false)
-            {
-                Insert(_RealLength, item);
-                return true;
-            }
-            else
+            }    
+            if (isNotUnique == true)
             {
                 return false;
             }
+            else
+            {
+                Insert(_RealLength, item);
+                return true;
+            }            
         }
         public void Insert(int index, T item)
         {
@@ -192,16 +189,45 @@ namespace Parser.Extensions
             }
             _List[index] = item;
             _RealLength++;
+            if (_RealLength >= Constants.MinLengthMyListThenTrimExcessObjects)
+            {
+                TrimExcessObjects();
+            }
         }
 
         public bool Remove(T item)
         {
-            throw new NotImplementedException();
+            int index = IndexOf(item);
+            if (index >= 0)
+            {
+                RemoveAt(index);
+                return true;
+            }
+
+            return false;
         }
 
         public void RemoveAt(int index)
         {
-            throw new NotImplementedException();
+            if (_RealLength >= Constants.MinLengthMyListThenTrimExcessObjects)
+            {
+                TrimExcessObjects();
+            }
+            T [] tempList = new T[_RealLength-1];                    
+            for (int i = 0; i < _RealLength -1; i++)
+            {
+                if (i < index)
+                {
+                    tempList[i] = _List[i];
+                }
+                else
+                {
+                    tempList[i] = _List[i + 1];
+                }
+            }
+            _RealLength--;
+            _List = tempList;
+           
         }
 
         IEnumerator IEnumerable.GetEnumerator()
