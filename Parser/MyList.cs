@@ -68,7 +68,7 @@ namespace Parser.Extensions
         {
             get
             {
-                TrimExcessObjects();
+             
                 return _List[elementIndex];
             }
             set

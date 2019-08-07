@@ -29,8 +29,7 @@ namespace Parser.Extensions
         {
             get
             {
-                // why do you think that it should be checked here? Why counts may become different?
-                ThrowIfKeysAndValuesHaveVariusCounts();
+
                 return _Values.Count;
             }
         }

@@ -11,10 +11,13 @@ namespace Parser.Extensions
             var defaultValue = int.MinValue;
             foreach (var item in items)
             {
-                var itemValue = MaxCalculationContract(item, key);
-                if (itemValue>defaultValue)
+                if (item != null)
                 {
-                    defaultValue = itemValue;
+                    var itemValue = MaxCalculationContract(item, key);
+                    if (itemValue > defaultValue)
+                    {
+                        defaultValue = itemValue;
+                    }
                 }
             }
             return defaultValue;     
