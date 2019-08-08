@@ -6,19 +6,17 @@ namespace Parser
 
     static class ConsolePrinter
     {
-         private static void PrintFieldsTableByKeys(MyList<JSONObject> p_Objects, MyList<string> p_slectedKeys)
+         private static void PrintFieldsAsTableByKeys(MyList<JSONObject> p_Objects, MyList<string> p_slectedKeys)
         {
             var firstRomNumber = Console.CursorTop;
-           
             var rowCounter = firstRomNumber + 1;
-                var columnStartX = 0;
+            var columnStartX = 0;
             for (int i = 0; i < p_slectedKeys.Count; i++)
             {
                 Console.SetCursorPosition(columnStartX, rowCounter);
-                
                 Console.WriteLine(p_slectedKeys[i]);
                 rowCounter++;
-                var maxColumnLength = MaxColuntLength(p_Objects, p_slectedKeys[i]);
+                var maxColumnLength = MaxColumnLength(p_Objects, p_slectedKeys[i]);
                 Console.SetCursorPosition(columnStartX, rowCounter);
                 for (int j = 0; j < maxColumnLength + Constants.IntercolumnShift; j++)
                 {
@@ -29,31 +27,27 @@ namespace Parser
                 for (int j = 0; j < p_Objects.Count; j++)
                 {
                     Console.SetCursorPosition(columnStartX, rowCounter);
-                    if (p_Objects[j].Fields.KeyIndexOf(p_slectedKeys[i]) != -1)
+                    if (p_Objects[j].Fields.KeyIndexOf(p_slectedKeys[i]) == -1)
                     {
-
-                        if (p_Objects[j].Fields[p_slectedKeys[i]].Length > Constants.FieldToLongСoefficient * p_slectedKeys[i].Length)
+                        Console.WriteLine(Constants.TextForUndefinedField);
+                    }
+                    else
+                    {
+                        if (IsFieldForColumnToLong(p_Objects[j].Fields[p_slectedKeys[i]].Length, p_slectedKeys[i].Length))
                         {
                           
                             Console.WriteLine(p_Objects[j].Fields[p_slectedKeys[i]].Substring(0, p_slectedKeys[i].Length * Constants.FieldToLongСoefficient) + Constants.CuttingStringForTooLongField);
                         }
                         else
                         {
-
-
                             Console.WriteLine(p_Objects[j].Fields[p_slectedKeys[i]]);
                         }
-                    }
-                    else
-                    {
-                        Console.WriteLine(Constants.TextForUndefinedField);
-                    }
-
+                    }              
                     
                     rowCounter = Console.CursorTop;
                 }
                 columnStartX += maxColumnLength + Constants.IntercolumnShift;
-                rowCounter = firstRomNumber + 1;
+               rowCounter = firstRomNumber + 1;
             }
         }
         private static void PrintCurrentMenuView(AgregatedKeyList p_AllMenuItems, MyList<int> p_CheckedMenuItems, int p_selectedFieldCounter)
@@ -86,11 +80,11 @@ namespace Parser
             MyList<string> selectedKeys = new MyList<string>();
             MyList<int> CheckedItems = new MyList<int>();
             int selecteFieldCounter = 0;
-           int cursorTopPosition = Console.CursorTop;
-                 while (true)
+            int cursorTopPosition = Console.CursorTop;
+            while (true)
             {
                 Console.SetCursorPosition(0, cursorTopPosition);
-                PrintCurrentMenuView(_AllKeys, CheckedItems, selecteFieldCounter);             
+                PrintCurrentMenuView(_AllKeys, CheckedItems, selecteFieldCounter);
                 Console.BackgroundColor = ConsoleColor.Black;
                 ConsoleKey pressedKeyWord = Console.ReadKey().Key;
                 if (pressedKeyWord == ConsoleKey.DownArrow)
@@ -128,17 +122,11 @@ namespace Parser
                 if (pressedKeyWord == ConsoleKey.Enter)
                 {
                     Console.Clear();
-                   //  Console.WriteLine("Выберите набор отображаемых полей - выберите поле в списке и нажмите пробел.");
-                
-          //  Console.WriteLine("Для вывода набора выбранных полей - нажмите Enter.");
-
                     Console.SetCursorPosition(0, cursorTopPosition);
-                    
+
                     for (int i = 0; i < _AllKeys.Count; i++)
                     {
-                       Console.BackgroundColor = ConsoleColor.Black;
-
-
+                        Console.BackgroundColor = ConsoleColor.Black;
                         if (CheckedItems.IndexOf(i) != -1)
                         {
                             Console.WriteLine("[X] {0}", _AllKeys[i]);
@@ -151,18 +139,15 @@ namespace Parser
                     break;
                 }
 
-                 else
+                else
                 {
                     continue;
                 }
             }
             for (int i = 0; i < CheckedItems.Count; i++)
             {
-                var ind = CheckedItems[i];
-                selectedKeys.Add(_AllKeys[ind]);
-            }
-            
-           
+                selectedKeys.Add(_AllKeys[CheckedItems[i]]);
+            }                     
             return selectedKeys;
             
         }
@@ -172,19 +157,16 @@ namespace Parser
             AgregatedKeyList _AllKeys = new AgregatedKeyList(parsedObjects);
             while (true)
             {
-                int cursorTopPosition = 0;
                 Console.CursorTop = 0;
                 Console.WriteLine("Определите набор отображаемых полей - выберите поле в списке и нажмите пробел.");
-                cursorTopPosition++;
                 Console.WriteLine("Для вывода набора выбранных полей - нажмите Enter.");
-                cursorTopPosition++;
                 MyList<string> slectedKeys = GetSelectedKeysFromUI(_AllKeys);
-                PrintFieldsTableByKeys(parsedObjects, slectedKeys);
-                Console.SetCursorPosition(0, cursorTopPosition);
+                PrintFieldsAsTableByKeys(parsedObjects, slectedKeys);
+             
             }
         }          
 
-        public static int MaxColuntLength(MyList<JSONObject> p_Objects, string p_key)
+        public static int MaxColumnLength(MyList<JSONObject> p_Objects, string p_key)
         {
             var maxColumnLength = p_Objects.MaxValue(p_key, GetFieldValueLength);
             var currentColumnLength = p_key.Length;
@@ -201,9 +183,9 @@ namespace Parser
             }
             return currentColumnLength;
         }
-        public static bool IsFieldForColumnToLong(int p_maxFieldLength, int p_columnLength)
+        public static bool IsFieldForColumnToLong(int p_FieldLength, int p_columnLength)
         {
-            if (p_maxFieldLength > 3 * p_columnLength)
+            if (p_FieldLength > Constants.FieldToLongСoefficient * p_columnLength)
             {
                 return true;
             }
