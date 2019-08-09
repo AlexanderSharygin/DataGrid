@@ -11,12 +11,33 @@ namespace Parser
             var firstRomNumber = Console.CursorTop;
             var rowCounter = firstRomNumber + 1;
             var columnStartX = 0;
+            int totalWidth = 0;
+            
+            
             for (int i = 0; i < p_slectedKeys.Count; i++)
             {
+                totalWidth += MaxColumnLength(p_Objects, p_slectedKeys[i]) + Constants.IntercolumnShift;
+                
+
+            }
+            if (totalWidth > Console.BufferWidth)
+            {
+                Console.Clear();                              
+                Console.BufferWidth = totalWidth;
+                Console.WindowHeight=Console.WindowHeight;
+                Console.WindowHeight = Console.WindowHeight;
+
+
+            }            
+            for (int i = 0; i < p_slectedKeys.Count; i++)
+            {
+                
                 Console.SetCursorPosition(columnStartX, rowCounter);
                 Console.WriteLine(p_slectedKeys[i]);
                 rowCounter++;
                 var maxColumnLength = MaxColumnLength(p_Objects, p_slectedKeys[i]);
+                totalWidth += maxColumnLength+Constants.IntercolumnShift;
+                
                 Console.SetCursorPosition(columnStartX, rowCounter);
                 for (int j = 0; j < maxColumnLength + Constants.IntercolumnShift; j++)
                 {
@@ -49,6 +70,7 @@ namespace Parser
                 columnStartX += maxColumnLength + Constants.IntercolumnShift;
                rowCounter = firstRomNumber + 1;
             }
+          
         }
         private static void PrintCurrentMenuView(AgregatedKeyList p_AllMenuItems, MyList<int> p_CheckedMenuItems, int p_selectedFieldCounter)
         {
@@ -81,6 +103,7 @@ namespace Parser
             MyList<int> CheckedItems = new MyList<int>();
             int selecteFieldCounter = 0;
             int cursorTopPosition = Console.CursorTop;
+            Console.CursorVisible = false;
             while (true)
             {
                 Console.SetCursorPosition(0, cursorTopPosition);
@@ -155,6 +178,7 @@ namespace Parser
 
         {
             AgregatedKeyList _AllKeys = new AgregatedKeyList(parsedObjects);
+            int a = Console.BufferWidth;
             while (true)
             {
                 Console.CursorTop = 0;
