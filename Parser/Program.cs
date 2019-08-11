@@ -22,8 +22,9 @@ namespace Parser
           //  string inputTextFilePath = AppDomain.CurrentDomain.BaseDirectory.Replace("\\bin\\Debug\\", "\\Files\\");                   
           //  var inputText = File.ReadAllText(inputTextFilePath + "data.txt");
             var inputText = File.ReadAllText("Files\\Data.txt");
-            MyList <JSONObject> JSONObjects = JSONParser.ParseSimpleJSON(inputText);            
-            ConsolePrinter.PrintJSONObjectsAsTable(JSONObjects);
+            MyList <JSONObject> JSONObjects = JSONParser.ParseSimpleJSON(inputText);
+            ConsolePrinter p = new ConsolePrinter(JSONObjects);
+            p.PrintJSONObjectsAsTable();
 
         }
     }

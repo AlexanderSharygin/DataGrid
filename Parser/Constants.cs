@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Parser.Extensions;
 
 namespace Parser
 {
@@ -15,5 +16,6 @@ namespace Parser
         public const string CuttingStringForTooLongField = "...";
         public const string CheckedFieldOnUIPrefix = "[X] ";
         public const string UncheckedFieldOnUIPrefix = "[ ] ";
+        public static readonly string [] PreambleStrings = { "Simple-JSON objects parser.", "UP/Down arrows - menu navigation.", "Space - Adding a field to the ones displayed in the table."};
     }
 }

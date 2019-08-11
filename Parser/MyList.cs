@@ -76,6 +76,13 @@ namespace Parser.Extensions
               _List[elementIndex] = value;
             }               
         }
+        public void Sort()
+        {
+            Array.Sort<T>(_List,0,_RealLength);
+            
+           
+        }
+
         private void IncreaseLength(int minRequiredLength)
         {
             if (_List.Length < minRequiredLength)
