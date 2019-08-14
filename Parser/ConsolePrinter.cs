@@ -11,9 +11,11 @@ namespace Parser
         AgregatedKeyList _AllKeys;
         MyList<JSONObject> _ParsedObjects;
         MyList<int> _CheckedMenuItems;
+        int _checkedField;
+        string[] allSortKeys = { "FirstName", "LastName" };
         public ConsolePrinter(MyList<JSONObject> p_parsedObjects)
         {
-             _SelectedFieldCounter = 0;
+             
             _AllKeys = new AgregatedKeyList(p_parsedObjects);
             _ParsedObjects = p_parsedObjects;
          _CheckedMenuItems = new MyList<int>();
@@ -35,13 +37,20 @@ namespace Parser
                 }
             }
         }
-        private void PrintFieldsAsTableByKeys(MyList<string> selectedKeys)
+        private void PrintFieldsAsTableByKeys(MyList<string> selectedKeys, string sortKey)
         {
             var firstRomNumber = Console.CursorTop;
             var rowCounter = firstRomNumber + 1;
             var columnStartX = 0;
-            int totalWidth = 0;          
-            
+            int totalWidth = 0;
+            if (sortKey == "FirstName")
+            {
+                _ParsedObjects.Sort((x, y) => x.FirstName.CompareTo(y.FirstName));
+            }
+            if (sortKey == "LastName")
+            {
+                _ParsedObjects.Sort((x, y) => x.LastName.CompareTo(y.LastName));
+            }
             for (int i = 0; i < selectedKeys.Count; i++)
             {
                 totalWidth += MaxColumnLength(_ParsedObjects, selectedKeys[i]) + Constants.IntercolumnShift;              
@@ -186,9 +195,81 @@ namespace Parser
             }
            return selectedKeys;            
         }
+        private void PrintCurrentSortKeyMenuView(int p_CheckedMenuItem, int p_selectedFieldCounter)
+        {
+           
+            for (int i = 0; i < allSortKeys.Length; i++)
+            {
+                if (i == p_selectedFieldCounter)
+                {
+                    Console.BackgroundColor = ConsoleColor.Blue;
+                }
+                else
+                {
+                    Console.BackgroundColor = ConsoleColor.Black;
+
+                }
+                if (p_CheckedMenuItem != i)
+                {
+                    Console.WriteLine(Constants.UncheckedFieldOnUIPrefix + allSortKeys[i]);
+
+                }
+                else
+                {
+                    Console.WriteLine(Constants.CheckedFieldOnUIPrefix + allSortKeys[i]);
+                }
+            }
+        }
+        private string GetSortKeysFromUI()
+        {
+
+            string keys;
+            
+            int cursorTopPosition = Console.CursorTop;
+            Console.CursorVisible = false;
+
+            while (true)
+            {
+
+                Console.SetCursorPosition(0, cursorTopPosition);
+                PrintCurrentSortKeyMenuView(_checkedField, _SelectedFieldCounter);
+                Console.BackgroundColor = ConsoleColor.Black;
+                ConsoleKey pressedKeyWord = Console.ReadKey().Key;
+                if (pressedKeyWord == ConsoleKey.DownArrow)
+                {
+                    if (_checkedField<=1)
+                    {
+                       _checkedField++;
+                    }
+                    continue;
+                }
+                if (pressedKeyWord == ConsoleKey.UpArrow)
+                {
+                    if (_checkedField > 0)
+                    {
+                        _checkedField--;
+                    }
+
+                    continue;
+                }
+
+                if (pressedKeyWord == ConsoleKey.Spacebar)
+                {
+                                                          
+                    break;
+                }
+
+                else
+                {
+                    continue;
+                }
+            }
+            return allSortKeys[_checkedField];
+        }
         public void PrintJSONObjectsAsTable()
         {
-            
+            string Sortkey="";
+            bool ftib = true;
             while (true)
             {
                 Console.CursorTop = 0;
@@ -196,8 +277,16 @@ namespace Parser
                 {
                     Console.WriteLine(Constants.PreambleStrings[i]);                  
                 }
+                if (ftib)
+                {
+                    Sortkey = GetSortKeysFromUI();
+                    ftib = false;
+                    Console.Clear();
+                    continue;
+                   
+                }
                 MyList<string> selectedKeys = GetSelectedKeysFromUI();
-                PrintFieldsAsTableByKeys(selectedKeys);                         
+                PrintFieldsAsTableByKeys(selectedKeys, Sortkey);                         
             }
         }        
 

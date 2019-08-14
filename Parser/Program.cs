@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using System.Reflection;
+using System.Collections.Generic;
 
 namespace Parser
 {
@@ -24,9 +25,12 @@ namespace Parser
             var inputText = File.ReadAllText("Files\\Data.txt");
             MyList <JSONObject> JSONObjects = JSONParser.ParseSimpleJSON(inputText);
             ConsolePrinter p = new ConsolePrinter(JSONObjects);
+                            
+          
+           
             p.PrintJSONObjectsAsTable();
-
         }
-    }
+       
+}
 
 }

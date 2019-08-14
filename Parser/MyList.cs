@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections;
 
 
@@ -82,6 +83,16 @@ namespace Parser.Extensions
             
            
         }
+        public void Sort(Comparison<T> comparison)
+        {
+            
+            if (_RealLength > 0)
+            {
+                IComparer<T> comparer = new FunctorComparer<T>(comparison);
+                Array.Sort(_List, 0, _RealLength, comparer);
+            }
+        }
+       
 
         private void IncreaseLength(int minRequiredLength)
         {
@@ -241,5 +252,20 @@ namespace Parser.Extensions
         {
             return GetEnumerator();
         }
+       class FunctorComparer<T> : IComparer<T>
+        {
+            Comparison<T> comparison;
+            public FunctorComparer(Comparison<T> comparison)
+            {
+                this.comparison = comparison;
+            }
+
+            public int Compare(T x, T y)
+            {
+                return comparison(x, y);
+            }
+        }
+       
     }
 }
+

@@ -137,6 +137,7 @@ namespace Parser
                 }
               
             }
+            obj.MapObjectFields();
             return obj;
         }
     }
