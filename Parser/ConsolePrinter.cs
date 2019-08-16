@@ -11,8 +11,7 @@ namespace Parser
         AgregatedKeyList _AllKeys;
         MyList<JSONObject> _ParsedObjects;
         MyList<int> _CheckedMenuItems;
-        int _checkedField;
-        string[] allSortKeys = { "FirstName", "LastName" };
+      
         public ConsolePrinter(MyList<JSONObject> p_parsedObjects)
         {
              
@@ -195,96 +194,19 @@ namespace Parser
             }
            return selectedKeys;            
         }
-        private void PrintCurrentSortKeyMenuView(int p_CheckedMenuItem, int p_selectedFieldCounter)
-        {
-           
-            for (int i = 0; i < allSortKeys.Length; i++)
-            {
-                if (i == p_selectedFieldCounter)
-                {
-                    Console.BackgroundColor = ConsoleColor.Blue;
-                }
-                else
-                {
-                    Console.BackgroundColor = ConsoleColor.Black;
-
-                }
-                if (p_CheckedMenuItem != i)
-                {
-                    Console.WriteLine(Constants.UncheckedFieldOnUIPrefix + allSortKeys[i]);
-
-                }
-                else
-                {
-                    Console.WriteLine(Constants.CheckedFieldOnUIPrefix + allSortKeys[i]);
-                }
-            }
-        }
-        private string GetSortKeysFromUI()
-        {
-
-            string keys;
-            
-            int cursorTopPosition = Console.CursorTop;
-            Console.CursorVisible = false;
-
-            while (true)
-            {
-
-                Console.SetCursorPosition(0, cursorTopPosition);
-                PrintCurrentSortKeyMenuView(_checkedField, _SelectedFieldCounter);
-                Console.BackgroundColor = ConsoleColor.Black;
-                ConsoleKey pressedKeyWord = Console.ReadKey().Key;
-                if (pressedKeyWord == ConsoleKey.DownArrow)
-                {
-                    if (_checkedField<=1)
-                    {
-                       _checkedField++;
-                    }
-                    continue;
-                }
-                if (pressedKeyWord == ConsoleKey.UpArrow)
-                {
-                    if (_checkedField > 0)
-                    {
-                        _checkedField--;
-                    }
-
-                    continue;
-                }
-
-                if (pressedKeyWord == ConsoleKey.Spacebar)
-                {
-                                                          
-                    break;
-                }
-
-                else
-                {
-                    continue;
-                }
-            }
-            return allSortKeys[_checkedField];
-        }
+       
+       
         public void PrintJSONObjectsAsTable()
         {
-            string Sortkey="";
-            bool ftib = true;
+            string Sortkey="FirstName";
+          
             while (true)
             {
                 Console.CursorTop = 0;
                 for (int i = 0;  i< Constants.PreambleStrings.Length; i++)
                 {
                     Console.WriteLine(Constants.PreambleStrings[i]);                  
-                }
-                if (ftib)
-                {
-                    Sortkey = GetSortKeysFromUI();
-                    ftib = false;
-                    Console.Clear();
-                    continue;
-                   
-                }
+                }               
                 MyList<string> selectedKeys = GetSelectedKeysFromUI();
                 PrintFieldsAsTableByKeys(selectedKeys, Sortkey);                         
             }
