@@ -14,6 +14,7 @@ namespace Parser
         public int YPosition { get; set; }
         public bool IsChecked { get; set; }
         public bool IsFocused { get; set; }
+        public int Width { get; set; }
 
     }
     class MenuSource
@@ -21,10 +22,13 @@ namespace Parser
         public int GlobalCounter;
         AgregatedKeyList _AllKeys;
         List<Cell> _MenuItems;
+        List<List<Cell>> _AllTableItems;
         int _MaxMenuLength;
         int _SelectedFieldCounter = 0;
+        MyList<JSONObject> _ParsedObjects;
         public MenuSource(MyList<JSONObject> p_parsedObjects)
         {
+            _ParsedObjects = p_parsedObjects;
             _AllKeys = new AgregatedKeyList(p_parsedObjects);
             _MenuItems = new List<Cell>(_AllKeys.Count);
             for (int i = 0; i < _AllKeys.Count; i++)
@@ -43,12 +47,15 @@ namespace Parser
                 {
                     _MenuItems[i].IsFocused = false;
                 }
+              
             }
+            
             _MaxMenuLength = _MenuItems.Max(item => item.Body.Length);
-
+           
         }
         public void RefreshMenu()
         {
+            GlobalCounter = 0;
             for (int i = 0; i < _MenuItems.Count; i++)
             {
                 Console.SetCursorPosition(_MenuItems[i].XPosition, _MenuItems[i].YPosition);
@@ -73,10 +80,12 @@ namespace Parser
                 if (_MenuItems[i].IsChecked)
                 {
                     Console.Write(Constants.CheckedFieldOnUIPrefix + _MenuItems[i].Body);
+                    GlobalCounter++;
                 }
                 else
                 {
                     Console.Write(Constants.UncheckedFieldOnUIPrefix + _MenuItems[i].Body);
+                    GlobalCounter++;
                 }
             }
 
@@ -125,7 +134,14 @@ namespace Parser
                         _MenuItems[_SelectedFieldCounter].IsChecked = true;
                     }
                     ChecOrUncheckkMenuItem(_SelectedFieldCounter);
+                    Cell[,] tableCells = GetTableCells();
+                    continue;
 
+                }
+                if (pressedKeyWord == ConsoleKey.Tab)
+                {
+                    RefreshMenu();
+                    continue;
                 }
                 else
                 {
@@ -134,6 +150,65 @@ namespace Parser
                     continue;
                 }
             }
+        }
+        private List<string> GetSelectedMenuItems()
+        {
+            List<string> checkedMenuItems = new List<string>();
+            for (int i = 0; i < _MenuItems.Count; i++)
+            {
+                if (_MenuItems[i].IsChecked == true)
+                {
+                    checkedMenuItems.Add(_MenuItems[i].Body);
+                }
+            }
+            return checkedMenuItems;
+        }
+        private Cell[,] GetTableCells()
+        {
+            int ColumnXPosition = 0;
+            List<string> SelectedItems = GetSelectedMenuItems();
+            Cell[,]tableCells = new Cell[SelectedItems.Count, _ParsedObjects.Count+1];
+            for (int i = 0; i < SelectedItems.Count; i++)
+            {
+                tableCells[i, 0] = new Cell();
+                tableCells[i, 0].Body = SelectedItems[i];
+                tableCells[i, 0].XPosition = GlobalCounter+1;
+                tableCells[i, 0].XPosition = ColumnXPosition;
+                for (int j = 0; j < _ParsedObjects.Count; j++)
+                {
+                    tableCells[i, j+1] = new Cell();
+                    tableCells[i, j + 1].YPosition = tableCells[i, j].XPosition + 1;
+                    tableCells[i, j + 1].XPosition = ColumnXPosition;
+                    if (_ParsedObjects[j].Fields.KeyIndexOf(SelectedItems[i]) == -1)
+                    {
+                        tableCells[i, j + 1].Body = Constants.TextForUndefinedField;
+                       
+                    }
+                    else
+                    {
+                        tableCells[i, j + 1].Body = _ParsedObjects[j].Fields[SelectedItems[i]];
+                    }
+                }
+                ColumnXPosition +=  GetFieldValueLength(tableCells, i, _ParsedObjects.Count);
+                for (int j = 0; j < SelectedItems.Count; j++)
+                {
+                    tableCells[i, j].Width = ColumnXPosition;
+                }
+            }
+           
+            ColumnXPosition +=  Constants.IntercolumnShift;
+            return tableCells;
+
+        }
+        static int GetFieldValueLength(Cell[,] items, int FirstIndex, int SecondIndex)
+        {
+            int a=0;
+            for (int i = 0; i < SecondIndex; i++)
+            {
+               a = items[FirstIndex, i].Body.Length;
+            }
+            return a;
+
         }
         public void ChecOrUncheckkMenuItem(int i)
         {

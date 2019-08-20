@@ -20,11 +20,28 @@ namespace Parser.Extensions
                     }
                 }
             }
-            return defaultValue;     
-        }
-      
+            return defaultValue;
+           
     }
+        public static int ArrayMaxValue<T>(this ICollection<T> items, int a, int b, ArrayMaxValueCalculation<T> MaxCalculationContract)
+        {
+            var defaultValue = int.MinValue;
+            foreach (var item in items)
+            {
+                if (item != null)
+                {
+                    var itemValue = MaxCalculationContract(item, a,b);
+                    if (itemValue > defaultValue)
+                    {
+                        defaultValue = itemValue;
+                    }
+                }
+            }
+            return defaultValue;
+        }
+
+    }
+    public delegate int ArrayMaxValueCalculation<TItem>(TItem item, int a, int b);
     public delegate int MaxValueCalculation<TItem>(TItem item, string key);
-   
-    
+
 }
