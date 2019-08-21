@@ -23,7 +23,7 @@ namespace Parser.Extensions
             return defaultValue;
            
     }
-        public static int ArrayMaxValue<T>(this ICollection<T> items, int a, int b, ArrayMaxValueCalculation<T> MaxCalculationContract)
+        public static int ArrayMaxValue<T>(this IEnumerable<T> items, int a, int b, ArrayMaxValueCalculation<T> MaxCalculationContract)
         {
             var defaultValue = int.MinValue;
             foreach (var item in items)

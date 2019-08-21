@@ -276,10 +276,13 @@ namespace Parser
         }
         static int GetFieldValueLength(Cell[,] items, int FirstIndex, int SecondIndex)
         {
-            int a=0;
+            int a=Int32.MinValue;
             for (int i = 0; i < SecondIndex; i++)
             {
-               a = items[FirstIndex, i].Body.Length;
+                if (items[FirstIndex, i].Body.Length > a)
+                {
+                    a = items[FirstIndex, i].Body.Length;
+                }
             }
             return a;
 
