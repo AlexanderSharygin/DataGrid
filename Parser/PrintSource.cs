@@ -14,18 +14,25 @@ namespace Parser
         public int YPosition { get; set; }
         public bool IsChecked { get; set; }
         public bool IsFocused { get; set; }
+        public bool IsForUpdate { get; set; }
         public int Width { get; set; }
+        public Cell()
+            {
+            Body = "";
+        }
 
     }
     class MenuSource
     {
         public int GlobalCounter;
+        public int GlobalXCounter=0;
         AgregatedKeyList _AllKeys;
         List<Cell> _MenuItems;
         List<List<Cell>> _AllTableItems;
         int _MaxMenuLength;
         int _SelectedFieldCounter = 0;
         MyList<JSONObject> _ParsedObjects;
+        List<String> preSelectedItems = new List<string>();
         public MenuSource(MyList<JSONObject> p_parsedObjects)
         {
             _ParsedObjects = p_parsedObjects;
@@ -47,8 +54,10 @@ namespace Parser
                 {
                     _MenuItems[i].IsFocused = false;
                 }
-              
+
+                preSelectedItems.Add("");
             }
+
             
             _MaxMenuLength = _MenuItems.Max(item => item.Body.Length);
            
@@ -135,6 +144,44 @@ namespace Parser
                     }
                     ChecOrUncheckkMenuItem(_SelectedFieldCounter);
                     Cell[,] tableCells = GetTableCells();
+                    List<string> a = GetSelectedMenuItems();
+                    for (int i = 0; i < a.Count; i++)
+                    {
+                        if (tableCells[i, 0].IsForUpdate == true)
+                        {
+                            Console.BackgroundColor = ConsoleColor.Black;
+                            for (int j = 0; j < _ParsedObjects.Count; j++)
+                            {
+                                Console.SetCursorPosition(tableCells[i, j].XPosition, tableCells[i, j].YPosition);
+                                for (int k = 0; k < Console.BufferWidth-Console.CursorLeft; k++)
+                                {
+                                    Console.Write(" ");
+                                }
+                                Console.SetCursorPosition(tableCells[i, j].XPosition, tableCells[i, j].YPosition);
+                                Console.Write(tableCells[i, j].Body);
+
+                            }
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+                     int fiiCounter = GlobalCounter;
+                    Console.SetCursorPosition(GlobalXCounter,GlobalCounter);
+                    for (int i = 0; i < _ParsedObjects.Count+1; i++)
+                    {
+                        for (int k = 0; k < 20; k++)
+                        {
+                            Console.BackgroundColor = ConsoleColor.Black;
+                            Console.Write(" ");
+                        }
+                        fiiCounter++;
+                        Console.SetCursorPosition(GlobalXCounter, fiiCounter);
+
+                    }
+                  
+                    Console.BackgroundColor = ConsoleColor.Blue;
                     continue;
 
                 }
@@ -166,19 +213,31 @@ namespace Parser
         private Cell[,] GetTableCells()
         {
             int ColumnXPosition = 0;
+            GlobalXCounter = 0;
             List<string> SelectedItems = GetSelectedMenuItems();
             Cell[,]tableCells = new Cell[SelectedItems.Count, _ParsedObjects.Count+1];
             for (int i = 0; i < SelectedItems.Count; i++)
             {
+               
                 tableCells[i, 0] = new Cell();
+                if (preSelectedItems[i] == SelectedItems[i])
+                    {
+                        tableCells[i, 0].IsForUpdate = false;
+                    }
+                    else
+                    {
+                        tableCells[i, 0].IsForUpdate = true;
+                    }              
+
                 tableCells[i, 0].Body = SelectedItems[i];
-                tableCells[i, 0].XPosition = GlobalCounter+1;
-                tableCells[i, 0].XPosition = ColumnXPosition;
+                tableCells[i, 0].YPosition = GlobalCounter+1;
+                tableCells[i, 0].XPosition = GlobalXCounter;
                 for (int j = 0; j < _ParsedObjects.Count; j++)
                 {
                     tableCells[i, j+1] = new Cell();
-                    tableCells[i, j + 1].YPosition = tableCells[i, j].XPosition + 1;
-                    tableCells[i, j + 1].XPosition = ColumnXPosition;
+                    tableCells[i, j + 1].YPosition = tableCells[i, j].YPosition + 1;
+                    tableCells[i, j + 1].XPosition = GlobalXCounter;
+
                     if (_ParsedObjects[j].Fields.KeyIndexOf(SelectedItems[i]) == -1)
                     {
                         tableCells[i, j + 1].Body = Constants.TextForUndefinedField;
@@ -188,15 +247,30 @@ namespace Parser
                     {
                         tableCells[i, j + 1].Body = _ParsedObjects[j].Fields[SelectedItems[i]];
                     }
+                    tableCells[i, j+1].IsForUpdate = tableCells[i, 0].IsForUpdate;
                 }
-                ColumnXPosition +=  GetFieldValueLength(tableCells, i, _ParsedObjects.Count);
+                ColumnXPosition =  GetFieldValueLength(tableCells, i, _ParsedObjects.Count);
                 for (int j = 0; j < SelectedItems.Count; j++)
                 {
                     tableCells[i, j].Width = ColumnXPosition;
+                   
                 }
+
+                ColumnXPosition += Constants.IntercolumnShift;
+                GlobalXCounter += ColumnXPosition;
             }
-           
-            ColumnXPosition +=  Constants.IntercolumnShift;
+
+            for (int i = 0; i < preSelectedItems.Count; i++)
+            {
+                
+                preSelectedItems[i] = "";
+            }
+            for (int i = 0; i < SelectedItems.Count; i++)
+            {
+                
+                preSelectedItems[i] = SelectedItems[i];
+            }
+
             return tableCells;
 
         }
