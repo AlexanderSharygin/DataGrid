@@ -221,13 +221,9 @@ namespace Parser
             }
         }
         private string GetSortKeysFromUI()
-        {
-
-            string keys;
-            
+        {                
             int cursorTopPosition = Console.CursorTop;
             Console.CursorVisible = false;
-
             while (true)
             {
 

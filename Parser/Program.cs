@@ -26,8 +26,8 @@ namespace Parser
             MyList <JSONObject> JSONObjects = JSONParser.ParseSimpleJSON(inputText);
             // ConsolePrinter p = new ConsolePrinter(JSONObjects);
 
-            MenuSource m = new MenuSource(JSONObjects);
-            m.Run();
+            RenderPrinter m = new RenderPrinter(JSONObjects);
+            m.Print();
            
            // p.PrintJSONObjectsAsTable();
         }
