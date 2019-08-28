@@ -16,9 +16,8 @@ namespace Parser
         public bool IsFocused { get; set; }
         public bool IsForUpdate { get; set; }
         public int Width { get; set; }
-      
-     }
-    class RenderPrinter
+    }
+    class ConsoleRender
     {
         public int _MenuItemsCount;
         public int _TableWidth;
@@ -30,7 +29,7 @@ namespace Parser
         List<String> _PreviousSelectedItems = new List<string>();
         List<string> _SelectedItems;
         bool isTableLess;
-        public RenderPrinter(MyList<JSONObject> p_parsedObjects)
+        public ConsoleRender(MyList<JSONObject> p_parsedObjects)
         {
             _ParsedObjects = p_parsedObjects;
             _AllKeys = new AgregatedKeyList(p_parsedObjects);
@@ -40,7 +39,7 @@ namespace Parser
                 _MenuItems.Add(new Cell());
                 _MenuItems[i].Body = _AllKeys[i];
                 _MenuItems[i].XPosition = 0;
-                _MenuItems[i].YPosition = i+Constants.PreambleStrings.Length;
+                _MenuItems[i].YPosition = i + Constants.PreambleStrings.Length;
                 _MenuItems[i].IsChecked = false;
                 if (i == 0)
                 {
@@ -53,7 +52,6 @@ namespace Parser
                 _PreviousSelectedItems.Add("");
             }
             _MenuWidth = _MenuItems.Max(item => item.Body.Length);
-
         }
         public void ReWritehMenu()
         {
@@ -62,10 +60,7 @@ namespace Parser
             {
                 Console.SetCursorPosition(_MenuItems[i].XPosition, _MenuItems[i].YPosition);
                 Console.BackgroundColor = ConsoleColor.Black;
-                for (int j = 0; j < _MenuWidth; j++)
-                {
-                    Console.Write(" ");
-                }
+                Console.Write("".PadLeft(_MenuWidth));
                 Console.SetCursorPosition(_MenuItems[i].XPosition, _MenuItems[i].YPosition);
                 if (_MenuItems[i].IsFocused)
                 {
@@ -75,7 +70,6 @@ namespace Parser
                 {
                     Console.BackgroundColor = ConsoleColor.Black;
                 }
-
                 if (_MenuItems[i].IsChecked)
                 {
                     Console.Write(Constants.CheckedFieldOnUIPrefix + _MenuItems[i].Body);
@@ -87,9 +81,8 @@ namespace Parser
                     _MenuItemsCount++;
                 }
             }
-
         }
-        public void Print()
+        public void RendreUI()
         {
             Console.CursorVisible = false;
             Console.BufferWidth = Constants.MinWidthConsoleBufer;
@@ -98,10 +91,8 @@ namespace Parser
                 Console.WriteLine(Constants.PreambleStrings[i]);
             }
             ReWritehMenu();
-       
             while (true)
             {
-              
                 bool isConsoleCleared = false;
                 ConsoleKey pressedKeyWord = Console.ReadKey(true).Key;
                 if (pressedKeyWord == ConsoleKey.DownArrow)
@@ -121,7 +112,6 @@ namespace Parser
                         _MenuItems[_FocusedMenuItemCounter].IsFocused = false;
                         _MenuItems[_FocusedMenuItemCounter - 1].IsFocused = true;
                         MoveToNextOrPrevMenuItem(_FocusedMenuItemCounter, false);
-
                     }
                     continue;
                 }
@@ -142,17 +132,15 @@ namespace Parser
                         if (tableCells[i, 0].IsForUpdate == true)
                         {
                             Console.BackgroundColor = ConsoleColor.Black;
-                          
-                            for (int j = 0; j < _ParsedObjects.Count+2; j++)
+
+                            for (int j = 0; j < _ParsedObjects.Count + 2; j++)
                             {
                                 if (!isConsoleCleared)
                                 {
                                     ClearConsoleRow(tableCells[i, j].XPosition, tableCells[i, j].YPosition);
-
                                 }
-                                 Console.SetCursorPosition(tableCells[i, j].XPosition, tableCells[i, j].YPosition);
+                                Console.SetCursorPosition(tableCells[i, j].XPosition, tableCells[i, j].YPosition);
                                 Console.Write(tableCells[i, j].Body);
-
                             }
                             isConsoleCleared = true;
                         }
@@ -160,15 +148,16 @@ namespace Parser
                         {
                             continue;
                         }
-                      
-
                     }
                     if (isTableLess)
-                     {
-                        ClearToEndConsole(_TableWidth, _MenuItemsCount+ Constants.PreambleStrings.Length + 1);
+                    {
+                        ClearToEndConsole(_TableWidth, _MenuItemsCount + Constants.PreambleStrings.Length + 1);
+                    }
+                    if (_TableWidth > Console.WindowWidth)
+                    {
+                        Console.BufferWidth = _TableWidth + 2;
                     }
                     continue;
-
                 }
                 if (pressedKeyWord == ConsoleKey.Tab)
                 {
@@ -177,43 +166,28 @@ namespace Parser
                 }
                 else
                 {
-
-
                     continue;
                 }
             }
         }
-        
-           
-       
         private void ClearToEndConsole(int xPosition, int yPosition)
         {
-            int startRowCounter = _MenuItemsCount+Constants.PreambleStrings.Length + 1;
-            int endRowCounter = startRowCounter + _ParsedObjects.Count+1;
-            Console.SetCursorPosition(xPosition , yPosition);
+            int startRowCounter = _MenuItemsCount + Constants.PreambleStrings.Length + 1;
+            int endRowCounter = startRowCounter + _ParsedObjects.Count + 1;
+            Console.SetCursorPosition(xPosition, yPosition);
             for (int i = startRowCounter; i <= endRowCounter; i++)
             {
-                int a = xPosition;
-                while (a<Console.BufferWidth)
-                {
-                    Console.BackgroundColor = ConsoleColor.Black;
-                    Console.Write(" ");
-                    a++;
-                }               
-                Console.SetCursorPosition(xPosition, i+1);
+                Console.BackgroundColor = ConsoleColor.Black;
+                Console.Write("".PadLeft(Console.BufferWidth - xPosition));
+                Console.SetCursorPosition(xPosition, i + 1);
             }
             Console.BackgroundColor = ConsoleColor.Blue;
         }
         private void ClearConsoleRow(int xPosition, int yPosition)
         {
-
             Console.SetCursorPosition(xPosition, yPosition);
-            for (int k = 0; k < Console.BufferWidth - Console.CursorLeft; k++)
-            {
-                Console.Write(" ");
-            }
+            Console.Write("".PadLeft(Console.BufferWidth - xPosition));
         }
-
         private List<string> GetSelectedMenuItems()
         {
             List<string> checkedMenuItems = new List<string>();
@@ -247,11 +221,11 @@ namespace Parser
                 tableCells[i, 0].YPosition = _MenuItemsCount + 1 + Constants.PreambleStrings.Length;
                 tableCells[i, 0].XPosition = _TableWidth;
                 tableCells[i, 1] = new Cell();
-                tableCells[i, 1].YPosition = tableCells[i, 0].YPosition+1;
-                tableCells[i, 1].XPosition = _TableWidth;                   
+                tableCells[i, 1].YPosition = tableCells[i, 0].YPosition + 1;
+                tableCells[i, 1].XPosition = _TableWidth;
                 tableCells[i, 1].IsForUpdate = tableCells[i, 0].IsForUpdate;
                 tableCells[i, 1].Body = "-";
-                for (int j = 2; j < _ParsedObjects.Count+2; j++)
+                for (int j = 2; j < _ParsedObjects.Count + 2; j++)
                 {
                     tableCells[i, j] = new Cell();
                     tableCells[i, j].YPosition = tableCells[i, j - 1].YPosition + 1;
@@ -260,12 +234,11 @@ namespace Parser
                     if (_ParsedObjects[j - 2].Fields.KeyIndexOf(_SelectedItems[i]) == -1)
                     {
                         tableCells[i, j].Body = Constants.TextForUndefinedField;
-
                     }
                     else
                     {
                         tableCells[i, j].Body = _ParsedObjects[j - 2].Fields[_SelectedItems[i]];
-                        if (tableCells[i, j].Body.Length>tableCells[i,0].Body.Length*Constants.FieldToLongСoefficient)
+                        if (tableCells[i, j].Body.Length > tableCells[i, 0].Body.Length * Constants.FieldToLongСoefficient)
                         {
                             tableCells[i, j].Body = tableCells[i, j].Body.Substring(0, tableCells[i, 0].Body.Length * Constants.FieldToLongСoefficient) + Constants.CuttingStringForTooLongField;
                         }
@@ -273,33 +246,15 @@ namespace Parser
                     tableCells[i, j].IsForUpdate = tableCells[i, 0].IsForUpdate;
                 }
                 collumnWidth = GetFieldValueLength(tableCells, i, _ParsedObjects.Count);
-                for (int j = 0; j < _SelectedItems.Count+1; j++)
+                for (int j = 0; j < _SelectedItems.Count + 1; j++)
                 {
                     tableCells[i, j].Width = collumnWidth;
                 }
-                StringBuilder b = new StringBuilder();
-                tableCells[i, 1].Body = b.Append('-', tableCells[i, 1].Width+Constants.IntercolumnShift).ToString();
-              
+                tableCells[i, 1].Body = "".PadLeft(tableCells[i, 1].Width + Constants.IntercolumnShift, '-');
                 _TableWidth += collumnWidth + Constants.IntercolumnShift;
-
-               
-              /*  if (Console.BufferWidth - _TableWidth < collumnWidth)
-                {
-                    Console.BufferWidth = Console.BufferWidth * 2;
-                }*/
-               
-
             }
-           
-            int previousMenuItemsCount = 0;
-            for (int i = 0; i < _PreviousSelectedItems.Count; i++)
-            {
-                if (_PreviousSelectedItems[i] != "")
-                {
-                    previousMenuItemsCount++;
-                }
-                _PreviousSelectedItems[i] = "";
-            }
+
+            int previousMenuItemsCount = _PreviousSelectedItems.IndexOf("");
             if (previousMenuItemsCount < _SelectedItems.Count)
             {
                 isTableLess = false;
@@ -308,29 +263,23 @@ namespace Parser
             {
                 isTableLess = true;
             }
+            for (int i = 0; i < _PreviousSelectedItems.Count; i++)
+            {
+                _PreviousSelectedItems[i] = "";
+            }
             for (int i = 0; i < _SelectedItems.Count; i++)
             {
                 _PreviousSelectedItems[i] = _SelectedItems[i];
             }
-           /* if (isTableLess)
-            {
-               if (_TableWidth > Console.WindowWidth)
-               {
-                   Console.BufferWidth = _TableWidth + 1;
-               }
-            }
-            else*/
             if (_TableWidth > Console.BufferWidth)
             {
-                Console.BufferWidth = _TableWidth+1;
-            }  
+                Console.BufferWidth = _TableWidth + 1;
+            }
             return tableCells;
-
         }
-        
         static int GetFieldValueLength(Cell[,] items, int FirstIndex, int SecondIndex)
         {
-            int a=Int32.MinValue;
+            int a = Int32.MinValue;
             for (int i = 0; i < SecondIndex; i++)
             {
                 if (items[FirstIndex, i].Body.Length > a)
@@ -339,16 +288,12 @@ namespace Parser
                 }
             }
             return a;
-
         }
         public void ChecOrUncheckkMenuItem(int FocusedItemIndex)
         {
             Console.SetCursorPosition(_MenuItems[FocusedItemIndex].XPosition, _MenuItems[FocusedItemIndex].YPosition);
             Console.BackgroundColor = ConsoleColor.Black;
-            for (int i = 0; i < _MenuWidth; i++)
-            {
-                Console.Write(" ");
-            }
+            Console.Write("".PadLeft(_MenuWidth));
             Console.BackgroundColor = ConsoleColor.Blue;
             Console.SetCursorPosition(_MenuItems[FocusedItemIndex].XPosition, _MenuItems[FocusedItemIndex].YPosition);
             if (_MenuItems[FocusedItemIndex].IsChecked)
@@ -361,8 +306,7 @@ namespace Parser
             }
         }
         public void MoveToNextOrPrevMenuItem(int curentFocusedItemIndex, bool isNext)
-        {               
-            
+        {
             int CurrentIndex = curentFocusedItemIndex;
             int nextIndex;
             if (isNext)
@@ -375,11 +319,7 @@ namespace Parser
             }
             Console.SetCursorPosition(_MenuItems[CurrentIndex].XPosition, _MenuItems[CurrentIndex].YPosition);
             Console.BackgroundColor = ConsoleColor.Black;
-            for (int i =0; i< _MenuWidth; i++)
-            {
-                Console.Write(" ");
-               
-            }
+            Console.Write("".PadLeft(_MenuWidth));
             Console.SetCursorPosition(_MenuItems[CurrentIndex].XPosition, _MenuItems[CurrentIndex].YPosition);
             if (_MenuItems[CurrentIndex].IsChecked)
             {
@@ -391,10 +331,7 @@ namespace Parser
             }
             Console.SetCursorPosition(_MenuItems[nextIndex].XPosition, _MenuItems[nextIndex].YPosition);
             Console.BackgroundColor = ConsoleColor.Black;
-            for (int i = 0; i < _MenuWidth; i++)
-            {
-                Console.Write(" ");              
-            }
+            Console.Write("".PadLeft(_MenuWidth));
             Console.BackgroundColor = ConsoleColor.Blue;
             Console.SetCursorPosition(_MenuItems[nextIndex].XPosition, _MenuItems[nextIndex].YPosition);
             if (_MenuItems[nextIndex].IsChecked)
@@ -411,7 +348,9 @@ namespace Parser
                 _FocusedMenuItemCounter++;
             }
             else
-                { _FocusedMenuItemCounter--; }
-        }
+            {
+                _FocusedMenuItemCounter--;
+            }
         }
     }
+}
