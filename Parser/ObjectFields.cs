@@ -93,23 +93,24 @@ namespace Parser.Extensions
     }
     public class AgregatedKeyList : IEnumerable
     {
-        MyList<string> _AgregatedKeys;
+        List<string> _AgregatedKeys;
+       
         public AgregatedKeyList()
         {
-            _AgregatedKeys = new MyList<string>();
+            _AgregatedKeys = new List<string>();
         }
         public AgregatedKeyList(MyList<JSONObject> JSONObjects)
         {
-            _AgregatedKeys = new MyList<string>();
+            _AgregatedKeys = new List<string>();
             for (int i = 0; i < JSONObjects.Count; i++)
             {
                 AddKeysFromObject(JSONObjects[i]);
+              
             }
-           
-        }
+         }
      
         public int Count => _AgregatedKeys.Count;
-        public MyList<string> GetKeys => _AgregatedKeys;
+        public List<string> GetKeys => _AgregatedKeys;
         public string this[int i]
         {
             get

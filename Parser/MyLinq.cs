@@ -4,7 +4,7 @@ using System;
 
 namespace Parser.Extensions
 {
-   public static class MyLinq
+    public static class MyLinq
     {
         public static int MaxValue<T>(this IEnumerable<T> items, string key, MaxValueCalculation<T> MaxCalculationContract)
         {
@@ -20,11 +20,13 @@ namespace Parser.Extensions
                     }
                 }
             }
-            return defaultValue;     
+            return defaultValue;
+
         }
-      
+
+
     }
-    public delegate int MaxValueCalculation<TItem>(TItem item, string key);
-   
+      public delegate int MaxValueCalculation<TItem>(TItem item, string key);
+      
     
 }
