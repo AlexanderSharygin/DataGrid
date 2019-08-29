@@ -7,12 +7,14 @@ namespace Parser
     // excessive abstraction
     public class JSONObject
     {
+        // why do you need backing fields here? use auto-properties.
         public string _FirstName;
         public string FirstName        
         { get=>_FirstName; }
         public string _LastName;
         public string LastName
         { get => _LastName; }
+        // Why it is public? Otherwise, why it is initialized in the constructor?
         public ObjectFields _Fields;
         public JSONObject()
         {
@@ -25,6 +27,7 @@ namespace Parser
         }
         public void MapObjectFields()
         {
+            // who can null your _Fields?
             if (_Fields == null)
             {
                 throw new NullReferenceException();

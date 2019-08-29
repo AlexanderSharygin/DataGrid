@@ -14,6 +14,7 @@ namespace Parser
         public int YPosition { get; set; }
         public bool IsChecked { get; set; }
         public bool IsFocused { get; set; }
+        // needRefresh
         public bool IsForUpdate { get; set; }
         public int Width { get; set; }
     }
@@ -24,6 +25,7 @@ namespace Parser
         AgregatedKeyList _AllObjectsFields;
         List<Cell> _MenuItems;
         int _MenuWidth;
+        // it's not a counter. focusedMenuIndex.
         int _FocusedMenuItemCounter = 0;
         MyList<JSONObject> _JSONObjects;
         List<String> _PrevSelectedMenuItems = new List<string>();
@@ -41,11 +43,14 @@ namespace Parser
                 _MenuItems[i].XPosition = 0;
                 _MenuItems[i].YPosition = i + Constants.PreambleStrings.Length;
                 _MenuItems[i].IsChecked = false;
+                // why?
                 _PrevSelectedMenuItems.Add("");
             }
             _MenuItems[0].IsFocused = true;
             _MenuWidth = _MenuItems.Max(item => item.Body.Length);
         }
+        // what is hMenu?
+        // refresh
         public void ReWritehMenu()
         {
             _MenuItemsCount = 0;
@@ -75,7 +80,7 @@ namespace Parser
                 }
             }
         }
-
+        // italian? french?
         public void RendreUI()
         {
             Console.CursorVisible = false;
@@ -137,6 +142,7 @@ namespace Parser
                             }
                             isConsoleCleared = true;
                         }
+                        // redundant code
                         else
                         {
                             continue;
@@ -157,6 +163,7 @@ namespace Parser
                     ReWritehMenu();
                     continue;
                 }
+                // redundant code
                 else
                 {
                     continue;
@@ -165,6 +172,7 @@ namespace Parser
         }
         private void ClearToEndConsole(int xPosition, int yPosition)
         {
+            // are you sure that it is counter? may be index?
             int startRowCounter = _MenuItemsCount + Constants.PreambleStrings.Length + 1;
             int endRowCounter = startRowCounter + _JSONObjects.Count + 1;
             Console.SetCursorPosition(xPosition, yPosition);
@@ -176,11 +184,13 @@ namespace Parser
             }
             Console.BackgroundColor = ConsoleColor.Blue;
         }
+        // I expect that the previous method will do this job.
         private void ClearConsoleRow(int xPosition, int yPosition)
         {
             Console.SetCursorPosition(xPosition, yPosition);
             Console.Write("".PadLeft(Console.BufferWidth - xPosition));
         }
+        // to refactoring.
         private List<string> GetSelectedMenuItems()
         {
             List<string> checkedMenuItems = new List<string>();
@@ -193,8 +203,10 @@ namespace Parser
             }
             return checkedMenuItems;
         }
+        // bad name. it's more complex than just 'get'. May be generateTableCells() or calculate...
         private Cell[,] GetTableCells()
         {
+            // coLLumn?
             int currentCollumnWidth = 0;
             _TableWidth = 0;
             _SelectedMenuItems = GetSelectedMenuItems();
@@ -210,6 +222,7 @@ namespace Parser
                 {
                     tableCells[i, 0].IsForUpdate = true;
                 }
+                // to refactoring. looks rather complex.
                 tableCells[i, 0].Body = _SelectedMenuItems[i];
                 tableCells[i, 0].YPosition = _MenuItemsCount + Constants.CountEmptyStringsBetweenMenuAndItable + Constants.PreambleStrings.Length;
                 tableCells[i, 0].XPosition = _TableWidth;
@@ -268,6 +281,7 @@ namespace Parser
             }
             return tableCells;
         }
+        // ?
         static int GetFieldValueLength(Cell[,] items, int FirstIndex, int SecondIndex)
         {
             int a = Int32.MinValue;
@@ -280,6 +294,7 @@ namespace Parser
             }
             return a;
         }
+        // ...
         public void ChecOrUncheckkMenuItem(int FocusedItemIndex)
         {
             Console.SetCursorPosition(_MenuItems[FocusedItemIndex].XPosition, _MenuItems[FocusedItemIndex].YPosition);
@@ -296,6 +311,7 @@ namespace Parser
                 Console.Write(Constants.UncheckedFieldOnUIPrefix + _MenuItems[FocusedItemIndex].Body);
             }
         }
+        // to refactoring. 
         public void MoveToNextOrPrevMenuItem(int curentFocusedItemIndex, bool isMoveToNext)
         {
             int CurrentIndex = curentFocusedItemIndex;
