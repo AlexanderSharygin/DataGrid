@@ -79,7 +79,6 @@
     <Compile Include="ObjectFields.cs" />
     <Compile Include="JSONObject.cs" />
     <Compile Include="JSONParser.cs" />
-    <Compile Include="ConsolePrinter.cs" />
     <Compile Include="MyLinq.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
