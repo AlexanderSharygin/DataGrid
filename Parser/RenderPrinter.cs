@@ -268,8 +268,7 @@ namespace Parser
                 Console.BufferWidth = _TableWidth + 1;
             }
             return tableCells;
-        }
-        // ?
+        }     
         static int GetColumnMaxWidth(Cell[,] items, int FirstIndex, int SecondIndex)
         {
             int a = Int32.MinValue;
