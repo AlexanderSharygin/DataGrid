@@ -17,9 +17,9 @@ namespace Parser
 
      
             var inputText = File.ReadAllText("Files\\Data.txt");
-            MyList <JSONObject> JSONObjects = JSONParser.ParseSimpleJSON(inputText);
+            List <ObjectFields> JSONObjects = JSONParser.ParseSimpleJSON(inputText);
             ConsoleRender m = new ConsoleRender(JSONObjects);
-            m.RenderUI();           
+           m.RenderUI();           
            
         }
        

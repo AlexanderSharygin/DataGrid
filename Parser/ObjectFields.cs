@@ -9,8 +9,8 @@ namespace Parser.Extensions
 {
     public class ObjectFields 
     {
-        private MyList<string> _Keys = new MyList<string>();
-        private MyList<string> _Values = new MyList<string>();
+        private List<string> _Keys = new List<string>();
+        private List<string> _Values = new List<string>();
        private void ThrowIfTryToUseNonExistKey(string key)
         {
             if (_Keys.IndexOf(key) == -1)
@@ -34,7 +34,7 @@ namespace Parser.Extensions
             }
         }
 
-        public MyList<string> Keys
+        public List<string> Keys
         {
             get
             { return _Keys; }
@@ -99,7 +99,7 @@ namespace Parser.Extensions
         {
             _AgregatedKeys = new List<string>();
         }
-        public AgregatedKeyList(MyList<JSONObject> JSONObjects)
+        public AgregatedKeyList(List<ObjectFields> JSONObjects)
         {
             _AgregatedKeys = new List<string>();
             for (int i = 0; i < JSONObjects.Count; i++)
@@ -132,9 +132,9 @@ namespace Parser.Extensions
                
             }
         }
-        public void AddKeysFromObject(JSONObject p_JSONObject)
+        public void AddKeysFromObject(ObjectFields p_JSONObject)
         {
-            MyList<string> keys = p_JSONObject.Fields.Keys;
+            List<string> keys = p_JSONObject.Keys;
             for (int i = 0; i < keys.Count; i++)
             {
                 Add(keys[i]);

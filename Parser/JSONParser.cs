@@ -1,18 +1,18 @@
 ﻿using Parser.Extensions;
-
+using System.Collections.Generic;
 
 namespace Parser
 {
     static class JSONParser
     {
-        public static MyList<JSONObject> ParseSimpleJSON(string inputText)
+        public static List<ObjectFields> ParseSimpleJSON(string inputText)
         {
-            MyList<string> ObjectsText = SplitTextToObjects(inputText);
+            List<string> ObjectsText = SplitTextToObjects(inputText);
             return ParseObjectsText(ObjectsText);
         }
-        private static MyList<string> SplitTextToObjects(string inputText)
+        private static List<string> SplitTextToObjects(string inputText)
         {
-            MyList<string> ObjectsText = new MyList<string>();
+            List<string> ObjectsText = new List<string>();
             var counter = 0;
             var objectNumber = 0;
             while (counter < inputText.Length)
@@ -24,8 +24,7 @@ namespace Parser
                     objectStartPositonInText = counter;
                     objectEndPositionInText = GetObjectEndPositionInText(inputText, counter);
                     ObjectsText.Add(inputText.Substring(objectStartPositonInText, objectEndPositionInText - objectStartPositonInText + 1));
-
-                    objectNumber++;
+                     objectNumber++;
                     counter = objectEndPositionInText;
                 }
                 else
@@ -84,12 +83,12 @@ namespace Parser
             }
             return endStringPosition;
         }
-        private static MyList<JSONObject> ParseObjectsText(MyList<string> ObjectsText)
+        private static List<ObjectFields> ParseObjectsText(List<string> ObjectsText)
         {
-            MyList<JSONObject> Objects = new MyList<JSONObject>();
+            List<ObjectFields> Objects = new List<ObjectFields>();
             for (int i = 0; i < ObjectsText.Count; i++)
             {
-                MyList<string> ObjectFieldsString = new MyList<string>();
+                List<string> ObjectFieldsString = new List<string>();
                 var countOfFieldsInObject = 0;
                 var counter = 0;
                 var startFieldPosition=0;
@@ -122,9 +121,9 @@ namespace Parser
             }
             return Objects;
         }
-        private static JSONObject ParseFieldsString(MyList<string> objectFieldsStrings)
+        private static ObjectFields ParseFieldsString(List<string> objectFieldsStrings)
         {
-            JSONObject obj = new JSONObject();
+            ObjectFields obj = new ObjectFields();
             for (var i = 0; i < objectFieldsStrings.Count; i++)
             {
                 
@@ -133,11 +132,11 @@ namespace Parser
                 {
                     var fieldKey = objectFieldsStrings[i].Substring(0, splitter).Trim('{', '"', '\n', '\r', '\t', ' ');
                     var fieldValue = objectFieldsStrings[i].Substring(splitter + 2).Trim('{', '"', '\n', '\r', '\t', ' ');
-                    obj.Fields.Add(fieldKey, fieldValue);
+                    obj.Add(fieldKey, fieldValue);
                 }
               
             }
-            obj.MapObjectFields();
+          //  obj.MapObjectFields();
             return obj;
         }
     }

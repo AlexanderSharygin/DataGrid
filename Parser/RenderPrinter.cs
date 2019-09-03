@@ -26,11 +26,11 @@ namespace Parser
         int _MenuWidth;
      
         int _FocusedMenuInbdex = 0;
-        MyList<JSONObject> _JSONObjects;
+        List<ObjectFields> _JSONObjects;
         List<String> _PrevSelectedMenuItems = new List<string>();
         List<string> _SelectedMenuItems;
         bool isTableLess;
-        public ConsoleRender(MyList<JSONObject> p_parsedObjects)
+        public ConsoleRender(List<ObjectFields> p_parsedObjects)
         {
             _JSONObjects = p_parsedObjects;
             _AllObjectsFields = new AgregatedKeyList(p_parsedObjects);
@@ -42,13 +42,12 @@ namespace Parser
                 _MenuItems[i].XPosition = 0;
                 _MenuItems[i].YPosition = i + Constants.PreambleStrings.Length;
                 _MenuItems[i].IsChecked = false;
-                // why?
-                _PrevSelectedMenuItems.Add("");
+               _PrevSelectedMenuItems.Add("");
             }
             _MenuItems[0].IsFocused = true;
             _MenuWidth = _MenuItems.Max(item => item.Body.Length);
         }
-        // what is hMenu?
+       
        
         public void RefreshMenu()
         {
@@ -98,7 +97,7 @@ namespace Parser
                     {
                         _MenuItems[_FocusedMenuInbdex].IsFocused = false;
                         _MenuItems[_FocusedMenuInbdex + 1].IsFocused = true;
-                        MoveToNextOrPrevMenuItem(_FocusedMenuInbdex, true);
+                        MoveToOtherMenuItem(_FocusedMenuInbdex, true);
                     }
                     continue;
                 }
@@ -108,7 +107,7 @@ namespace Parser
                     {
                         _MenuItems[_FocusedMenuInbdex].IsFocused = false;
                         _MenuItems[_FocusedMenuInbdex - 1].IsFocused = true;
-                        MoveToNextOrPrevMenuItem(_FocusedMenuInbdex, false);
+                        MoveToOtherMenuItem(_FocusedMenuInbdex, false);
                     }
                     continue;
                 }
@@ -122,8 +121,8 @@ namespace Parser
                     {
                         _MenuItems[_FocusedMenuInbdex].IsChecked = true;
                     }
-                    ChecOrUncheckkMenuItem(_FocusedMenuInbdex);
-                    Cell[,] tableCells = GetTableCells();
+                    MenuItemCheckingChange(_FocusedMenuInbdex);
+                    Cell[,] tableCells = GenerateTable();
                     for (int i = 0; i < _SelectedMenuItems.Count; i++)
                     {
                         if (tableCells[i, 0].IsNeedRefresh == true)
@@ -160,11 +159,11 @@ namespace Parser
         }
         private void ClearToEndConsole(int xPosition, int yPosition)
         {
-            // are you sure that it is counter? may be index?
-            int startRowCounter = _MenuItemsCount + Constants.PreambleStrings.Length + 1;
-            int endRowCounter = startRowCounter + _JSONObjects.Count + 1;
+            
+            int startRowIndex = _MenuItemsCount + Constants.PreambleStrings.Length + 1;
+            int endRowIndex = startRowIndex + _JSONObjects.Count + 1;
             Console.SetCursorPosition(xPosition, yPosition);
-            for (int i = startRowCounter; i <= endRowCounter; i++)
+            for (int i = startRowIndex; i <= endRowIndex; i++)
             {
                 Console.BackgroundColor = ConsoleColor.Black;
                 Console.Write("".PadLeft(Console.BufferWidth - xPosition));
@@ -172,7 +171,7 @@ namespace Parser
             }
             Console.BackgroundColor = ConsoleColor.Blue;
         }
-        // I expect that the previous method will do this job.
+        
         private void ClearConsoleRow(int xPosition, int yPosition)
         {
             Console.SetCursorPosition(xPosition, yPosition);
@@ -191,8 +190,7 @@ namespace Parser
             }
             return checkedMenuItems;
         }
-        // bad name. it's more complex than just 'get'. May be generateTableCells() or calculate...
-        private Cell[,] GetTableCells()
+        private Cell[,] GenerateTable()
         {
           
             int currentColumnWidth = 0;
@@ -224,13 +222,13 @@ namespace Parser
                     tableCells[i, j] = new Cell();
                     tableCells[i, j].YPosition = tableCells[i, j - 1].YPosition + 1;
                     tableCells[i, j].XPosition = _TableWidth;
-                    if (_JSONObjects[j - 2].Fields.KeyIndexOf(_SelectedMenuItems[i]) == -1)
+                    if (_JSONObjects[j - 2].KeyIndexOf(_SelectedMenuItems[i]) == -1)
                     {
                         tableCells[i, j].Body = Constants.TextForUndefinedField;
                     }
                     else
                     {
-                        tableCells[i, j].Body = _JSONObjects[j - 2].Fields[_SelectedMenuItems[i]];
+                        tableCells[i, j].Body = _JSONObjects[j - 2][_SelectedMenuItems[i]];
                         if (tableCells[i, j].Body.Length > tableCells[i, 0].Body.Length * Constants.FieldToLongСoefficient)
                         {
                             tableCells[i, j].Body = tableCells[i, j].Body.Substring(0, tableCells[i, 0].Body.Length * Constants.FieldToLongСoefficient) + Constants.CuttingStringForTooLongField;
@@ -281,8 +279,8 @@ namespace Parser
             }
             return a;
         }
-        // ...
-        public void ChecOrUncheckkMenuItem(int FocusedItemIndex)
+     
+        public void MenuItemCheckingChange(int FocusedItemIndex)
         {
             Console.SetCursorPosition(_MenuItems[FocusedItemIndex].XPosition, _MenuItems[FocusedItemIndex].YPosition);
             Console.BackgroundColor = ConsoleColor.Black;
@@ -298,8 +296,7 @@ namespace Parser
                 Console.Write(Constants.UncheckedFieldOnUIPrefix + _MenuItems[FocusedItemIndex].Body);
             }
         }
-        // to refactoring. 
-        public void MoveToNextOrPrevMenuItem(int curentFocusedItemIndex, bool isMoveToNext)
+        public void MoveToOtherMenuItem(int curentFocusedItemIndex, bool isMoveToNext)
         {
             int CurrentIndex = curentFocusedItemIndex;
             int nextIndex;

@@ -9,16 +9,16 @@ namespace Parser
     {
         int _SelectedFieldCounter;
         AgregatedKeyList _AllKeys;
-        MyList<JSONObject> _ParsedObjects;
-        MyList<int> _CheckedMenuItems;
+        List<ObjectFields> _ParsedObjects;
+        List<int> _CheckedMenuItems;
         int _checkedField;
         string[] allSortKeys = { "FirstName", "LastName" };
-        public ConsolePrinter(MyList<JSONObject> p_parsedObjects)
+        public ConsolePrinter(List<ObjectFields> p_parsedObjects)
         {
              
             _AllKeys = new AgregatedKeyList(p_parsedObjects);
             _ParsedObjects = p_parsedObjects;
-         _CheckedMenuItems = new MyList<int>();
+         _CheckedMenuItems = new List<int>();
         }
         private void PrintLineSeparator(int p_columnLength, int p_columnNumber, int p_columnCount)
         {
@@ -37,20 +37,13 @@ namespace Parser
                 }
             }
         }
-        private void PrintFieldsAsTableByKeys(MyList<string> selectedKeys, string sortKey)
+        private void PrintFieldsAsTableByKeys(List<string> selectedKeys, string sortKey)
         {
             var firstRomNumber = Console.CursorTop;
             var rowCounter = firstRomNumber + 1;
             var columnStartX = 0;
             int totalWidth = 0;
-            if (sortKey == "FirstName")
-            {
-                _ParsedObjects.Sort((x, y) => x.FirstName.CompareTo(y.FirstName));
-            }
-            if (sortKey == "LastName")
-            {
-                _ParsedObjects.Sort((x, y) => x.LastName.CompareTo(y.LastName));
-            }
+            
             for (int i = 0; i < selectedKeys.Count; i++)
             {
                 totalWidth += MaxColumnLength(_ParsedObjects, selectedKeys[i]) + Constants.IntercolumnShift;              
@@ -76,20 +69,20 @@ namespace Parser
                 for (int j = 0; j < _ParsedObjects.Count; j++)
                 {
                     Console.SetCursorPosition(columnStartX, rowCounter);
-                    if (_ParsedObjects[j].Fields.KeyIndexOf(selectedKeys[i]) == -1)
+                    if (_ParsedObjects[j].KeyIndexOf(selectedKeys[i]) == -1)
                     {
                         Console.WriteLine(Constants.TextForUndefinedField);
                     }
                     else
                     {
-                        if (IsFieldForColumnToLong(_ParsedObjects[j].Fields[selectedKeys[i]].Length, selectedKeys[i].Length))
+                        if (IsFieldForColumnToLong(_ParsedObjects[j][selectedKeys[i]].Length, selectedKeys[i].Length))
                         {
                           
-                            Console.WriteLine(_ParsedObjects[j].Fields[selectedKeys[i]].Substring(0, selectedKeys[i].Length * Constants.FieldToLongСoefficient) + Constants.CuttingStringForTooLongField);
+                            Console.WriteLine(_ParsedObjects[j][selectedKeys[i]].Substring(0, selectedKeys[i].Length * Constants.FieldToLongСoefficient) + Constants.CuttingStringForTooLongField);
                         }
                         else
                         {
-                            Console.WriteLine(_ParsedObjects[j].Fields[selectedKeys[i]]);
+                            Console.WriteLine(_ParsedObjects[j][selectedKeys[i]]);
                         }
                     }                            
                     rowCounter = Console.CursorTop;
@@ -98,7 +91,7 @@ namespace Parser
                rowCounter = firstRomNumber + 1;
             }          
         }
-        private void PrintCurrentMenuView(MyList<int> p_CheckedMenuItems, int p_selectedFieldCounter)
+        private void PrintCurrentMenuView(List<int> p_CheckedMenuItems, int p_selectedFieldCounter)
         {
             for (int i = 0; i < _AllKeys.Count; i++)
             {
@@ -122,10 +115,10 @@ namespace Parser
                 }
             }
         }
-        private  MyList<string> GetSelectedKeysFromUI()
+        private  List<string> GetSelectedKeysFromUI()
         {
 
-            MyList<string> selectedKeys = new MyList<string>();
+            List<string> selectedKeys = new List<string>();
             int cursorTopPosition = Console.CursorTop;
             Console.CursorVisible = false;
             while (true)
@@ -281,12 +274,12 @@ namespace Parser
                     continue;
                    
                 }
-                MyList<string> selectedKeys = GetSelectedKeysFromUI();
+                List<string> selectedKeys = GetSelectedKeysFromUI();
                 PrintFieldsAsTableByKeys(selectedKeys, Sortkey);                         
             }
         }        
 
-        public static int MaxColumnLength(MyList<JSONObject> p_Objects, string p_key)
+        public static int MaxColumnLength(List<ObjectFields> p_Objects, string p_key)
         {
             var maxColumnLength = p_Objects.MaxValue(p_key, GetFieldValueLength);
             var currentColumnLength = p_key.Length;
@@ -314,15 +307,15 @@ namespace Parser
                 return false;
             }
         }
-        static int GetFieldValueLength(JSONObject p_item, string key)
+        static int GetFieldValueLength(ObjectFields p_item, string key)
         {
-            if (p_item.Fields.KeyIndexOf(key) == -1)
+            if (p_item.KeyIndexOf(key) == -1)
             {
                 return Constants.TextForUndefinedField.Length;
             }
             else
             {
-                return p_item.Fields[key].Length;
+                return p_item[key].Length;
             }
         }
         // IsValid sounds better. It's more consistent with existing validation API.
