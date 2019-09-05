@@ -5,7 +5,7 @@ namespace Parser
 {
     static class JSONParser
     {
-        public static List<ObjectFields> ParseSimpleJSON(string inputText)
+        public static List<Dictionary<string,string>> ParseSimpleJSON(string inputText)
         {
             List<string> ObjectsText = SplitTextToObjects(inputText);
             return ParseObjectsText(ObjectsText);
@@ -83,9 +83,9 @@ namespace Parser
             }
             return endStringPosition;
         }
-        private static List<ObjectFields> ParseObjectsText(List<string> ObjectsText)
+        private static List<Dictionary<string, string>> ParseObjectsText(List<string> ObjectsText)
         {
-            List<ObjectFields> Objects = new List<ObjectFields>();
+            List<Dictionary<string,string>> Objects = new List<Dictionary<string, string>>();
             for (int i = 0; i < ObjectsText.Count; i++)
             {
                 List<string> ObjectFieldsString = new List<string>();
@@ -121,9 +121,9 @@ namespace Parser
             }
             return Objects;
         }
-        private static ObjectFields ParseFieldsString(List<string> objectFieldsStrings)
+        private static Dictionary<string,string> ParseFieldsString(List<string> objectFieldsStrings)
         {
-            ObjectFields obj = new ObjectFields();
+            Dictionary<string, string> obj = new Dictionary<string, string>();
             for (var i = 0; i < objectFieldsStrings.Count; i++)
             {
                 
@@ -136,7 +136,6 @@ namespace Parser
                 }
               
             }
-          //  obj.MapObjectFields();
             return obj;
         }
     }

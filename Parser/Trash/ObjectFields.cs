@@ -1,17 +1,67 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Parser.Extensions
+namespace Parser.Trash
 {
-    public class ObjectFields 
+    public class AgregatedKeyList : IEnumerable
+    {
+        List<string> _AgregatedKeys;
+
+        public AgregatedKeyList()
+        {
+            _AgregatedKeys = new List<string>();
+        }
+        public AgregatedKeyList(List<Dictionary<string, string>> JSONObjects)
+        {
+            _AgregatedKeys = new List<string>();
+            for (int i = 0; i < JSONObjects.Count; i++)
+            {
+                foreach (var item in JSONObjects[i].Keys)
+                {
+                    Add(item);
+                }
+
+            }
+        }
+
+        public int Count => _AgregatedKeys.Count;
+        public List<string> GetKeys => _AgregatedKeys;
+        public string this[int i]
+        {
+            get
+            {
+                return _AgregatedKeys[i];
+            }
+        }
+        public void Add(string p_key)
+        {
+            int index = _AgregatedKeys.IndexOf(p_key);
+            if (index == -1)
+            {
+                _AgregatedKeys.Add(p_key);
+            }
+            else
+            {
+                _AgregatedKeys[index] = p_key;
+
+            }
+        }
+
+        public IEnumerator GetEnumerator()
+        {
+            return ((IEnumerable)_AgregatedKeys).GetEnumerator();
+        }
+
+    }
+
+    public class ObjectFields
     {
         private List<string> _Keys = new List<string>();
         private List<string> _Values = new List<string>();
-       private void ThrowIfTryToUseNonExistKey(string key)
+        private void ThrowIfTryToUseNonExistKey(string key)
         {
             if (_Keys.IndexOf(key) == -1)
             {
@@ -91,62 +141,4 @@ namespace Parser.Extensions
             return -1;
         }
     }
-    public class AgregatedKeyList : IEnumerable
-    {
-        List<string> _AgregatedKeys;
-       
-        public AgregatedKeyList()
-        {
-            _AgregatedKeys = new List<string>();
-        }
-        public AgregatedKeyList(List<ObjectFields> JSONObjects)
-        {
-            _AgregatedKeys = new List<string>();
-            for (int i = 0; i < JSONObjects.Count; i++)
-            {
-                AddKeysFromObject(JSONObjects[i]);
-              
-            }
-         }
-     
-        public int Count => _AgregatedKeys.Count;
-        public List<string> GetKeys => _AgregatedKeys;
-        public string this[int i]
-        {
-            get
-            {
-                
-                return _AgregatedKeys[i];
-            }
-        }
-       public void Add(string p_key)
-        {
-            int index = _AgregatedKeys.IndexOf(p_key);
-            if (index == -1)
-            {
-                _AgregatedKeys.Add(p_key);
-            }
-            else
-            {
-                _AgregatedKeys[index] = p_key;
-               
-            }
-        }
-        public void AddKeysFromObject(ObjectFields p_JSONObject)
-        {
-            List<string> keys = p_JSONObject.Keys;
-            for (int i = 0; i < keys.Count; i++)
-            {
-                Add(keys[i]);
-            }
-        }
-
-        public IEnumerator GetEnumerator()
-        {
-            return ((IEnumerable)_AgregatedKeys).GetEnumerator();
-        }
-
-    }
-   
 }
-

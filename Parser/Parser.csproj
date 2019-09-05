@@ -73,11 +73,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="RenderPrinter.cs" />
-    <Compile Include="Constants.cs" />
+    <Compile Include="Trash\Config.cs" />
+    <None Include="Trash\ObjectFields.cs" />
     <None Include="Trash\MyList.cs" />
     <None Include="packages.config" />
     <None Include="Trash\MyList_Trash.cs" />
-    <Compile Include="ObjectFields.cs" />
     <None Include="Trash\JSONObject.cs" />
     <Compile Include="JSONParser.cs" />
     <None Include="Trash\ConsolePrinter.cs" />
