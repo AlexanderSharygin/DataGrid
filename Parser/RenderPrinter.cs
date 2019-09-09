@@ -9,22 +9,109 @@ namespace Parser
 {
     class Cell
     {
+        bool _IsFocused = false;
+        public bool _IsChecked = false;     
         public string Body { get; set; }
         public int XPosition { get; set; }
         public int YPosition { get; set; }
-        public bool IsChecked { get; set; }
-        public bool IsFocused { get; set; }
+        public bool IsChecked
+        {
+            get
+            { return _IsChecked; }
+        }
+        public bool IsFocused
+        {
+            get
+            { return _IsFocused; }
+            set
+            {
+                _IsFocused = value;
+                ChangeFocus();
+            }
+        }
+
         public bool IsNeedRefresh { get; set; }
+      
+        public void CheckingChange()
+        {
+            if (_IsChecked)
+            {
+                _IsChecked=false;
+            }
+            else
+            {
+                _IsChecked = true;
+            }
+            Console.SetCursorPosition(XPosition, YPosition);
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.Write("".PadLeft(Width));
+            Console.BackgroundColor = ConsoleColor.Blue;
+            Console.SetCursorPosition(XPosition, YPosition);
+            if (_IsChecked)
+            {
+                Console.Write(Properties.Resources.CheckedMenuItemPrefix + Body);
+            }
+            else
+            {
+                Console.Write(Properties.Resources.UncheckedMenuItemPrefix +Body);
+            }
+        }
         public int Width { get; set; }
+       
+        public void ChangeFocus()
+        {
+            Console.SetCursorPosition(XPosition, YPosition);
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.Write("".PadLeft(Width));
+            if (_IsFocused)
+            {
+                Console.BackgroundColor = ConsoleColor.Blue;
+            }
+            Console.SetCursorPosition(XPosition, YPosition);
+            if (_IsChecked)
+            {
+                Console.Write(Properties.Resources.CheckedMenuItemPrefix + Body);
+            }
+            else
+            {
+                Console.Write(Properties.Resources.UncheckedMenuItemPrefix + Body);
+            }
+                    
+        }
+        public void PrintMenuItem()
+        {
+            Console.SetCursorPosition(XPosition, YPosition);
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.Write("".PadLeft(Width));
+            Console.SetCursorPosition(XPosition, YPosition);
+            if (IsFocused)
+            {
+                Console.BackgroundColor = ConsoleColor.Blue;
+            }
+            else
+            {
+                Console.BackgroundColor = ConsoleColor.Black;
+            }
+            if (IsChecked)
+            {
+                Console.Write(Properties.Resources.CheckedMenuItemPrefix + Body);
+               
+            }
+            else
+            {
+                Console.Write(Properties.Resources.UncheckedMenuItemPrefix + Body);
+               
+            }
+        }
+
     }
     class ConsoleRender
     {
         public int _MenuItemsCount;
         public int _TableWidth;
-      //  AgregatedKeyList _AllObjectsFields;
-        List<string> _AllObjectsFields;
+       List<string> _AllObjectsFields;
         List<Cell> _MenuItems;
-        int _MenuWidth;
+       int _MenuWidth;
         int _FocusedMenuInbdex = 0;
         List<Dictionary<string, string>> _JSONObjects;
         List<String> _PrevSelectedMenuItems = new List<string>();
@@ -41,11 +128,11 @@ namespace Parser
                 _MenuItems[i].Body = _AllObjectsFields[i];
                 _MenuItems[i].XPosition = 0;
                 _MenuItems[i].YPosition = i + Convert.ToInt32(Properties.Resources.PreambleStringsCount);
-                 //  _MenuItems[i].YPosition = i + Config.PreambleStrings.Length;
-                 _MenuItems[i].IsChecked = false;
+              
+               
                _PrevSelectedMenuItems.Add("");
             }
-            _MenuItems[0].IsFocused = true;
+         
             _MenuWidth = _MenuItems.Max(item => item.Body.Length);
         }
        
@@ -55,28 +142,8 @@ namespace Parser
             _MenuItemsCount = 0;
             for (int i = 0; i < _MenuItems.Count; i++)
             {
-                Console.SetCursorPosition(_MenuItems[i].XPosition, _MenuItems[i].YPosition);
-                Console.BackgroundColor = ConsoleColor.Black;
-                Console.Write("".PadLeft(_MenuWidth));
-                Console.SetCursorPosition(_MenuItems[i].XPosition, _MenuItems[i].YPosition);
-                if (_MenuItems[i].IsFocused)
-                {
-                    Console.BackgroundColor = ConsoleColor.Blue;
-                }
-                else
-                {
-                    Console.BackgroundColor = ConsoleColor.Black;
-                }
-                if (_MenuItems[i].IsChecked)
-                {
-                    Console.Write(Properties.Resources.CheckedMenuItemPrefix + _MenuItems[i].Body);
-                    _MenuItemsCount++;
-                }
-                else
-                {
-                    Console.Write(Properties.Resources.UncheckedMenuItemPrefix + _MenuItems[i].Body);
-                    _MenuItemsCount++;
-                }
+                _MenuItems[i].PrintMenuItem();
+                _MenuItemsCount++;              
             }
         } 
         public void RenderUI()
@@ -84,11 +151,9 @@ namespace Parser
             Console.CursorVisible = false;
             Console.BufferWidth = Console.BufferWidth;
             Console.WriteLine(Properties.Resources.PreambleStrings);
-            /* for (int i = 0; i < Config.PreambleStrings.Length; i++)
-             {
-                 Console.WriteLine(Config.PreambleStrings[i]);
-             }*/
             RefreshMenu();
+
+            _MenuItems[0].IsFocused = true;
             while (true)
             {
                 bool isConsoleCleared = false;
@@ -99,7 +164,7 @@ namespace Parser
                     {
                         _MenuItems[_FocusedMenuInbdex].IsFocused = false;
                         _MenuItems[_FocusedMenuInbdex + 1].IsFocused = true;
-                        MoveToOtherMenuItem(_FocusedMenuInbdex, true);
+                        _FocusedMenuInbdex++;                     
                     }
                     continue;
                 }
@@ -109,21 +174,13 @@ namespace Parser
                     {
                         _MenuItems[_FocusedMenuInbdex].IsFocused = false;
                         _MenuItems[_FocusedMenuInbdex - 1].IsFocused = true;
-                        MoveToOtherMenuItem(_FocusedMenuInbdex, false);
+                        _FocusedMenuInbdex--;                    
                     }
                     continue;
                 }
                 if (pressedKeyWord == ConsoleKey.Spacebar)
                 {
-                    if (_MenuItems[_FocusedMenuInbdex].IsChecked == true)
-                    {
-                        _MenuItems[_FocusedMenuInbdex].IsChecked = false;
-                    }
-                    else
-                    {
-                        _MenuItems[_FocusedMenuInbdex].IsChecked = true;
-                    }
-                    MenuItemCheckingChange(_FocusedMenuInbdex);
+                    _MenuItems[_FocusedMenuInbdex].CheckingChange();                  
                     Cell[,] tableCells = GenerateTable();
                     for (int i = 0; i < _SelectedMenuItems.Count; i++)
                     {
@@ -297,70 +354,6 @@ namespace Parser
                 }
             }
             return a;
-        }
-     
-        public void MenuItemCheckingChange(int FocusedItemIndex)
-        {
-            Console.SetCursorPosition(_MenuItems[FocusedItemIndex].XPosition, _MenuItems[FocusedItemIndex].YPosition);
-            Console.BackgroundColor = ConsoleColor.Black;
-            Console.Write("".PadLeft(_MenuWidth));
-            Console.BackgroundColor = ConsoleColor.Blue;
-            Console.SetCursorPosition(_MenuItems[FocusedItemIndex].XPosition, _MenuItems[FocusedItemIndex].YPosition);
-            if (_MenuItems[FocusedItemIndex].IsChecked)
-            {
-                Console.Write(Properties.Resources.CheckedMenuItemPrefix + _MenuItems[FocusedItemIndex].Body);
-            }
-            else
-            {
-                Console.Write(Properties.Resources.UncheckedMenuItemPrefix + _MenuItems[FocusedItemIndex].Body);
-            }
-        }
-        public void MoveToOtherMenuItem(int curentFocusedItemIndex, bool isMoveToNext)
-        {
-            int CurrentIndex = curentFocusedItemIndex;
-            int nextIndex;
-            if (isMoveToNext)
-            {
-                nextIndex = ++curentFocusedItemIndex;
-            }
-            else
-            {
-                nextIndex = --curentFocusedItemIndex;
-            }
-            Console.SetCursorPosition(_MenuItems[CurrentIndex].XPosition, _MenuItems[CurrentIndex].YPosition);
-            Console.BackgroundColor = ConsoleColor.Black;
-            Console.Write("".PadLeft(_MenuWidth));
-            Console.SetCursorPosition(_MenuItems[CurrentIndex].XPosition, _MenuItems[CurrentIndex].YPosition);
-            if (_MenuItems[CurrentIndex].IsChecked)
-            {
-                Console.Write(Properties.Resources.CheckedMenuItemPrefix + _MenuItems[CurrentIndex].Body);
-            }
-            else
-            {
-                Console.Write(Properties.Resources.UncheckedMenuItemPrefix + _MenuItems[CurrentIndex].Body);
-            }
-            Console.SetCursorPosition(_MenuItems[nextIndex].XPosition, _MenuItems[nextIndex].YPosition);
-            Console.BackgroundColor = ConsoleColor.Black;
-            Console.Write("".PadLeft(_MenuWidth));
-            Console.BackgroundColor = ConsoleColor.Blue;
-            Console.SetCursorPosition(_MenuItems[nextIndex].XPosition, _MenuItems[nextIndex].YPosition);
-            if (_MenuItems[nextIndex].IsChecked)
-            {
-                Console.Write(Properties.Resources.CheckedMenuItemPrefix + _MenuItems[nextIndex].Body);
-            }
-            else
-            {
-                Console.Write(Properties.Resources.UncheckedMenuItemPrefix + _MenuItems[nextIndex].Body);
-            }
-            Console.SetCursorPosition(_MenuItems[nextIndex].XPosition, _MenuItems[nextIndex].YPosition);
-            if (isMoveToNext)
-            {
-                _FocusedMenuInbdex++;
-            }
-            else
-            {
-                _FocusedMenuInbdex--;
-            }
-        }
+        }            
     }
 }
