@@ -31,7 +31,16 @@ namespace Parser
         }
 
         public bool IsNeedRefresh { get; set; }
-      
+
+        public void PrintInTable()
+        {
+            if (IsNeedRefresh == true)
+            {
+                Console.BackgroundColor = ConsoleColor.Black;
+                Console.SetCursorPosition(XPosition, YPosition);
+                Console.Write(Body);
+            }
+        }
         public void CheckingChange()
         {
             if (_IsChecked)
@@ -55,6 +64,7 @@ namespace Parser
             {
                 Console.Write(Properties.Resources.UncheckedMenuItemPrefix +Body);
             }
+            Console.BackgroundColor = ConsoleColor.Black;
         }
         public int Width { get; set; }
        
@@ -78,7 +88,7 @@ namespace Parser
             }
                     
         }
-        public void PrintMenuItem()
+        public void Print()
         {
             Console.SetCursorPosition(XPosition, YPosition);
             Console.BackgroundColor = ConsoleColor.Black;
@@ -111,7 +121,6 @@ namespace Parser
         public int _TableWidth;
        List<string> _AllObjectsFields;
         List<Cell> _MenuItems;
-       int _MenuWidth;
         int _FocusedMenuInbdex = 0;
         List<Dictionary<string, string>> _JSONObjects;
         List<String> _PrevSelectedMenuItems = new List<string>();
@@ -127,32 +136,25 @@ namespace Parser
                 _MenuItems.Add(new Cell());
                 _MenuItems[i].Body = _AllObjectsFields[i];
                 _MenuItems[i].XPosition = 0;
-                _MenuItems[i].YPosition = i + Convert.ToInt32(Properties.Resources.PreambleStringsCount);
-              
-               
+                _MenuItems[i].YPosition = i + Convert.ToInt32(Properties.Resources.PreambleStringsCount);                        
                _PrevSelectedMenuItems.Add("");
-            }
-         
-            _MenuWidth = _MenuItems.Max(item => item.Body.Length);
-        }
-       
-
+            }         
+        }    
         public void RefreshMenu()
         {
             _MenuItemsCount = 0;
             for (int i = 0; i < _MenuItems.Count; i++)
             {
-                _MenuItems[i].PrintMenuItem();
+                _MenuItems[i].Print();
                 _MenuItemsCount++;              
             }
         } 
         public void RenderUI()
         {
             Console.CursorVisible = false;
-            Console.BufferWidth = Console.BufferWidth;
+            Console.BufferHeight = Console.WindowHeight + _JSONObjects.Count;
             Console.WriteLine(Properties.Resources.PreambleStrings);
             RefreshMenu();
-
             _MenuItems[0].IsFocused = true;
             while (true)
             {
@@ -165,8 +167,7 @@ namespace Parser
                         _MenuItems[_FocusedMenuInbdex].IsFocused = false;
                         _MenuItems[_FocusedMenuInbdex + 1].IsFocused = true;
                         _FocusedMenuInbdex++;                     
-                    }
-                    continue;
+                    }                   
                 }
                 if (pressedKeyWord == ConsoleKey.UpArrow)
                 {
@@ -175,30 +176,21 @@ namespace Parser
                         _MenuItems[_FocusedMenuInbdex].IsFocused = false;
                         _MenuItems[_FocusedMenuInbdex - 1].IsFocused = true;
                         _FocusedMenuInbdex--;                    
-                    }
-                    continue;
+                    }                    
                 }
                 if (pressedKeyWord == ConsoleKey.Spacebar)
-                {
+                {                   
                     _MenuItems[_FocusedMenuInbdex].CheckingChange();                  
-                    Cell[,] tableCells = GenerateTable();
-                    for (int i = 0; i < _SelectedMenuItems.Count; i++)
+                    Cell[,] tableCells = GenerateTable();                  
+                    foreach (var item in tableCells)
                     {
-                        if (tableCells[i, 0].IsNeedRefresh == true)
+                        if (item.IsNeedRefresh && !isConsoleCleared)
                         {
-                            Console.BackgroundColor = ConsoleColor.Black;
-                            for (int j = 0; j < _JSONObjects.Count + 2; j++)
-                            {
-                                if (!isConsoleCleared)
-                                {
-                                    ClearConsoleRow(tableCells[i, j].XPosition, tableCells[i, j].YPosition);
-                                }
-                                Console.SetCursorPosition(tableCells[i, j].XPosition, tableCells[i, j].YPosition);
-                                Console.Write(tableCells[i, j].Body);
-                            }
+                            ClearToEndConsole(item.XPosition, item.YPosition);
                             isConsoleCleared = true;
-                        }                      
-                    }
+                        }
+                        item.PrintInTable();
+                    }                  
                     if (isTableLess)
                     {
                         ClearToEndConsole(_TableWidth, _MenuItemsCount + Convert.ToInt32(Properties.Resources.PreambleStringsCount) + 1);
@@ -206,19 +198,16 @@ namespace Parser
                     if (_TableWidth > Console.WindowWidth)
                     {
                         Console.BufferWidth = _TableWidth + 2;
-                    }
-                    continue;
+                    }              
                 }
                 if (pressedKeyWord == ConsoleKey.Tab)
                 {
-                    RefreshMenu();
-                    continue;
+                    RefreshMenu();                    
                 }               
             }
         }
         private void ClearToEndConsole(int xPosition, int yPosition)
-        {
-            
+        {            
             int startRowIndex = _MenuItemsCount + Convert.ToInt32(Properties.Resources.PreambleStringsCount) + 1;
             int endRowIndex = startRowIndex + _JSONObjects.Count + 1;
             Console.SetCursorPosition(xPosition, yPosition);
@@ -229,26 +218,13 @@ namespace Parser
                 Console.SetCursorPosition(xPosition, i + 1);
             }
             Console.BackgroundColor = ConsoleColor.Blue;
-        }
-        
-        private void ClearConsoleRow(int xPosition, int yPosition)
-        {
-            Console.SetCursorPosition(xPosition, yPosition);
-            Console.Write("".PadLeft(Console.BufferWidth - xPosition));
-        }
-        // to refactoring.
+        }     
         private List<string> GetSelectedMenuItems()
         {
-            List<string> checkedMenuItems = new List<string>();
-            for (int i = 0; i < _MenuItems.Count; i++)
-            {
-                if (_MenuItems[i].IsChecked == true)
-                {
-                    checkedMenuItems.Add(_MenuItems[i].Body);
-                }
-            }
+          //  var t = _MenuItems.Select(k => new { Item = k, k.Body }).Where(k => k.Item.IsChecked == true).Select(k=>k.Body).ToList<string>();
+            var checkedMenuItems = (from item in _MenuItems where item.IsChecked==true select item.Body).ToList<string>();
             return checkedMenuItems;
-        }
+        }   
         private Cell[,] GenerateTable()
         {
           
