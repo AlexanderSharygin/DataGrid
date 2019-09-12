@@ -9,30 +9,23 @@ namespace Parser
 {
     class Cell
     {
-        bool _IsFocused = false;
-        public bool _IsChecked = false;     
+        private bool _IsFocused = false;
+        private bool _IsChecked = false;
         public string Body { get; set; }
         public int XPosition { get; set; }
         public int YPosition { get; set; }
+        public bool IsNeedRefresh { get; set; }
+        public int Width { get; set; }
         public bool IsChecked
         {
-            get
-            { return _IsChecked; }
+            get => _IsChecked;
         }
         public bool IsFocused
         {
-            get
-            { return _IsFocused; }
-            set
-            {
-                _IsFocused = value;
-                ChangeFocus();
-            }
-        }
-
-        public bool IsNeedRefresh { get; set; }
-
-        public void PrintInTable()
+            get => _IsFocused;
+            set {_IsFocused = value; ChangeFocus(); }           
+        } 
+        public void PrintToTable()
         {
             if (IsNeedRefresh == true)
             {
@@ -43,89 +36,45 @@ namespace Parser
         }
         public void CheckingChange()
         {
-            if (_IsChecked)
-            {
-                _IsChecked=false;
-            }
-            else
-            {
-                _IsChecked = true;
-            }
+            _IsChecked = (_IsChecked) ? false : true;
             Console.SetCursorPosition(XPosition, YPosition);
             Console.BackgroundColor = ConsoleColor.Black;
             Console.Write("".PadLeft(Width));
             Console.BackgroundColor = ConsoleColor.Blue;
             Console.SetCursorPosition(XPosition, YPosition);
-            if (_IsChecked)
-            {
-                Console.Write(Properties.Resources.CheckedMenuItemPrefix + Body);
-            }
-            else
-            {
-                Console.Write(Properties.Resources.UncheckedMenuItemPrefix +Body);
-            }
+            Console.Write((_IsChecked) ? Properties.Resources.CheckedMenuItemPrefix + Body : Properties.Resources.UncheckedMenuItemPrefix + Body);           
             Console.BackgroundColor = ConsoleColor.Black;
-        }
-        public int Width { get; set; }
-       
-        public void ChangeFocus()
+        }       
+        private void ChangeFocus()
         {
             Console.SetCursorPosition(XPosition, YPosition);
             Console.BackgroundColor = ConsoleColor.Black;
             Console.Write("".PadLeft(Width));
-            if (_IsFocused)
-            {
-                Console.BackgroundColor = ConsoleColor.Blue;
-            }
+            Console.BackgroundColor = (_IsFocused) ? ConsoleColor.Blue: ConsoleColor.Black;           
             Console.SetCursorPosition(XPosition, YPosition);
-            if (_IsChecked)
-            {
-                Console.Write(Properties.Resources.CheckedMenuItemPrefix + Body);
-            }
-            else
-            {
-                Console.Write(Properties.Resources.UncheckedMenuItemPrefix + Body);
-            }
-                    
+            Console.Write((_IsChecked) ? Properties.Resources.CheckedMenuItemPrefix + Body : Properties.Resources.UncheckedMenuItemPrefix + Body);               
         }
-        public void Print()
+        public void PrintToMenu()
         {
             Console.SetCursorPosition(XPosition, YPosition);
             Console.BackgroundColor = ConsoleColor.Black;
             Console.Write("".PadLeft(Width));
             Console.SetCursorPosition(XPosition, YPosition);
-            if (IsFocused)
-            {
-                Console.BackgroundColor = ConsoleColor.Blue;
-            }
-            else
-            {
-                Console.BackgroundColor = ConsoleColor.Black;
-            }
-            if (IsChecked)
-            {
-                Console.Write(Properties.Resources.CheckedMenuItemPrefix + Body);
-               
-            }
-            else
-            {
-                Console.Write(Properties.Resources.UncheckedMenuItemPrefix + Body);
-               
-            }
+            Console.BackgroundColor = (_IsFocused) ? ConsoleColor.Blue : ConsoleColor.Black;
+            Console.Write((_IsChecked) ? Properties.Resources.CheckedMenuItemPrefix + Body : Properties.Resources.UncheckedMenuItemPrefix + Body);
         }
-
     }
     class ConsoleRender
     {
         public int _MenuItemsCount;
         public int _TableWidth;
-       List<string> _AllObjectsFields;
+        List<string> _AllObjectsFields;
         List<Cell> _MenuItems;
         int _FocusedMenuInbdex = 0;
         List<Dictionary<string, string>> _JSONObjects;
         List<String> _PrevSelectedMenuItems = new List<string>();
         List<string> _SelectedMenuItems;
-        bool isTableLess;
+        bool _IsTableLess;
         public ConsoleRender(List<Dictionary<string, string>> p_parsedObjects)
         {
             _JSONObjects = p_parsedObjects;
@@ -143,10 +92,10 @@ namespace Parser
         public void RefreshMenu()
         {
             _MenuItemsCount = 0;
-            for (int i = 0; i < _MenuItems.Count; i++)
+            foreach (var MenuItem in _MenuItems)
             {
-                _MenuItems[i].Print();
-                _MenuItemsCount++;              
+                MenuItem.PrintToMenu();
+                _MenuItemsCount++;
             }
         } 
         public void RenderUI()
@@ -189,9 +138,9 @@ namespace Parser
                             ClearToEndConsole(item.XPosition, item.YPosition);
                             isConsoleCleared = true;
                         }
-                        item.PrintInTable();
+                        item.PrintToTable();
                     }                  
-                    if (isTableLess)
+                    if (_IsTableLess)
                     {
                         ClearToEndConsole(_TableWidth, _MenuItemsCount + Convert.ToInt32(Properties.Resources.PreambleStringsCount) + 1);
                     }
@@ -224,7 +173,7 @@ namespace Parser
           //  var t = _MenuItems.Select(k => new { Item = k, k.Body }).Where(k => k.Item.IsChecked == true).Select(k=>k.Body).ToList<string>();
             var checkedMenuItems = (from item in _MenuItems where item.IsChecked==true select item.Body).ToList<string>();
             return checkedMenuItems;
-        }   
+        }     
         private Cell[,] GenerateTable()
         {
           
@@ -282,11 +231,11 @@ namespace Parser
             int previousMenuItemsCount = _PrevSelectedMenuItems.IndexOf("");
             if (previousMenuItemsCount < _SelectedMenuItems.Count)
             {
-                isTableLess = false;
+                _IsTableLess = false;
             }
             else
             {
-                isTableLess = true;
+                _IsTableLess = true;
             }
             for (int i = 0; i < _PrevSelectedMenuItems.Count; i++)
             {

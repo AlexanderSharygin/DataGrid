@@ -72,7 +72,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="RenderPrinter.cs" />
+    <Compile Include="ConsoleRender.cs" />
     <Compile Include="Trash\Config.cs" />
     <None Include="Trash\ObjectFields.cs" />
     <None Include="Trash\MyList.cs" />

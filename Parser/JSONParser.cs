@@ -13,8 +13,7 @@ namespace Parser
         private static List<string> SplitTextToObjects(string inputText)
         {
             List<string> ObjectsText = new List<string>();
-            var counter = 0;
-            var objectNumber = 0;
+            var counter = 0;        
             while (counter < inputText.Length)
             {
                 var objectStartPositonInText = 0;
@@ -24,7 +23,6 @@ namespace Parser
                     objectStartPositonInText = counter;
                     objectEndPositionInText = GetObjectEndPositionInText(inputText, counter);
                     ObjectsText.Add(inputText.Substring(objectStartPositonInText, objectEndPositionInText - objectStartPositonInText + 1));
-                     objectNumber++;
                     counter = objectEndPositionInText;
                 }
                 else
@@ -36,16 +34,17 @@ namespace Parser
         }
         private static int GetObjectEndPositionInText(string JSONTObjectsText, int StartPosition)
         {
-            int objectEndPosition = 0;
-            for (var i = StartPosition; i < JSONTObjectsText.Length; i++)
+            var objectEndPosition = 0;          
+            for (var counter = StartPosition; counter < JSONTObjectsText.Length; counter++)
             {
-                if (JSONTObjectsText[i] == '"')
+                if (JSONTObjectsText[counter] == '"')
                 {
-                    i = GetClosingCommaPostion(JSONTObjectsText, ++i);
+                   counter = GetClosingCommaPostion(JSONTObjectsText, ++counter);
+                   
                 }
-                if (JSONTObjectsText[i] == '}')
+                if (JSONTObjectsText[counter] == '}')
                 {
-                    objectEndPosition = i;
+                    objectEndPosition = counter;
                     break;
                 }
             }
@@ -53,32 +52,21 @@ namespace Parser
         }
         private static int GetClosingCommaPostion(string simpleJSONText, int openCommaPosition)
         {
-            int closingCommaPosition = openCommaPosition;
-
-            for (var i = openCommaPosition; i < simpleJSONText.Length; i++)
-            {
-                if (simpleJSONText[i] == '"')
-                {
-                    closingCommaPosition = i;
-                    break;
-                }
-            }
-            return closingCommaPosition + 1;
+            return openCommaPosition + simpleJSONText.Substring(openCommaPosition).IndexOf('"')+1;                    
         }
         private static int GetEndFieldPositonInObject(string objectText, int startStringPosition)
         {
-            int endStringPosition = startStringPosition;
-            string temp = objectText.Substring(startStringPosition);
-            for (int i = startStringPosition; i < objectText.Length; i++)
+            var endStringPosition = startStringPosition;         
+            for (int counter = startStringPosition; counter < objectText.Length; counter++)
             {
-                if (objectText[i] == ',' || objectText[i] == '}')
+                if (objectText[counter] == ',' || objectText[counter] == '}')
                 {
-                    endStringPosition = i;
+                    endStringPosition = counter;
                     break;
                 }
-                if (objectText[i] == '"')
+                if (objectText[counter] == '"')
                 {
-                    i = GetClosingCommaPostion(objectText, ++i) - 1;
+                    counter = GetClosingCommaPostion(objectText, ++counter) - 1;
                 }
             }
             return endStringPosition;
@@ -86,15 +74,13 @@ namespace Parser
         private static List<Dictionary<string, string>> ParseObjectsText(List<string> ObjectsText)
         {
             List<Dictionary<string,string>> Objects = new List<Dictionary<string, string>>();
-            for (int i = 0; i < ObjectsText.Count; i++)
+            foreach (var ObjectText in ObjectsText)
             {
-                List<string> ObjectFieldsString = new List<string>();
-                var countOfFieldsInObject = 0;
+                List<string> ObjectFieldsString = new List<string>(); 
                 var counter = 0;
                 var startFieldPosition=0;
-                var endFieldPosition=0;
-                string ObjectText = ObjectsText[i];
-                while (counter < ObjectsText[i].Length)
+                var endFieldPosition=0;              
+                while (counter < ObjectText.Length)
                 {
                     if (ObjectText[counter] == ',' || ObjectText[counter] == '{')
                     {
@@ -103,7 +89,6 @@ namespace Parser
                         if (endFieldPosition != 0)
                         {
                             ObjectFieldsString.Add(ObjectText.Substring(startFieldPosition, endFieldPosition - startFieldPosition).Trim(',', '\n', '\r', ' '));
-                            countOfFieldsInObject++;
                             counter = endFieldPosition;
                         }
                         if (endFieldPosition == 0)
@@ -116,25 +101,22 @@ namespace Parser
                         counter++;
                     }
                 }
-                Objects.Add(ParseFieldsString(ObjectFieldsString));
-              
+                Objects.Add(ParseFieldsString(ObjectFieldsString));              
             }
             return Objects;
         }
         private static Dictionary<string,string> ParseFieldsString(List<string> objectFieldsStrings)
         {
             Dictionary<string, string> obj = new Dictionary<string, string>();
-            for (var i = 0; i < objectFieldsStrings.Count; i++)
-            {
-                
-                var splitter = objectFieldsStrings[i].IndexOf(':');
+            foreach (var objectFieldsString in objectFieldsStrings)
+            {                
+                var splitter = objectFieldsString.IndexOf(':');
                 if (splitter != -1)
                 {
-                    var fieldKey = objectFieldsStrings[i].Substring(0, splitter).Trim('{', '"', '\n', '\r', '\t', ' ');
-                    var fieldValue = objectFieldsStrings[i].Substring(splitter + 2).Trim('{', '"', '\n', '\r', '\t', ' ');
+                    var fieldKey = objectFieldsString.Substring(0, splitter).Trim('{', '"', '\n', '\r', '\t', ' ');
+                    var fieldValue = objectFieldsString.Substring(splitter + 2).Trim('{', '"', '\n', '\r', '\t', ' ');
                     obj.Add(fieldKey, fieldValue);
-                }
-              
+                }              
             }
             return obj;
         }
