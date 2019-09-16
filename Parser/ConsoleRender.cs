@@ -129,9 +129,14 @@ namespace Parser
                 }
                 if (pressedKeyWord == ConsoleKey.Spacebar)
                 {                   
-                    _MenuItems[_FocusedMenuIndex].CheckingChange();                  
-                    Cell[,] tableCells = GenerateTable();                  
-                    foreach (var tableCell in tableCells)
+                    _MenuItems[_FocusedMenuIndex].CheckingChange();
+                    List<Cell>[] Cells = GenerateTable();
+                    List<Cell> s = new List<Cell>();
+                    foreach (var item in Cells)
+                    {
+                        s.AddRange(item);
+                    }
+                  foreach (var tableCell in s)
                     {
                         if (tableCell.IsNeedRefresh && !isConsoleCleared)
                         {
@@ -139,7 +144,7 @@ namespace Parser
                             isConsoleCleared = true;
                         }
                         tableCell.PrintToTable();
-                    }                  
+                    }                 
                     if (_IsTableLess)
                     {
                         ClearToEndConsole(_TableWidth, _MenuItemsCount + Convert.ToInt32(Properties.Resources.PreambleStringsCount) + 1);
@@ -170,68 +175,127 @@ namespace Parser
             var checkedMenuItems = (from item in _MenuItems where item.IsChecked==true select item.Body).ToList<string>();
             return checkedMenuItems;
         }     
-        private Cell[,] GenerateTable()
+        private List<Cell>[] GenerateTable()
         {
           
-            var currentColumnWidth = 0;
+           // var currentColumnWidth = 0;
             _TableWidth = 0;
             _SelectedMenuItems = GetSelectedMenuItems();
             Cell[,] tableCells = new Cell[_SelectedMenuItems.Count, _JSONObjects.Count + 2];
-           
-            for (int i = 0; i < _SelectedMenuItems.Count; i++)
+            List<Cell>[] Cells = new List<Cell>[_SelectedMenuItems.Count];
+            for (int i = 0; i < Cells.Length; i++)
             {
-                tableCells[i, 0] = new Cell();
-                tableCells[i,0].IsNeedRefresh = (_PrevSelectedMenuItems[i] == _SelectedMenuItems[i]) ? false: true; 
-          
-            // to refactoring. looks rather complex.
-            
-                tableCells[i, 0].Body = _SelectedMenuItems[i];
-                tableCells[i, 0].YPosition = _MenuItemsCount + Convert.ToInt32(Properties.Resources.TableMargin) + Convert.ToInt32(Properties.Resources.PreambleStringsCount);
-                tableCells[i, 0].XPosition = _TableWidth;
-                tableCells[i, 1] = new Cell();
-                tableCells[i, 1].YPosition = tableCells[i, 0].YPosition + 1;
-                tableCells[i, 1].XPosition = _TableWidth;
-                tableCells[i, 1].IsNeedRefresh = tableCells[i, 0].IsNeedRefresh;
-                tableCells[i, 1].Body = String.Empty;
-                var list = (from item in _JSONObjects select item[_SelectedMenuItems[i]].Length).Max();
-                var max = (list > _SelectedMenuItems[i].Length) ? list : _SelectedMenuItems[i].Length;
-                for (int j = 2; j < _JSONObjects.Count + 2; j++)
-                { 
-                     var a = _JSONObjects[j - 2][_SelectedMenuItems[i]];
-                    tableCells[i, j] = new Cell();
-                    tableCells[i, j].YPosition = tableCells[i, j - 1].YPosition + 1;
-                    tableCells[i, j].XPosition = _TableWidth;
-                    if (!(_JSONObjects[j - 2].ContainsKey(_SelectedMenuItems[i])))
-                    {
-                        tableCells[i, j].Body = Properties.Resources.UndefinedFieldText;
-                    }
-                    else
-                    {
-                        tableCells[i, j].Body = _JSONObjects[j - 2][_SelectedMenuItems[i]];
-                        if (tableCells[i, j].Body.Length > tableCells[i, 0].Body.Length * Convert.ToInt32(Properties.Resources.ReductionRatio))
-                        {
-                            tableCells[i, j].Body = tableCells[i, j].Body.Substring(0, tableCells[i, 0].Body.Length * Convert.ToInt32(Properties.Resources.ReductionRatio)) + Properties.Resources.Ellipsis;
-                        }
-                    }
-                    tableCells[i, j].IsNeedRefresh = tableCells[i, 0].IsNeedRefresh;
-                }
-                currentColumnWidth = GetColumnMaxWidth(tableCells, i, _JSONObjects.Count);
-                for (int j = 0; j < _SelectedMenuItems.Count + 1; j++)
-                { 
-                    tableCells[i, j].Width = currentColumnWidth;
-                }
-                tableCells[i, 1].Body = "".PadLeft(tableCells[i, 1].Width + Convert.ToInt32(Properties.Resources.ColumnInterval), '-');
-                _TableWidth += currentColumnWidth + Convert.ToInt32(Properties.Resources.ColumnInterval);
+                Cells[i] = new List<Cell>();
             }
-            int previousMenuItemsCount = _PrevSelectedMenuItems.IndexOf("");
-            _IsTableLess = (previousMenuItemsCount < _SelectedMenuItems.Count) ? false : true;
+            var index = 0;
+            foreach (var Column in Cells)
+            {
+               
+                var MaxFieldLength = (from item in _JSONObjects select item[_SelectedMenuItems[index]].Length).Max();
+                var MaxCellWidth = (MaxFieldLength > _SelectedMenuItems[index].Length) ? MaxFieldLength : _SelectedMenuItems[index].Length;
+                var YPositionCounter = _MenuItemsCount + Convert.ToInt32(Properties.Resources.TableMargin) + Convert.ToInt32(Properties.Resources.PreambleStringsCount);
+                //undefined field
+                Column.Add(new Cell
+                {
+                    IsNeedRefresh = (_PrevSelectedMenuItems[index] == _SelectedMenuItems[index]) ? false : true,
+                    Body = _SelectedMenuItems[index],
+                    YPosition = YPositionCounter,
+                    XPosition = _TableWidth,
+                    Width = MaxCellWidth
+                }) ;
+                
+                Column.Add(new Cell
+                {
+                    YPosition = ++YPositionCounter,
+                    XPosition = _TableWidth,
+                    IsNeedRefresh = Column[0].IsNeedRefresh,                   
+                    Width = MaxCellWidth,
+                    Body = "".PadLeft(MaxCellWidth + Convert.ToInt32(Properties.Resources.ColumnInterval), '-'),
+                }) ;
+                if (Column.Last().Body.Length > _SelectedMenuItems[index].Length * Convert.ToInt32(Properties.Resources.ReductionRatio))
+                {
+                     MaxCellWidth = _SelectedMenuItems[index].Length * Convert.ToInt32(Properties.Resources.ReductionRatio)+3;
+                    Column.Last().Body = "".PadLeft(MaxCellWidth + Convert.ToInt32(Properties.Resources.ColumnInterval), '-');
+                }
+                foreach (var Object in _JSONObjects)
+                {
+                    Column.Add(new Cell
+                    {
+                        YPosition = ++YPositionCounter,
+                        XPosition = _TableWidth,
+                        Body = (Object.ContainsKey(_SelectedMenuItems[index])) ? Object[_SelectedMenuItems[index]] : Properties.Resources.UndefinedFieldText,
+                        IsNeedRefresh = Column[0].IsNeedRefresh,
+                         Width = MaxCellWidth
+                    }) ;
+                    if (Column.Last().Body.Length > _SelectedMenuItems[index].Length * Convert.ToInt32(Properties.Resources.ReductionRatio))
+                    {
+                        Column.Last().Body= Column.Last().Body.Substring(0, _SelectedMenuItems[index].Length * Convert.ToInt32(Properties.Resources.ReductionRatio)) + Properties.Resources.Ellipsis;
+                    }
+                }
+                index++;
+                _TableWidth += MaxCellWidth + Convert.ToInt32(Properties.Resources.ColumnInterval);
+
+            }
+            int prevMenuItemsCount = _PrevSelectedMenuItems.Count(k => k.Length > 0);
+            _IsTableLess = (prevMenuItemsCount < _SelectedMenuItems.Count) ? false : true;
             _PrevSelectedMenuItems = new List<string>(_SelectedMenuItems);
-            _PrevSelectedMenuItems.Add(String.Empty);        
+            _PrevSelectedMenuItems.Add(String.Empty);
+
+
+            /*   for (int i = 0; i < _SelectedMenuItems.Count; i++)
+                        {
+                            tableCells[i, 0] = new Cell();
+                            tableCells[i,0].IsNeedRefresh = (_PrevSelectedMenuItems[i] == _SelectedMenuItems[i]) ? false: true; 
+                                  // to refactoring. looks rather complex.
+                                        tableCells[i, 0].Body = _SelectedMenuItems[i];
+
+                            tableCells[i, 0].YPosition = _MenuItemsCount + Convert.ToInt32(Properties.Resources.TableMargin) + Convert.ToInt32(Properties.Resources.PreambleStringsCount);
+                            tableCells[i, 0].XPosition = _TableWidth;
+
+                            tableCells[i, 1] = new Cell();
+                            tableCells[i, 1].YPosition = tableCells[i, 0].YPosition + 1;
+                            tableCells[i, 1].XPosition = _TableWidth;
+                            tableCells[i, 1].IsNeedRefresh = tableCells[i, 0].IsNeedRefresh;
+                            tableCells[i, 1].Body = String.Empty;
+                            var list = (from item in _JSONObjects select item[_SelectedMenuItems[i]].Length).Max();
+                            var max = (list > _SelectedMenuItems[i].Length) ? list : _SelectedMenuItems[i].Length;
+                            for (int j = 2; j < _JSONObjects.Count + 2; j++)
+                            { 
+                                 var a = _JSONObjects[j - 2][_SelectedMenuItems[i]];
+                                tableCells[i, j] = new Cell();
+                                tableCells[i, j].YPosition = tableCells[i, j - 1].YPosition + 1;
+                                tableCells[i, j].XPosition = _TableWidth;
+                                if (!(_JSONObjects[j - 2].ContainsKey(_SelectedMenuItems[i])))
+                                {
+                                    tableCells[i, j].Body = Properties.Resources.UndefinedFieldText;
+                                }
+                                else
+                                {
+                                    tableCells[i, j].Body = _JSONObjects[j - 2][_SelectedMenuItems[i]];
+                                    if (tableCells[i, j].Body.Length > tableCells[i, 0].Body.Length * Convert.ToInt32(Properties.Resources.ReductionRatio))
+                                    {
+                                        tableCells[i, j].Body = tableCells[i, j].Body.Substring(0, tableCells[i, 0].Body.Length * Convert.ToInt32(Properties.Resources.ReductionRatio)) + Properties.Resources.Ellipsis;
+                                    }
+                                }
+                                tableCells[i, j].IsNeedRefresh = tableCells[i, 0].IsNeedRefresh;
+                            }
+                            currentColumnWidth = GetColumnMaxWidth(tableCells, i, _JSONObjects.Count);
+                            for (int j = 0; j < _SelectedMenuItems.Count + 1; j++)
+                            { 
+                                tableCells[i, j].Width = currentColumnWidth;
+                            }
+                            tableCells[i, 1].Body = "".PadLeft(tableCells[i, 1].Width + Convert.ToInt32(Properties.Resources.ColumnInterval), '-');
+                            _TableWidth += currentColumnWidth + Convert.ToInt32(Properties.Resources.ColumnInterval);
+                        }
+                        int previousMenuItemsCount = _PrevSelectedMenuItems.IndexOf("");
+                        _IsTableLess = (previousMenuItemsCount < _SelectedMenuItems.Count) ? false : true;
+                        _PrevSelectedMenuItems = new List<string>(_SelectedMenuItems);
+                        _PrevSelectedMenuItems.Add(String.Empty);       */
             if  (_TableWidth > Console.BufferWidth)
             {
                  Console.BufferWidth = _TableWidth + 1;
             }
-            return tableCells;
+            return Cells;
         }
         public List<string> GetAllObjectsFields()
         {
