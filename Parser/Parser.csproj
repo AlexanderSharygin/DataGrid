@@ -72,16 +72,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="RenderPrinter.cs" />
-    <Compile Include="Constants.cs" />
-    <Compile Include="MyList.cs" />
+    <Compile Include="ConsoleRender.cs" />
+    <Compile Include="Trash\Config.cs" />
+    <None Include="Trash\ObjectFields.cs" />
+    <None Include="Trash\MyList.cs" />
     <None Include="packages.config" />
     <None Include="Trash\MyList_Trash.cs" />
-    <Compile Include="ObjectFields.cs" />
-    <Compile Include="JSONObject.cs" />
+    <None Include="Trash\JSONObject.cs" />
     <Compile Include="JSONParser.cs" />
-    <Compile Include="Trash\ConsolePrinter.cs" />
-    <Compile Include="MyLinq.cs" />
+    <None Include="Trash\ConsolePrinter.cs" />
+    <None Include="Trash\MyLinq.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">

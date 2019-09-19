@@ -117,4 +117,33 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="CheckedMenuItemPrefix" xml:space="preserve">
+    <value>[X] </value>
+  </data>
+  <data name="ColumnInterval" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="Ellipsis" xml:space="preserve">
+    <value>...</value>
+  </data>
+  <data name="PreambleStrings" xml:space="preserve">
+    <value>Simple-JSON objects parser.
+UP/Down arrows - menu navigation.
+Space - Adding a field to the ones displayed in the table.</value>
+  </data>
+  <data name="PreambleStringsCount" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="ReductionRatio" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="TableMargin" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="UncheckedMenuItemPrefix" xml:space="preserve">
+    <value>[ ] </value>
+  </data>
+  <data name="UndefinedFieldText" xml:space="preserve">
+    <value>Undefined field</value>
+  </data>
 </root>
