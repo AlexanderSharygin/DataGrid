@@ -1,10 +1,4 @@
 ﻿using System.IO;
-using System;
-using Parser.Extensions;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis;
-using System.Reflection;
 using System.Collections.Generic;
 
 namespace Parser

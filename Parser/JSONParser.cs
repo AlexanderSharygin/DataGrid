@@ -1,5 +1,4 @@
-﻿using Parser.Extensions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Parser
 {
@@ -13,11 +12,11 @@ namespace Parser
         private static List<string> SplitTextToObjects(string inputText)
         {
             List<string> ObjectsText = new List<string>();
-            var counter = 0;        
+            int counter = 0;        
             while (counter < inputText.Length)
             {
-                var objectStartPositonInText = 0;
-                var objectEndPositionInText = 0;
+                int objectStartPositonInText = 0;
+                int objectEndPositionInText = 0;
                 if (inputText[counter] == '{')
                 {
                     objectStartPositonInText = counter;
@@ -34,7 +33,7 @@ namespace Parser
         }
         private static int GetObjectEndPositionInText(string JSONTObjectsText, int StartPosition)
         {
-            var objectEndPosition = 0;          
+           int objectEndPosition = 0;          
             for (var counter = StartPosition; counter < JSONTObjectsText.Length; counter++)
             {
                 if (JSONTObjectsText[counter] == '"')
