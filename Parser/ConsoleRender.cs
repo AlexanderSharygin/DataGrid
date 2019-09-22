@@ -65,12 +65,13 @@ namespace Parser
         int _FocusedMenuIndex;
         List<Dictionary<string, string>> _JSONObjects;
         List<string> _PrevMenuItems = new List<string>();
-        List<string> _SelectedMenuItems;     
+        bool _IsTableLess;
+        List<string> _SelectedMenuItems;      
         public ConsoleRender(List<Dictionary<string, string>> p_parsedObjects)
         {
             _JSONObjects = p_parsedObjects;
-            _AggregatedObjectsFields = GetAllObjectsFields();           
-            _MenuItems = new List<Cell>(_AggregatedObjectsFields.Count);          
+            _AggregatedObjectsFields = _JSONObjects.SelectMany(j => j.Keys).Distinct().ToList();           
+              _MenuItems = new List<Cell>(_AggregatedObjectsFields.Count);          
             for (int i = 0; i < _AggregatedObjectsFields.Count; i++)
             {
                 _MenuItems.Add(new Cell());
@@ -106,7 +107,7 @@ namespace Parser
                 if (pressedKeyWord == ConsoleKey.Spacebar)
                 {                   
                     _MenuItems[_FocusedMenuIndex].CheckingChange();
-                    List<Cell>[] Cells = GenerateTable();
+                     List<Cell>[] Cells = GenerateTable();               
                     foreach (var Column in Cells)
                     {
                         foreach (var Cell in Column)
@@ -117,19 +118,16 @@ namespace Parser
                                 isConsoleCleared = true;
                             }
                             Cell.PrintToTable();
-                        }
+                        }                        
                     }
-                    IncreaseConsoleBufferWidth();            
+                    if (_IsTableLess)
+                    {
+                        ClearToEndConsole(_TableCurrentWidth, _MenuItems.Count + Convert.ToInt32(Properties.Resources.PreambleStringsCount) + 1);
+                    }                    
                 }                         
             }
         }
-        private void IncreaseConsoleBufferWidth()
-        {
-            if (_TableCurrentWidth > Console.WindowWidth)
-            {
-                Console.BufferWidth = _TableCurrentWidth + 2;
-            }
-        }
+      
         private void ClearToEndConsole(int xPosition, int yPosition)
         {            
             var startRowIndex = _MenuItems.Count + Convert.ToInt32(Properties.Resources.PreambleStringsCount) + 1;
@@ -190,24 +188,12 @@ namespace Parser
             }
             int prevMenuItemsCount = _PrevMenuItems.Count(k => k.Length > 0);          
             _PrevMenuItems = new List<string>(_SelectedMenuItems);
+            _IsTableLess = (_PrevMenuItems.Count < _SelectedMenuItems.Count) ? false : true;
             _PrevMenuItems.Add(String.Empty);
-            IncreaseConsoleBufferWidth();          
+            if (_TableCurrentWidth > Console.WindowWidth)
+            { Console.BufferWidth = _TableCurrentWidth + 2; }
             return Cells;
         }
-        public List<string> GetAllObjectsFields()
-        {
-            List<string> AllObjectsFields = new List<string>();
-            foreach (var JSONObject in _JSONObjects)
-            {             
-                foreach (var key in JSONObject.Keys)
-                {                  
-                    if (!AllObjectsFields.Exists(k => k == key))
-                    {                      
-                        AllObjectsFields.Add(key);
-                    }
-                }
-            }
-            return AllObjectsFields;
-        }       
+      
     }
 }
