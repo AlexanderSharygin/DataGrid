@@ -9,34 +9,29 @@ namespace Parser
 
         bool _IsFocused;
         public bool IsChecked { get; private set; }
-        public string Body { get; private set; }
+        public string Body { get;  set; }
         public int XPosition { get; }
         public int YPosition { get; }
-        public bool NeedRefresh { get; }
-        public int Width { get; set; }
+        public bool NeedRefresh { get; }     
         public Cell(string Body, int XPosition, int YPosition, bool NeedRefresh)
         {
             this.Body = Body;
             this.XPosition = XPosition;
             this.YPosition = YPosition;
             this.NeedRefresh = NeedRefresh;
-        }
-        public void UpdateBody(string NewBody)
-        {
-            Body = NewBody;
-        }
+        }    
+      
         private void RerendereCell()
         {
             Console.SetCursorPosition(XPosition, YPosition);
             Console.BackgroundColor = ConsoleColor.Black;
-            Console.Write("".PadLeft(Width));
+            Console.Write("".PadLeft(Body.Length));
             Console.BackgroundColor = ConsoleConfig.SelectedFieldColor;
             Console.SetCursorPosition(XPosition, YPosition);
             Console.BackgroundColor = (_IsFocused) ? ConsoleConfig.SelectedFieldColor : ConsoleColor.Black;
             Console.Write((IsChecked) ? Properties.Resources.CheckedMenuItemPrefix + Body : Properties.Resources.UncheckedMenuItemPrefix + Body);
             Console.BackgroundColor = ConsoleColor.Black;
-        }    
-      
+        }       
         public void CheckingChange()
         {
             IsChecked = !IsChecked;
@@ -44,21 +39,20 @@ namespace Parser
         }
         public void ChangeFocus(bool isCellFocused)
         {
-            _IsFocused = !_IsFocused;
+            _IsFocused = isCellFocused;
             RerendereCell();
         }
-
-        public void PrintToTable()
+        public void PrintCelll()
         {           
                 Console.BackgroundColor = ConsoleColor.Black;               
                 Console.SetCursorPosition(XPosition, YPosition);
                 Console.Write(Body);
         }
-        public void PrintToMenu()
+        public void PrintCellToMenu()
         {
             Console.BackgroundColor = ConsoleColor.Black;
             Console.SetCursorPosition(XPosition, YPosition);           
-            Console.Write("".PadLeft(Width));
+            Console.Write("".PadLeft(Body.Length));
             Console.SetCursorPosition(XPosition, YPosition);
             Console.BackgroundColor = (_IsFocused) ? ConsoleConfig.SelectedFieldColor : ConsoleColor.Black;
             Console.Write((IsChecked) ? Properties.Resources.CheckedMenuItemPrefix + Body : Properties.Resources.UncheckedMenuItemPrefix + Body);
@@ -82,16 +76,14 @@ namespace Parser
             for (int i = 0; i < _AggregatedObjectsFields.Count; i++)
             {
                 _MenuItems.Add(new Cell(_AggregatedObjectsFields[i],0, i + Convert.ToInt32(Properties.Resources.PreambleStringsCount),false));
-                _PrevMenuItems.Add(String.Empty);
+                _PrevMenuItems.Add(string.Empty);
             }
         }
-
         public void RenderUI()
-        {
-           
+        {           
             Console.BufferHeight = Console.WindowHeight + _JSONObjects.Count;
             Console.WriteLine(Properties.Resources.PreambleStrings);
-            _MenuItems.ForEach(k => k.PrintToMenu());
+            _MenuItems.ForEach(k => k.PrintCellToMenu());
             _MenuItems[0].ChangeFocus(true);
             while (true)
             {
@@ -124,7 +116,7 @@ namespace Parser
                             }
                             if (Cell.NeedRefresh)
                             {
-                                Cell.PrintToTable();
+                                Cell.PrintCelll();
                             }
                         }
                     }
@@ -135,7 +127,6 @@ namespace Parser
                 }
             }
         }
-
         private void ClearToEndConsole(int xPosition, int yPosition)
         {
             
@@ -153,7 +144,6 @@ namespace Parser
         {
             public List<Cell> Cells { get; set; } = new List<Cell>();
         }
-
         private Column[] GenerateTable()
         {
             _TableCurrentWidth = 0;
@@ -176,10 +166,9 @@ namespace Parser
                                      
                 }
                 var cellsWithLongBody = column.Cells.Select(k => k).Where(k => k.Body.Length > _SelectedMenuItems[index].Length * Convert.ToInt32(Properties.Resources.ReductionRatio)).ToList();
-                cellsWithLongBody.ForEach(k => k.UpdateBody(k.Body.Substring(0, _SelectedMenuItems[index].Length * Convert.ToInt32(Properties.Resources.ReductionRatio)) + Properties.Resources.Ellipsis));
+                cellsWithLongBody.ForEach(k => k.Body = k.Body.Substring(0, _SelectedMenuItems[index].Length * Convert.ToInt32(Properties.Resources.ReductionRatio)) + Properties.Resources.Ellipsis);
                 var MaxCellWidth = column.Cells.Max(k => k.Body.Length);
                 column.Cells.Insert(1, new Cell("".PadLeft(MaxCellWidth + Convert.ToInt32(Properties.Resources.ColumnInterval), '-'), _TableCurrentWidth, column.Cells[0].YPosition + 1, column.Cells[0].NeedRefresh));
-                column.Cells.ForEach(k => k.Width = MaxCellWidth);
                 _TableCurrentWidth += MaxCellWidth + Convert.ToInt32(Properties.Resources.ColumnInterval);
                 index++;
             }
