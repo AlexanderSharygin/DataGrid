@@ -28,11 +28,17 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.GB_Fields = new System.Windows.Forms.GroupBox();
             this.Buttom_Show = new System.Windows.Forms.Button();
             this.LB_FieldsList = new System.Windows.Forms.ListBox();
             this.GB_Table = new System.Windows.Forms.GroupBox();
+            this.DG_Table = new System.Windows.Forms.DataGridView();
+            this.jSONParserBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.GB_Fields.SuspendLayout();
+            this.GB_Table.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.DG_Table)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.jSONParserBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
             // GB_Fields
@@ -67,12 +73,28 @@
             // 
             // GB_Table
             // 
+            this.GB_Table.Controls.Add(this.DG_Table);
             this.GB_Table.Location = new System.Drawing.Point(210, 12);
             this.GB_Table.Name = "GB_Table";
             this.GB_Table.Size = new System.Drawing.Size(578, 426);
             this.GB_Table.TabIndex = 2;
             this.GB_Table.TabStop = false;
             this.GB_Table.Text = "Таблица полей";
+            // 
+            // DG_Table
+            // 
+            this.DG_Table.AllowUserToAddRows = false;
+            this.DG_Table.AllowUserToDeleteRows = false;
+            this.DG_Table.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.DG_Table.Location = new System.Drawing.Point(7, 20);
+            this.DG_Table.Name = "DG_Table";
+            this.DG_Table.ReadOnly = true;
+            this.DG_Table.Size = new System.Drawing.Size(565, 398);
+            this.DG_Table.TabIndex = 0;
+            // 
+            // jSONParserBindingSource
+            // 
+            this.jSONParserBindingSource.DataSource = typeof(Parser.JSONParser);
             // 
             // Show_Button
             // 
@@ -85,6 +107,9 @@
             this.Text = "JSONParser";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.GB_Fields.ResumeLayout(false);
+            this.GB_Table.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.DG_Table)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.jSONParserBindingSource)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -95,6 +120,8 @@
         private System.Windows.Forms.ListBox LB_FieldsList;
         private System.Windows.Forms.Button Buttom_Show;
         private System.Windows.Forms.GroupBox GB_Table;
+        private System.Windows.Forms.DataGridView DG_Table;
+        private System.Windows.Forms.BindingSource jSONParserBindingSource;
     }
 }
 

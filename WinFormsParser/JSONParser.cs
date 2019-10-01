@@ -30,7 +30,6 @@ namespace WinFormsParser
         }
         private void FillFieldsList()
         {
-
             List <string> _AggregatedObjectsFields = _JSONObjects.SelectMany(j => j.Keys).Distinct().ToList();
             LB_FieldsList.Items.Clear();
             _AggregatedObjectsFields.ForEach(k => LB_FieldsList.Items.Add(k));
@@ -38,34 +37,71 @@ namespace WinFormsParser
 
         private void Buttom_Show_Click(object sender, EventArgs e)
         {
-            GetTable(); 
+           List<List<string>> Table = GetTable();         
+            DG_Table.Columns.Clear();
+            bool isFirstRow = true;
+            int rowIndex = 0;
+           
+            foreach (var row in Table)
+            {
+                int columnIndex = 0;
+                if (isFirstRow)
+                {
+                    foreach (var cell in row)
+                    {
+                        DataGridViewColumn temp = new DataGridViewColumn();
+                        temp.HeaderText = cell;
+                        temp.Name = temp.HeaderText;
+                        temp.CellTemplate = new DataGridViewTextBoxCell();
+                        temp.SortMode = DataGridViewColumnSortMode.Automatic;
+                        DG_Table.Columns.Add(temp);
+                    }
+                    isFirstRow = false;            
+                }
+                else
+                {
+                    DG_Table.Rows.Add();
+
+                    foreach (var cell in row)
+                    {
+                        DG_Table[columnIndex,rowIndex].Value = cell;
+                        columnIndex++;
+                    }
+                    rowIndex++;
+                }
+            }
         }
-        private void GetTable()
+        private List<List <string>> GetTable()
         {
             List<string> _SelectedMenuItems = LB_FieldsList.SelectedItems.Cast<string>().ToList<string>(); 
-            List<string>[] Table = new List<string>[LB_FieldsList.SelectedItems.Count];
-           for (int i = 0; i < Table.Length; i++)
-            {
-                Table[i] = new List<string>();
-            }
+            List<List <string>> Table = new List<List<string>>();
             int index = 0;
-            foreach (var column in Table)
+            int rowsCount = _JSONObjects.Count;
+            List<string> headerRow = new List<string>(_SelectedMenuItems.Count);
+            foreach (var item in _SelectedMenuItems)
             {
-               
-                column.Add(_SelectedMenuItems[index]);
-                foreach (var JSONObject in _JSONObjects)
+                headerRow.Add(item);
+            }
+            Table.Add(headerRow);
+            while (index < rowsCount)
+            {
+                List<string> Row = new List<string>(_SelectedMenuItems.Count);
+                foreach (var item in _SelectedMenuItems)
                 {
-                    column.Add((JSONObject.ContainsKey(_SelectedMenuItems[index])) ? JSONObject[_SelectedMenuItems[index]] : Resources.UndefinedFieldText);
-                }           
-                for (int i = 0; i < column.Count; i++)
-                 {
-                    if (column[i].Length > _SelectedMenuItems[index].Length * Convert.ToInt32(Resources.ReductionRatio))
-                    column[i]= column[i].Substring(0, _SelectedMenuItems[index].Length * Convert.ToInt32(Resources.ReductionRatio)) + Resources.Ellipsis;
-
+                    if (_JSONObjects[index].ContainsKey(item))
+                    {
+                        Row.Add(_JSONObjects[index][item]);
+                    }
+                    else
+                    {
+                        Row.Add(Resources.UndefinedFieldText);
+                    }
                 }
-                var MaxCellWidth = column.Max(k => k.Length);                  
+                Table.Add(Row);
                 index++;
-            }          
+            }            
+            return Table;
+             
         }
 
     }
