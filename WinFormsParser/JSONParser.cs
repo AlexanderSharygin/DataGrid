@@ -27,6 +27,10 @@ namespace WinFormsParser
             var inputText = File.ReadAllText("Files\\Data.txt");
             _JSONObjects = JSONParser.ParseSimpleJSON(inputText);
             FillFieldsList();
+          
+           
+           
+
         }
         private void FillFieldsList()
         {
@@ -37,7 +41,9 @@ namespace WinFormsParser
 
         private void Buttom_Show_Click(object sender, EventArgs e)
         {
-           List<List<string>> Table = GetTable();         
+            
+            List<List<string>> Table = GetTable();
+            myDataGrid1.Source = Table;
             DG_Table.Columns.Clear();
             bool isFirstRow = true;
             int rowIndex = 0;
@@ -104,5 +110,14 @@ namespace WinFormsParser
              
         }
 
+        private void MyDataGrid1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void GB_Table_Enter(object sender, EventArgs e)
+        {
+
+        }
     }
 }
