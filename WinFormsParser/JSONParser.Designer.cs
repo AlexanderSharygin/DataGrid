@@ -91,7 +91,7 @@
             this.myDataGrid1.AutoSize = true;
             this.myDataGrid1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.myDataGrid1.ColumnHeight = 15;
-            this.myDataGrid1.ColumnWidth = 0;
+  
             this.myDataGrid1.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.myDataGrid1.LineColor = System.Drawing.Color.DarkRed;
             this.myDataGrid1.Location = new System.Drawing.Point(7, 252);

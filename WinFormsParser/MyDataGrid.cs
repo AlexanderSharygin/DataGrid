@@ -54,7 +54,7 @@ namespace Parser
                 }
             }
         }
-        public int ColumnWidth { get; set; }
+      
         protected override void OnPaint(PaintEventArgs e)
         {
             DrawFrame(e);
@@ -68,13 +68,20 @@ namespace Parser
           e.Graphics.DrawLine(new Pen(LineColor, 1), this.Width - Margin.Left - Margin.Right, this.Height - Margin.Top - Margin.Bottom,  Margin.Left, this.Height - Margin.Top - Margin.Bottom);
            e.Graphics.DrawLine(new Pen(LineColor, 1), Margin.Left, this.Height - Margin.Top - Margin.Bottom, Margin.Left, Margin.Top);
             Brush brush = new SolidBrush(ForeColor);
-           
+            Pen p = new Pen(LineColor);
+         
             foreach (var Row in _Bufer)
             {
+       
+                var rowEndCounter = Row.Last().XPosition+Row.Last().ColumnWidth*Font.Size;
                 foreach (var Cell in Row)
                 {
                     e.Graphics.DrawString(Cell.Body, this.Font, brush, Cell.XPosition, Cell.YPosition);
+                    e.Graphics.DrawLine(p, Cell.XPosition + Cell.ColumnWidth*Font.Size,Margin.Top, Cell.XPosition + Cell.ColumnWidth*Font.Size,100);
+                   
                 }
+
+                e.Graphics.DrawLine(p, Margin.Left, Row[0].YPosition + ColumnHeight, rowEndCounter, Row[0].YPosition + ColumnHeight);
             }
         }
         private new List<List<Cell>> CreateBufer(List<List<string>> Source)
@@ -88,14 +95,16 @@ namespace Parser
             }
             int RowIndex = 0;
             int CellIndex = 0;
-
+            var yCounter =  Margin.Top+2;
             foreach (var Rows in TableRows)
             {                                      
                 foreach (var item in Source[RowIndex])
                 {
-                    TableRows[RowIndex].Add(new Cell (Source[RowIndex][CellIndex],0,(RowIndex+1)*ColumnHeight));
+                    TableRows[RowIndex].Add(new Cell (Source[RowIndex][CellIndex],0,yCounter));
+                  
                     CellIndex++;                
                 }
+                  yCounter += ColumnHeight+2;
                 //TableRows.Add(Row);
                 RowIndex++;
                 CellIndex = 0;
@@ -107,8 +116,9 @@ namespace Parser
                 foreach (var item in Column)
                 {
                     item.XPosition = CurrentWidth;
+                    item.ColumnWidth = ColumnWidth;
                 }
-                CurrentWidth += ColumnWidth * (int)this.Font.Size;
+                CurrentWidth += ColumnWidth * (int)this.Font.Size+(i+1)*2;
             }
             return TableRows;
 
@@ -123,6 +133,7 @@ namespace Parser
 
         public int XPosition { get; set; }
         public int YPosition { get; }
+        public int ColumnWidth { get; set; }
         //   public bool NeedRefresh { get; }
         public Cell(string Body, int XPosition, int YPosition)
         {
