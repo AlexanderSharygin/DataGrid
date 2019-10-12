@@ -96,11 +96,18 @@ namespace WinFormsParser
                 {
                     if (_JSONObjects[index].ContainsKey(item))
                     {
-                        Row.Add(_JSONObjects[index][item]);
+                        if (_JSONObjects[index][item].Length < item.Length * Convert.ToInt32(Resources.ReductionRatio))
+                        {
+                            Row.Add(_JSONObjects[index][item]);
+                        }
+                        else
+                        {
+                            Row.Add(_JSONObjects[index][item].Substring(0, item.Length * Convert.ToInt32(Resources.ReductionRatio)) + Resources.Ellipsis);
+                        }
                     }
                     else
                     {
-                        Row.Add(Resources.UndefinedFieldText);
+                       Row.Add(Resources.UndefinedFieldText);
                     }
                 }
                 Table.Add(Row);

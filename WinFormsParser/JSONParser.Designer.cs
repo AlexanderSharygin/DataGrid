@@ -34,9 +34,9 @@
             this.Buttom_Show = new System.Windows.Forms.Button();
             this.LB_FieldsList = new System.Windows.Forms.ListBox();
             this.GB_Table = new System.Windows.Forms.GroupBox();
-            this.myDataGrid1 = new Parser.MyDataGrid();
             this.DG_Table = new System.Windows.Forms.DataGridView();
             this.jSONParserBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.myDataGrid1 = new Parser.MyDataGrid();
             this.GB_Fields.SuspendLayout();
             this.GB_Table.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DG_Table)).BeginInit();
@@ -85,23 +85,6 @@
             this.GB_Table.Text = "Таблица полей";
             this.GB_Table.Enter += new System.EventHandler(this.GB_Table_Enter);
             // 
-            // myDataGrid1
-            // 
-            this.myDataGrid1.AutoScroll = true;
-            this.myDataGrid1.AutoSize = true;
-            this.myDataGrid1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.myDataGrid1.ColumnHeight = 15;
-  
-            this.myDataGrid1.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.myDataGrid1.LineColor = System.Drawing.Color.DarkRed;
-            this.myDataGrid1.Location = new System.Drawing.Point(7, 252);
-            this.myDataGrid1.Margin = new System.Windows.Forms.Padding(5);
-            this.myDataGrid1.Name = "myDataGrid1";
-            this.myDataGrid1.Size = new System.Drawing.Size(531, 136);
-            this.myDataGrid1.Source = ((System.Collections.Generic.List<System.Collections.Generic.List<string>>)(resources.GetObject("myDataGrid1.Source")));
-            this.myDataGrid1.TabIndex = 1;
-            this.myDataGrid1.Load += new System.EventHandler(this.MyDataGrid1_Load);
-            // 
             // DG_Table
             // 
             this.DG_Table.AllowUserToAddRows = false;
@@ -110,18 +93,32 @@
             this.DG_Table.Location = new System.Drawing.Point(7, 20);
             this.DG_Table.Name = "DG_Table";
             this.DG_Table.ReadOnly = true;
-            this.DG_Table.Size = new System.Drawing.Size(565, 215);
+            this.DG_Table.Size = new System.Drawing.Size(507, 58);
             this.DG_Table.TabIndex = 0;
             // 
             // jSONParserBindingSource
             // 
             this.jSONParserBindingSource.DataSource = typeof(Parser.JSONParser);
             // 
+            // myDataGrid1
+            // 
+            this.myDataGrid1.AutoScroll = true;
+            this.myDataGrid1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.myDataGrid1.ColumnHeight = 15;
+            this.myDataGrid1.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.myDataGrid1.LineColor = System.Drawing.Color.Black;
+            this.myDataGrid1.Location = new System.Drawing.Point(7, 94);
+            this.myDataGrid1.Margin = new System.Windows.Forms.Padding(0);
+            this.myDataGrid1.Name = "myDataGrid1";
+            this.myDataGrid1.Size = new System.Drawing.Size(507, 185);
+            this.myDataGrid1.Source = ((System.Collections.Generic.List<System.Collections.Generic.List<string>>)(resources.GetObject("myDataGrid1.Source")));
+            this.myDataGrid1.TabIndex = 1;
+            // 
             // Show_Button
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(736, 450);
             this.Controls.Add(this.GB_Table);
             this.Controls.Add(this.GB_Fields);
             this.Name = "Show_Button";
@@ -129,7 +126,6 @@
             this.Load += new System.EventHandler(this.Form1_Load);
             this.GB_Fields.ResumeLayout(false);
             this.GB_Table.ResumeLayout(false);
-            this.GB_Table.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DG_Table)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.jSONParserBindingSource)).EndInit();
             this.ResumeLayout(false);
@@ -142,10 +138,9 @@
         private System.Windows.Forms.ListBox LB_FieldsList;
         private System.Windows.Forms.Button Buttom_Show;
         private System.Windows.Forms.GroupBox GB_Table;
-        private System.Windows.Forms.DataGridView DG_Table;
         private System.Windows.Forms.BindingSource jSONParserBindingSource;
+        private System.Windows.Forms.DataGridView DG_Table;
         private Parser.MyDataGrid myDataGrid1;
-   
     }
 }
 
