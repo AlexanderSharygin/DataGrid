@@ -28,19 +28,16 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Show_Button));
             this.GB_Fields = new System.Windows.Forms.GroupBox();
             this.Buttom_Show = new System.Windows.Forms.Button();
             this.LB_FieldsList = new System.Windows.Forms.ListBox();
             this.GB_Table = new System.Windows.Forms.GroupBox();
             this.DG_Table = new System.Windows.Forms.DataGridView();
-            this.jSONParserBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.myDataGrid1 = new Parser.MyDataGrid();
             this.GB_Fields.SuspendLayout();
             this.GB_Table.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DG_Table)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.jSONParserBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
             // GB_Fields
@@ -96,21 +93,17 @@
             this.DG_Table.Size = new System.Drawing.Size(507, 58);
             this.DG_Table.TabIndex = 0;
             // 
-            // jSONParserBindingSource
-            // 
-            this.jSONParserBindingSource.DataSource = typeof(Parser.JSONParser);
-            // 
             // myDataGrid1
             // 
             this.myDataGrid1.AutoScroll = true;
             this.myDataGrid1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.myDataGrid1.ColumnHeight = 15;
+            this.myDataGrid1.ColumnHeight = 0;
             this.myDataGrid1.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.myDataGrid1.LineColor = System.Drawing.Color.Black;
-            this.myDataGrid1.Location = new System.Drawing.Point(7, 94);
+            this.myDataGrid1.Location = new System.Drawing.Point(7, 85);
             this.myDataGrid1.Margin = new System.Windows.Forms.Padding(0);
             this.myDataGrid1.Name = "myDataGrid1";
-            this.myDataGrid1.Size = new System.Drawing.Size(507, 185);
+            this.myDataGrid1.Size = new System.Drawing.Size(510, 170);
             this.myDataGrid1.Source = ((System.Collections.Generic.List<System.Collections.Generic.List<string>>)(resources.GetObject("myDataGrid1.Source")));
             this.myDataGrid1.TabIndex = 1;
             // 
@@ -127,7 +120,6 @@
             this.GB_Fields.ResumeLayout(false);
             this.GB_Table.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.DG_Table)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.jSONParserBindingSource)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -138,7 +130,6 @@
         private System.Windows.Forms.ListBox LB_FieldsList;
         private System.Windows.Forms.Button Buttom_Show;
         private System.Windows.Forms.GroupBox GB_Table;
-        private System.Windows.Forms.BindingSource jSONParserBindingSource;
         private System.Windows.Forms.DataGridView DG_Table;
         private Parser.MyDataGrid myDataGrid1;
     }

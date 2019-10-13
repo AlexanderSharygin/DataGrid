@@ -10,30 +10,27 @@ using System.Windows.Forms;
 
 namespace Parser
 {
-  
+
     public partial class MyDataGrid : UserControl
     {
         List<List<string>> _Source = new List<List<string>>();
         List<List<Cell>> _Bufer = new List<List<Cell>>();
-       int _ColumnHeight;
+        int _ColumnHeight;
         int _LineWidth = 1;
         int _MaxX;
         int _MaxY;
         public MyDataGrid()
         {
             InitializeComponent();
-             ResizeRedraw = true;
-             components = new System.ComponentModel.Container();
-             this.AutoScroll = true;
-           // AutoScrollMinSize = new Size(Size.Width, Size.Height);
-          
-          //  ClientSize = new Size(Size.Width, Size.Height);
-            //Size = new Size(800, 200);
-          //  Paint += OnPaint;
-           
+            ResizeRedraw = true;
+            components = new System.ComponentModel.Container();
+            this.AutoScroll = true;
+
+            AutoSize = false;
+
 
         }
-      
+
         public List<List<string>> Source
         {
             get => _Source;
@@ -42,19 +39,19 @@ namespace Parser
                 _Source = value;
                 if (Source.Count != 0)
                 {
-                    vScrollBar1.Value = 0;
-                    _Bufer =  CreateBufer(Source);
-                   Invalidate();
+                    VerticalScroll.Value = 0;
+                    _Bufer = CreateBufer(Source);
+                    Invalidate();
                 }
-                
+
 
             }
         }
-       public Color LineColor { get; set; }     
-        
+        public Color LineColor { get; set; }
+
         public int ColumnHeight
         {
-            get =>_ColumnHeight;
+            get => _ColumnHeight;
             set
             {
                 if (_ColumnHeight < Font.Height)
@@ -63,67 +60,69 @@ namespace Parser
                 }
             }
         }
-      
-       protected override void OnPaint(PaintEventArgs e)
+
+        protected override void OnPaint(PaintEventArgs e)
         {
-          
-                DrawFrame(e);
-           
-            
-            
+
+
+            DrawFrame(e);
+
+
+
+
 
         }
         public void DrawFrame(PaintEventArgs e)
         {
-            e.Graphics.DrawLine(new Pen(LineColor, _LineWidth), Margin.Left, Margin.Top, this.Width - Margin.Left-Margin.Right,  Margin.Top);
-            e.Graphics.DrawLine(new Pen(LineColor, _LineWidth), this.Width - Margin.Left - Margin.Right, Margin.Top, this.Width - Margin.Left - Margin.Right, this.Height-Margin.Top-Margin.Bottom);
-          e.Graphics.DrawLine(new Pen(LineColor, _LineWidth), this.Width - Margin.Left - Margin.Right, this.Height - Margin.Top - Margin.Bottom,  Margin.Left, this.Height - Margin.Top - Margin.Bottom);
-           e.Graphics.DrawLine(new Pen(LineColor, _LineWidth), Margin.Left, this.Height - Margin.Top - Margin.Bottom, Margin.Left, Margin.Top);
+            e.Graphics.DrawLine(new Pen(LineColor, _LineWidth), Margin.Left, Margin.Top, this.Width - Margin.Left - Margin.Right, Margin.Top);
+            e.Graphics.DrawLine(new Pen(LineColor, _LineWidth), this.Width - Margin.Left - Margin.Right, Margin.Top, this.Width - Margin.Left - Margin.Right, this.Height - Margin.Top - Margin.Bottom);
+            e.Graphics.DrawLine(new Pen(LineColor, _LineWidth), this.Width - Margin.Left - Margin.Right, this.Height - Margin.Top - Margin.Bottom, Margin.Left, this.Height - Margin.Top - Margin.Bottom);
+            e.Graphics.DrawLine(new Pen(LineColor, _LineWidth), Margin.Left, this.Height - Margin.Top - Margin.Bottom, Margin.Left, Margin.Top);
             Brush brush = new SolidBrush(ForeColor);
             Pen p = new Pen(LineColor, _LineWidth);
-         
+
             foreach (var Row in _Bufer)
             {
-       
-                var rowEndCounter = Row.Last().XPosition+Row.Last().ColumnWidth*Font.Size;
+
+                var rowEndCounter = Row.Last().XPosition + Row.Last().ColumnWidth * Font.Size;
                 foreach (var Cell in Row)
                 {
                     e.Graphics.DrawString(Cell.Body, this.Font, brush, Cell.XPosition, Cell.YPosition);
-                    e.Graphics.DrawLine(p, Cell.XPosition + Cell.ColumnWidth*Font.Size, Margin.Top, Cell.XPosition + Cell.ColumnWidth*Font.Size,Margin.Top+(ColumnHeight+2)*_Bufer.Count);
-                   
+                    e.Graphics.DrawLine(p, Cell.XPosition + Cell.ColumnWidth * Font.Size, Margin.Top, Cell.XPosition + Cell.ColumnWidth * Font.Size, Margin.Top + (ColumnHeight + 2) * _Bufer.Count);
+
                 }
 
                 e.Graphics.DrawLine(p, Margin.Left, Row[0].YPosition + ColumnHeight, rowEndCounter, Row[0].YPosition + ColumnHeight);
             }
-            if (_MaxY > this.Size.Height)
-            {
-                vScrollBar1.Visible = true;
-                vScrollBar1.Maximum = (_MaxY - this.Size.Height-ColumnHeight);
-                vScrollBar1.SmallChange = ColumnHeight+_LineWidth+4;
-              
-            }
+
+            /*   if (_MaxY > this.Size.Height)
+               {
+                   vScrollBar1.Visible = true;
+                 
+
+               }*/
 
         }
         private new List<List<Cell>> CreateBufer(List<List<string>> Source)
         {
-           int CurrentWidth = Margin.Left+2;
-            
-            List <List<Cell>> TableRows = new List<List<Cell>>();
-           for (int i = 0; i < Source.Count; i++)
-           {
+            int CurrentWidth = Margin.Left + 2;
+
+            List<List<Cell>> TableRows = new List<List<Cell>>();
+            for (int i = 0; i < Source.Count; i++)
+            {
                 TableRows.Add(new List<Cell>());
             }
             int RowIndex = 0;
             int CellIndex = 0;
-            var yCounter =  Margin.Top+2;
+            var yCounter = Margin.Top + 2;
             foreach (var Rows in TableRows)
-            {                                      
+            {
                 foreach (var item in Source[RowIndex])
                 {
-                    TableRows[RowIndex].Add(new Cell (Source[RowIndex][CellIndex],0,yCounter));
-                    CellIndex++;                
+                    TableRows[RowIndex].Add(new Cell(Source[RowIndex][CellIndex], 0, yCounter));
+                    CellIndex++;
                 }
-                yCounter += ColumnHeight+2;            
+                yCounter += ColumnHeight + 2;
                 RowIndex++;
                 CellIndex = 0;
             }
@@ -136,72 +135,117 @@ namespace Parser
                     item.XPosition = CurrentWidth;
                     item.ColumnWidth = ColumnWidth;
                 }
-                CurrentWidth += ColumnWidth * (int)this.Font.Size+2+_LineWidth;               
+                CurrentWidth += ColumnWidth * (int)this.Font.Size + 2 + _LineWidth;
             }
+
             _MaxY = TableRows.Last().First().YPosition + ColumnHeight + _LineWidth;
+            _MaxX = TableRows.Last().Last().XPosition + TableRows.Last().Last().ColumnWidth * (int)Font.Size + 1 + _LineWidth;
+          var Width = this.Width;
+           var Height = this.Height;
+            //  ClientSize = new Size(_MaxX, _MaxY);
+            //   this.Height= Height;
+            //   this.Width = Width;
+            
+            AutoScrollMinSize = new Size(_MaxX, _MaxY);
+            VerticalScroll.Visible = true;
+            VerticalScroll.Maximum = (_MaxY - this.Size.Height - ColumnHeight);
+          VerticalScroll.SmallChange = ColumnHeight + _LineWidth;
+            VerticalScroll.Value = 0;
+            Counter = 1;
             return TableRows;
         }
-      
-        private void VScrollBar1_Scroll(object sender, ScrollEventArgs e)
-        {
-          
+        int Counter = 1;
+        bool a = false;
+        bool b = false;
 
-            if (e.Type == ScrollEventType.SmallIncrement)
+
+
+        private void MyDataGrid_Scroll_1(object sender, ScrollEventArgs e)
+        {
+            if (e.ScrollOrientation == ScrollOrientation.VerticalScroll)
             {
-
-                if (vScrollBar1.Maximum - vScrollBar1.Value>ColumnHeight)
+                if (e.Type == ScrollEventType.SmallIncrement)
                 {
-                    foreach (var Row in _Bufer)
+
+                    if (VerticalScroll.Value < VerticalScroll.Maximum - Height)
                     {
-                        foreach (var Cell in Row)
+                        for (int i =1; i<_Bufer.Count; i++)
                         {
-                            Cell.YPosition -= ColumnHeight + 2;
+                            if (i == Counter && a ==false)
+                            {
+                                foreach (var Cell in _Bufer[Counter])
+                                {
+                                    Cell.YPosition -= 100;
+                                   
+                                }
+                                Counter++;
+                                a = true;
+                               
+                            }
+                            else
+                            {
+                                foreach (var Cell in _Bufer[i])
+                                {
+                                    Cell.YPosition -= ColumnHeight + 2;
+                                }
+                            }
+
                         }
                     }
+                    Invalidate();
+                    a = false;
                 }
-                Invalidate();
-            }
-           
-            if (e.Type == ScrollEventType.SmallDecrement)
-             {
-
-                if ( vScrollBar1.Value != 0)
+                if (e.Type == ScrollEventType.SmallDecrement)
                 {
-                    foreach (var Row in _Bufer)
+
+                    if (VerticalScroll.Value > 0)
                     {
-                        foreach (var Cell in Row)
+
+                        for (int i = Counter-1; i < _Bufer.Count; i++)
                         {
-                            Cell.YPosition += ColumnHeight + 2;
+                            if (i == Counter - 1 && b==false)
+                            {
+                                foreach (var Cell in _Bufer[i])
+
+                                {
+                                    Cell.YPosition += 100;
+                                }
+                                Counter--;
+                                b = true;
+                            }
+                            else
+                            {
+                                foreach (var Cell in _Bufer[i])
+
+                                {
+                                    Cell.YPosition += ColumnHeight + 2;
+                                }
+                            }
                         }
                     }
+                    Invalidate();
+                  
                 }
-                Invalidate();
+
             }
-           
-
-
         }
-
-        private void MyDataGrid_Load(object sender, EventArgs e)
+        class Cell
         {
-            
-        }
-    }
-    class Cell
-    {
 
-        public string Body { get; set; }
+            public string Body { get; set; }
 
-        public int XPosition { get; set; }
-        public int YPosition { get; set; }
-        public int ColumnWidth { get; set; }
-        //   public bool NeedRefresh { get; }
-        public Cell(string Body, int XPosition, int YPosition)
-        {
-            this.Body = Body;
-            this.XPosition = XPosition;
-            this.YPosition = YPosition;
-            // this.NeedRefresh = NeedRefresh;
+            public int XPosition { get; set; }
+            public int YPosition { get; set; }
+            public int ColumnWidth { get; set; }
+            //   public bool NeedRefresh { get; }
+            public Cell(string Body, int XPosition, int YPosition)
+            {
+                this.Body = Body;
+                this.XPosition = XPosition;
+                this.YPosition = YPosition;
+                // this.NeedRefresh = NeedRefresh;
+            }
         }
     }
 }
+
