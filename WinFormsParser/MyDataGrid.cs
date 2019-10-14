@@ -147,16 +147,20 @@ namespace Parser
             //   this.Width = Width;
             
             AutoScrollMinSize = new Size(_MaxX, _MaxY);
+           
             VerticalScroll.Visible = true;
             VerticalScroll.Maximum = (_MaxY - this.Size.Height - ColumnHeight);
-          VerticalScroll.SmallChange = ColumnHeight + _LineWidth;
+            
+            VerticalScroll.SmallChange = ColumnHeight + _LineWidth;
             VerticalScroll.Value = 0;
             Counter = 1;
             return TableRows;
         }
         int Counter = 1;
-        bool a = false;
-        bool b = false;
+        bool isCounterIncremented = false;
+        bool isCounterDecremented = false;
+       
+        
 
 
 
@@ -171,15 +175,15 @@ namespace Parser
                     {
                         for (int i =1; i<_Bufer.Count; i++)
                         {
-                            if (i == Counter && a ==false)
+                            if (i == Counter && !isCounterIncremented)
                             {
                                 foreach (var Cell in _Bufer[Counter])
                                 {
-                                    Cell.YPosition -= 100;
+                                    Cell.YPosition = i*-100;
                                    
                                 }
                                 Counter++;
-                                a = true;
+                                isCounterIncremented = true;
                                
                             }
                             else
@@ -191,27 +195,32 @@ namespace Parser
                             }
 
                         }
+                       
+                        isCounterIncremented = false;
                     }
                     Invalidate();
-                    a = false;
+
                 }
                 if (e.Type == ScrollEventType.SmallDecrement)
                 {
 
-                    if (VerticalScroll.Value > 0)
+                    if (VerticalScroll.Value >= 0 && Counter>1)
                     {
-
-                        for (int i = Counter-1; i < _Bufer.Count; i++)
+                        
+                            Counter--;
+                           
+                        for (int i = Counter; i < _Bufer.Count; i++)
                         {
-                            if (i == Counter - 1 && b==false)
+                            if (i == Counter && isCounterDecremented==false)
                             {
                                 foreach (var Cell in _Bufer[i])
 
                                 {
-                                    Cell.YPosition += 100;
+                                    Cell.YPosition = _Bufer[0][0].YPosition+ColumnHeight+2;
+                                    
                                 }
                                 Counter--;
-                                b = true;
+                                isCounterDecremented = true;
                             }
                             else
                             {
@@ -222,9 +231,12 @@ namespace Parser
                                 }
                             }
                         }
+                        Counter++;
+                      
+                        isCounterDecremented = false;
                     }
                     Invalidate();
-                  
+
                 }
 
             }
