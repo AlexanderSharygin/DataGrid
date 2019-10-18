@@ -33,8 +33,8 @@
             this.Buttom_Show = new System.Windows.Forms.Button();
             this.LB_FieldsList = new System.Windows.Forms.ListBox();
             this.GB_Table = new System.Windows.Forms.GroupBox();
-            this.DG_Table = new System.Windows.Forms.DataGridView();
             this.myDataGrid1 = new Parser.MyDataGrid();
+            this.DG_Table = new System.Windows.Forms.DataGridView();
             this.GB_Fields.SuspendLayout();
             this.GB_Table.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DG_Table)).BeginInit();
@@ -82,6 +82,20 @@
             this.GB_Table.Text = "Таблица полей";
             this.GB_Table.Enter += new System.EventHandler(this.GB_Table_Enter);
             // 
+            // myDataGrid1
+            // 
+            this.myDataGrid1.AutoScroll = true;
+            this.myDataGrid1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.myDataGrid1.ColumnHeight = 15;
+            this.myDataGrid1.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.myDataGrid1.LineColor = System.Drawing.Color.Black;
+            this.myDataGrid1.Location = new System.Drawing.Point(7, 85);
+            this.myDataGrid1.Margin = new System.Windows.Forms.Padding(0);
+            this.myDataGrid1.Name = "myDataGrid1";
+            this.myDataGrid1.Size = new System.Drawing.Size(510, 170);
+            this.myDataGrid1.Source = ((System.Collections.Generic.List<System.Collections.Generic.List<string>>)(resources.GetObject("myDataGrid1.Source")));
+            this.myDataGrid1.TabIndex = 1;
+            // 
             // DG_Table
             // 
             this.DG_Table.AllowUserToAddRows = false;
@@ -92,20 +106,6 @@
             this.DG_Table.ReadOnly = true;
             this.DG_Table.Size = new System.Drawing.Size(507, 58);
             this.DG_Table.TabIndex = 0;
-            // 
-            // myDataGrid1
-            // 
-            this.myDataGrid1.AutoScroll = true;
-            this.myDataGrid1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.myDataGrid1.ColumnHeight = 0;
-            this.myDataGrid1.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.myDataGrid1.LineColor = System.Drawing.Color.Black;
-            this.myDataGrid1.Location = new System.Drawing.Point(7, 85);
-            this.myDataGrid1.Margin = new System.Windows.Forms.Padding(0);
-            this.myDataGrid1.Name = "myDataGrid1";
-            this.myDataGrid1.Size = new System.Drawing.Size(510, 170);
-            this.myDataGrid1.Source = ((System.Collections.Generic.List<System.Collections.Generic.List<string>>)(resources.GetObject("myDataGrid1.Source")));
-            this.myDataGrid1.TabIndex = 1;
             // 
             // Show_Button
             // 
