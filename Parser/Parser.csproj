@@ -75,6 +75,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConsoleRender.cs" />
+    <None Include="Trash\ScrollShize.cs" />
     <Compile Include="Trash\Config.cs" />
     <None Include="Trash\ObjectFields.cs" />
     <None Include="Trash\MyList.cs" />

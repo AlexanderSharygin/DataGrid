@@ -126,5 +126,11 @@ namespace WinFormsParser
         {
 
         }
+
+        private void MyDataGrid1_Resize(object sender, EventArgs e)
+        {
+
+       
+        }
     }
 }

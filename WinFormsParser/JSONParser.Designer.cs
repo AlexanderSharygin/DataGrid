@@ -33,8 +33,8 @@
             this.Buttom_Show = new System.Windows.Forms.Button();
             this.LB_FieldsList = new System.Windows.Forms.ListBox();
             this.GB_Table = new System.Windows.Forms.GroupBox();
-            this.myDataGrid1 = new Parser.MyDataGrid();
             this.DG_Table = new System.Windows.Forms.DataGridView();
+            this.myDataGrid1 = new Parser.MyDataGrid();
             this.GB_Fields.SuspendLayout();
             this.GB_Table.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DG_Table)).BeginInit();
@@ -72,29 +72,18 @@
             // 
             // GB_Table
             // 
+            this.GB_Table.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.GB_Table.Controls.Add(this.myDataGrid1);
             this.GB_Table.Controls.Add(this.DG_Table);
             this.GB_Table.Location = new System.Drawing.Point(210, 12);
             this.GB_Table.Name = "GB_Table";
-            this.GB_Table.Size = new System.Drawing.Size(578, 426);
+            this.GB_Table.Size = new System.Drawing.Size(537, 426);
             this.GB_Table.TabIndex = 2;
             this.GB_Table.TabStop = false;
             this.GB_Table.Text = "Таблица полей";
             this.GB_Table.Enter += new System.EventHandler(this.GB_Table_Enter);
-            // 
-            // myDataGrid1
-            // 
-            this.myDataGrid1.AutoScroll = true;
-            this.myDataGrid1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.myDataGrid1.ColumnHeight = 15;
-            this.myDataGrid1.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.myDataGrid1.LineColor = System.Drawing.Color.Black;
-            this.myDataGrid1.Location = new System.Drawing.Point(7, 85);
-            this.myDataGrid1.Margin = new System.Windows.Forms.Padding(0);
-            this.myDataGrid1.Name = "myDataGrid1";
-            this.myDataGrid1.Size = new System.Drawing.Size(510, 170);
-            this.myDataGrid1.Source = ((System.Collections.Generic.List<System.Collections.Generic.List<string>>)(resources.GetObject("myDataGrid1.Source")));
-            this.myDataGrid1.TabIndex = 1;
             // 
             // DG_Table
             // 
@@ -107,11 +96,29 @@
             this.DG_Table.Size = new System.Drawing.Size(507, 58);
             this.DG_Table.TabIndex = 0;
             // 
+            // myDataGrid1
+            // 
+            this.myDataGrid1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.myDataGrid1.AutoScroll = true;
+            this.myDataGrid1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.myDataGrid1.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.myDataGrid1.LineColor = System.Drawing.Color.Black;
+            this.myDataGrid1.Location = new System.Drawing.Point(7, 85);
+            this.myDataGrid1.Margin = new System.Windows.Forms.Padding(0);
+            this.myDataGrid1.Name = "myDataGrid1";
+            this.myDataGrid1.RowHeight = 15;
+            this.myDataGrid1.Size = new System.Drawing.Size(510, 170);
+            this.myDataGrid1.Source = ((System.Collections.Generic.List<System.Collections.Generic.List<string>>)(resources.GetObject("myDataGrid1.Source")));
+            this.myDataGrid1.TabIndex = 1;
+            this.myDataGrid1.Resize += new System.EventHandler(this.MyDataGrid1_Resize);
+            // 
             // Show_Button
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(736, 450);
+            this.ClientSize = new System.Drawing.Size(781, 478);
             this.Controls.Add(this.GB_Table);
             this.Controls.Add(this.GB_Fields);
             this.Name = "Show_Button";
