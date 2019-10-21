@@ -10,25 +10,30 @@ using System.Windows.Forms;
 
 namespace Parser
 {
-
     public partial class MyDataGrid : UserControl
     {
         List<List<string>> _Source = new List<List<string>>();
         List<List<Cell>> _Bufer = new List<List<Cell>>();
         int _RowHeight;
         int _LineWidth = 1;
-        int _MaxX;      
-        int _StartRowIndex = 1;
-        int _StartIndex = 0;
+        int _FirstPrintedRowIndex = 0;
+        int _ScrollValueRatio = 10;
+        int _CellMinMargin = 2;
+        int _TotalRowsCount;
+        int _ViewPortRowsCount;
+        float _TableWidth;
+        Brush _Brush;
+        Pen _Pen;
         public MyDataGrid()
         {
             InitializeComponent();
             ResizeRedraw = true;
-            components = new System.ComponentModel.Container();           
-            vScrollBar1.Minimum = 0;
-            vScrollBar1.Value = (_StartRowIndex-1)*10;
+            components = new System.ComponentModel.Container();
+            VerticalScrollBar.Minimum = 0;
+            VerticalScrollBar.Value = 0;
+            _Brush = new SolidBrush(ForeColor);
+            _Pen = new Pen(LineColor, _LineWidth);
         }
-
         public List<List<string>> Source
         {
             get => _Source;
@@ -37,16 +42,15 @@ namespace Parser
                 _Source = value;
                 if (Source.Count != 0)
                 {
-                    VerticalScroll.Value = 0;
                     _Bufer = CreateBufer(Source);
-                    int TotalRowsCount = _Bufer.Count;
-                    int ViewPortRowsCount = this.Height / (RowHeight + 2 * _LineWidth);
-                    if (TotalRowsCount > ViewPortRowsCount)
+                    _TotalRowsCount = _Bufer.Count;
+                    _ViewPortRowsCount = this.Height / (RowHeight) - 1;
+                    if (_TotalRowsCount > _ViewPortRowsCount)
                     {
-                        vScrollBar1.Visible = true;
+                        VerticalScrollBar.Visible = true;
                     }
-                    vScrollBar1.Maximum = ((TotalRowsCount - ViewPortRowsCount) * 10);
-                    vScrollBar1.SmallChange = 10;
+                    VerticalScrollBar.Maximum = ((_TotalRowsCount - _ViewPortRowsCount) * _ScrollValueRatio);
+                    VerticalScrollBar.SmallChange = _ScrollValueRatio;
                     Invalidate();
                 }
             }
@@ -58,71 +62,68 @@ namespace Parser
             get => _RowHeight;
             set
             {
-                if (_RowHeight < Font.Height)
-                {
-                    _RowHeight = Font.Height + 2;
-                }
+                _RowHeight = (_RowHeight < Font.Height) ? (Font.Height + 2 * _CellMinMargin + _LineWidth) : (_RowHeight + _LineWidth);
             }
         }
 
         protected override void OnPaint(PaintEventArgs e)
         {
-           
-            DrawFrame(e);
-
+            DrawTable(e);
         }
-        
-        public void DrawFrame(PaintEventArgs e)
+        public void DrawOutsideFrame(PaintEventArgs e)
         {
-            int index = 1;
             e.Graphics.DrawLine(new Pen(LineColor, _LineWidth), Margin.Left, Margin.Top, this.Width - Margin.Left - Margin.Right, Margin.Top);
             e.Graphics.DrawLine(new Pen(LineColor, _LineWidth), this.Width - Margin.Left - Margin.Right, Margin.Top, this.Width - Margin.Left - Margin.Right, this.Height - Margin.Top - Margin.Bottom);
             e.Graphics.DrawLine(new Pen(LineColor, _LineWidth), this.Width - Margin.Left - Margin.Right, this.Height - Margin.Top - Margin.Bottom, Margin.Left, this.Height - Margin.Top - Margin.Bottom);
             e.Graphics.DrawLine(new Pen(LineColor, _LineWidth), Margin.Left, this.Height - Margin.Top - Margin.Bottom, Margin.Left, Margin.Top);
-            Brush brush = new SolidBrush(ForeColor);
-            Pen p = new Pen(LineColor, _LineWidth);
-            if (_Bufer.Count != 0)
-            {
-                int ViewPortRowsCount = this.Height / (RowHeight + 2 * _LineWidth);
-                if (ViewPortRowsCount > _Bufer.Count-1)
-                {
-                    ViewPortRowsCount = _Bufer.Count-1;
-                }
-                for (int i = 0; i < _Bufer[0].Count; i++)
-                {
-                    Cell cell = _Bufer[0][i];
-                    e.Graphics.DrawString(cell.Body, this.Font, brush, cell.XPosition, Margin.Top+2);
-                    e.Graphics.DrawLine(p, cell.XPosition + cell.ColumnWidth * Font.Size, Margin.Top, cell.XPosition + cell.ColumnWidth * Font.Size, Margin.Top + RowHeight * (ViewPortRowsCount+1) + 2 + _LineWidth);
-
-                }
-                var rowEndCounter = _Bufer[0].Last().XPosition + _Bufer[0].Last().ColumnWidth * Font.Size;
-                e.Graphics.DrawLine(p, Margin.Left, RowHeight + 4, rowEndCounter, RowHeight + 4);
-                int CI = _StartIndex+1;
-                for (int i = 0; i < ViewPortRowsCount; i++)
-                {
-
-                    if (CI<_Bufer.Count)
-                    {
-                        foreach (var Cell in _Bufer[CI])
-                        {
-                            e.Graphics.DrawString(Cell.Body, this.Font, brush, Cell.XPosition, RowHeight * index + 4 + _LineWidth);
-
-                        }
-
-                        e.Graphics.DrawLine(p, Margin.Left, RowHeight * (index + 1) + 4, rowEndCounter, RowHeight * (index + 1) + 4);
-                        index++;
-                        CI++;
-                    }
-
-                }
-
-            }
 
         }
-        private new List<List<Cell>> CreateBufer(List<List<string>> Source)
-        {
-            int CurrentWidth = Margin.Left + 2;
+        public void DrawHeader(PaintEventArgs e)
+        {           
+            if (_Bufer.Count != 0)
+            {
+                int ViewPortRowsCount = this.Height / RowHeight - 1;
+                if (ViewPortRowsCount > _Bufer.Count - 1)
+                {
+                    ViewPortRowsCount = _Bufer.Count - 1;
+                }
+                foreach (var HaderCell in _Bufer.First())
+                {
+                    e.Graphics.DrawString(HaderCell.Body, this.Font, _Brush, HaderCell.XPosition, Margin.Top + (RowHeight - FontHeight) / 2);
+                    e.Graphics.DrawLine(_Pen, HaderCell.XPosition + HaderCell.ColumnWidth * Font.Size, Margin.Top, HaderCell.XPosition + HaderCell.ColumnWidth * Font.Size, Margin.Top + RowHeight * (ViewPortRowsCount + 1));
+                }
+                _TableWidth = _Bufer[0].Last().XPosition + _Bufer[0].Last().ColumnWidth * Font.Size;
+                e.Graphics.DrawLine(_Pen, Margin.Left, RowHeight, _TableWidth, RowHeight);
+            }
+        }
 
+        public void DrawTable(PaintEventArgs e)
+        {
+            DrawOutsideFrame(e);
+            DrawHeader(e);          
+            if (_Bufer.Count != 0)
+            {              
+                int buferRowIndex = _FirstPrintedRowIndex + 1;
+                int viewPortRowIndex = 1;
+                for (int i = 0; i < _ViewPortRowsCount; i++)
+                {
+                    if (buferRowIndex < _Bufer.Count)
+                    {
+                        foreach (var Cell in _Bufer[buferRowIndex])
+                        {
+                            e.Graphics.DrawString(Cell.Body, this.Font, _Brush, Cell.XPosition, RowHeight * (viewPortRowIndex) + (RowHeight - FontHeight) / 2);
+
+                        }
+                        e.Graphics.DrawLine(_Pen, Margin.Left, RowHeight * (viewPortRowIndex + 1), _TableWidth, RowHeight * (viewPortRowIndex + 1));
+                        viewPortRowIndex++;
+                        buferRowIndex++;
+                    }
+                }
+            }
+        }
+        private List<List<Cell>> CreateBufer(List<List<string>> Source)
+        {
+            int CurrentWidth = Margin.Left + _ScrollValueRatio;
             List<List<Cell>> TableRows = new List<List<Cell>>();
             for (int i = 0; i < Source.Count; i++)
             {
@@ -130,15 +131,13 @@ namespace Parser
             }
             int RowIndex = 0;
             int CellIndex = 0;
-            var yCounter = Margin.Top + 2;
             foreach (var Rows in TableRows)
             {
                 foreach (var item in Source[RowIndex])
                 {
-                    TableRows[RowIndex].Add(new Cell(Source[RowIndex][CellIndex], 0, yCounter));
+                    TableRows[RowIndex].Add(new Cell(Source[RowIndex][CellIndex], 0));
                     CellIndex++;
                 }
-                yCounter += RowHeight + 2;
                 RowIndex++;
                 CellIndex = 0;
             }
@@ -151,61 +150,49 @@ namespace Parser
                     item.XPosition = CurrentWidth;
                     item.ColumnWidth = ColumnWidth;
                 }
-                CurrentWidth += ColumnWidth * (int)this.Font.Size + 2 + _LineWidth;
-            }         
-            _MaxX = TableRows.Last().Last().XPosition + TableRows.Last().Last().ColumnWidth * (int)Font.Size + 1 + _LineWidth;
-          
+                CurrentWidth += ColumnWidth * (int)this.Font.Size + _CellMinMargin + _LineWidth;
+            }
             return TableRows;
-           
-        }       
+        }
         class Cell
         {
-
             public string Body { get; set; }
-
-            public int XPosition { get; set; }          
-            public int ColumnWidth { get; set; }          
-            public Cell(string Body, int XPosition, int YPosition)
+            public int XPosition { get; set; }
+            public int ColumnWidth { get; set; }
+            public Cell(string Body, int XPosition)
             {
                 this.Body = Body;
-                this.XPosition = XPosition;             
+                this.XPosition = XPosition;
             }
         }
-
         private void MyDataGrid_Resize(object sender, EventArgs e)
         {
-           
             if (_Bufer.Count != 0)
             {
-                int TotalRowsCount = _Bufer.Count;
-                int ViewPortRowsCount = this.Height / (RowHeight + 2 * _LineWidth);
-                if (TotalRowsCount > ViewPortRowsCount)
+                _ViewPortRowsCount = this.Height / (RowHeight) - 1;
+                if (_TotalRowsCount > _ViewPortRowsCount)
                 {
-                    vScrollBar1.Visible = true;
+                    VerticalScrollBar.Visible = true;
                 }
                 else
                 {
-                    vScrollBar1.Visible = false;
+                    VerticalScrollBar.Visible = false;
                 }
-               
-                if (vScrollBar1.Value < 0)
+                if (VerticalScrollBar.Value < 0)
                 {
-                    vScrollBar1.Minimum = 0;
-                    vScrollBar1.Value = 0;
+                    VerticalScrollBar.Minimum = 0;
+                    VerticalScrollBar.Value = 0;
                 }
-                vScrollBar1.Maximum = ((TotalRowsCount - ViewPortRowsCount) * 10);
-
+                VerticalScrollBar.Maximum = ((_TotalRowsCount - _ViewPortRowsCount) * 10);
             }
             Invalidate();
-
         }
-
         private void VScrollBar1_ValueChanged(object sender, EventArgs e)
         {
-            _StartIndex= vScrollBar1.Value / 10;
-            if (vScrollBar1.Value < 0)
+            _FirstPrintedRowIndex = VerticalScrollBar.Value / _ScrollValueRatio;
+            if (VerticalScrollBar.Value < 0)
             {
-                _StartIndex = 0;
+                _FirstPrintedRowIndex = 0;
             }
             Invalidate();
         }

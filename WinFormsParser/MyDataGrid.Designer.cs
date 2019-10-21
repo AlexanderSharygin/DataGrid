@@ -28,26 +28,27 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.vScrollBar1 = new System.Windows.Forms.VScrollBar();
+            this.VerticalScrollBar = new System.Windows.Forms.VScrollBar();
             this.SuspendLayout();
             // 
             // vScrollBar1
             // 
-            this.vScrollBar1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.VerticalScrollBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.vScrollBar1.Location = new System.Drawing.Point(167, 0);
-            this.vScrollBar1.Name = "vScrollBar1";
-            this.vScrollBar1.Size = new System.Drawing.Size(21, 185);
-            this.vScrollBar1.TabIndex = 0;
-            this.vScrollBar1.Visible = false;
-            this.vScrollBar1.ValueChanged += new System.EventHandler(this.VScrollBar1_ValueChanged);
+            this.VerticalScrollBar.Location = new System.Drawing.Point(167, 0);
+            this.VerticalScrollBar.Name = "vScrollBar1";
+            this.VerticalScrollBar.Size = new System.Drawing.Size(21, 185);
+            this.VerticalScrollBar.TabIndex = 0;
+            this.VerticalScrollBar.Visible = false;
+            this.VerticalScrollBar.ValueChanged += new System.EventHandler(this.VScrollBar1_ValueChanged);
             // 
             // MyDataGrid
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.vScrollBar1);
+            this.Controls.Add(this.VerticalScrollBar);
             this.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.LineColor = System.Drawing.Color.Black;
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "MyDataGrid";
             this.Size = new System.Drawing.Size(188, 185);          
@@ -58,6 +59,6 @@
 
         #endregion
 
-        private System.Windows.Forms.VScrollBar vScrollBar1;
+        private System.Windows.Forms.VScrollBar VerticalScrollBar;
     }
 }

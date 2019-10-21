@@ -33,8 +33,8 @@
             this.Buttom_Show = new System.Windows.Forms.Button();
             this.LB_FieldsList = new System.Windows.Forms.ListBox();
             this.GB_Table = new System.Windows.Forms.GroupBox();
-            this.DG_Table = new System.Windows.Forms.DataGridView();
             this.myDataGrid1 = new Parser.MyDataGrid();
+            this.DG_Table = new System.Windows.Forms.DataGridView();
             this.GB_Fields.SuspendLayout();
             this.GB_Table.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DG_Table)).BeginInit();
@@ -85,17 +85,6 @@
             this.GB_Table.Text = "Таблица полей";
             this.GB_Table.Enter += new System.EventHandler(this.GB_Table_Enter);
             // 
-            // DG_Table
-            // 
-            this.DG_Table.AllowUserToAddRows = false;
-            this.DG_Table.AllowUserToDeleteRows = false;
-            this.DG_Table.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.DG_Table.Location = new System.Drawing.Point(7, 20);
-            this.DG_Table.Name = "DG_Table";
-            this.DG_Table.ReadOnly = true;
-            this.DG_Table.Size = new System.Drawing.Size(507, 58);
-            this.DG_Table.TabIndex = 0;
-            // 
             // myDataGrid1
             // 
             this.myDataGrid1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -113,6 +102,17 @@
             this.myDataGrid1.Source = ((System.Collections.Generic.List<System.Collections.Generic.List<string>>)(resources.GetObject("myDataGrid1.Source")));
             this.myDataGrid1.TabIndex = 1;
             this.myDataGrid1.Resize += new System.EventHandler(this.MyDataGrid1_Resize);
+            // 
+            // DG_Table
+            // 
+            this.DG_Table.AllowUserToAddRows = false;
+            this.DG_Table.AllowUserToDeleteRows = false;
+            this.DG_Table.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.DG_Table.Location = new System.Drawing.Point(7, 20);
+            this.DG_Table.Name = "DG_Table";
+            this.DG_Table.ReadOnly = true;
+            this.DG_Table.Size = new System.Drawing.Size(507, 58);
+            this.DG_Table.TabIndex = 0;
             // 
             // Show_Button
             // 
