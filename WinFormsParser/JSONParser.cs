@@ -43,7 +43,9 @@ namespace WinFormsParser
         {
             
             List<List<string>> Table = GetTable();
+          
             myDataGrid1.Source = Table;
+        
             DG_Table.Columns.Clear();
             bool isFirstRow = true;
             int rowIndex = 0;

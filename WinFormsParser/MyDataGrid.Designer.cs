@@ -31,12 +31,12 @@
             this.VerticalScrollBar = new System.Windows.Forms.VScrollBar();
             this.SuspendLayout();
             // 
-            // vScrollBar1
+            // VerticalScrollBar
             // 
             this.VerticalScrollBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.VerticalScrollBar.Location = new System.Drawing.Point(167, 0);
-            this.VerticalScrollBar.Name = "vScrollBar1";
+            this.VerticalScrollBar.Name = "VerticalScrollBar";
             this.VerticalScrollBar.Size = new System.Drawing.Size(21, 185);
             this.VerticalScrollBar.TabIndex = 0;
             this.VerticalScrollBar.Visible = false;
@@ -48,10 +48,10 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.VerticalScrollBar);
             this.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.LineColor = System.Drawing.Color.Black;
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "MyDataGrid";
-            this.Size = new System.Drawing.Size(188, 185);          
+            this.Size = new System.Drawing.Size(188, 185);
+            this.Load += new System.EventHandler(this.MyDataGrid_Load);
             this.Resize += new System.EventHandler(this.MyDataGrid_Resize);
             this.ResumeLayout(false);
 
