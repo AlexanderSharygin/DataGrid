@@ -29,23 +29,39 @@
         private void InitializeComponent()
         {
             this.VerticalScrollBar = new System.Windows.Forms.VScrollBar();
+            this.HorisontalScrollBar = new System.Windows.Forms.HScrollBar();
             this.SuspendLayout();
             // 
             // VerticalScrollBar
             // 
             this.VerticalScrollBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.VerticalScrollBar.Location = new System.Drawing.Point(167, 0);
+            this.VerticalScrollBar.Location = new System.Drawing.Point(168, 0);
             this.VerticalScrollBar.Name = "VerticalScrollBar";
-            this.VerticalScrollBar.Size = new System.Drawing.Size(21, 185);
+            this.VerticalScrollBar.Size = new System.Drawing.Size(20, 185);
             this.VerticalScrollBar.TabIndex = 0;
             this.VerticalScrollBar.Visible = false;
+            this.VerticalScrollBar.Scroll += new System.Windows.Forms.ScrollEventHandler(this.VerticalScrollBar_Scroll);
             this.VerticalScrollBar.ValueChanged += new System.EventHandler(this.VScrollBar1_ValueChanged);
+            this.VerticalScrollBar.VisibleChanged += new System.EventHandler(this.VerticalScrollBar_VisibleChanged);
+            // 
+            // HorisontalScrollBar
+            // 
+            this.HorisontalScrollBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.HorisontalScrollBar.Location = new System.Drawing.Point(0, 164);
+            this.HorisontalScrollBar.Name = "HorisontalScrollBar";
+            this.HorisontalScrollBar.Size = new System.Drawing.Size(167, 20);
+            this.HorisontalScrollBar.TabIndex = 1;
+            this.HorisontalScrollBar.TabStop = true;
+            this.HorisontalScrollBar.Visible = false;
+            this.HorisontalScrollBar.Scroll += new System.Windows.Forms.ScrollEventHandler(this.HorisontalScrollBar_Scroll);
             // 
             // MyDataGrid
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.HorisontalScrollBar);
             this.Controls.Add(this.VerticalScrollBar);
             this.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.Margin = new System.Windows.Forms.Padding(0);
@@ -60,5 +76,6 @@
         #endregion
 
         private System.Windows.Forms.VScrollBar VerticalScrollBar;
+        private System.Windows.Forms.HScrollBar HorisontalScrollBar;
     }
 }
