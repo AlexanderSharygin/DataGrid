@@ -62,25 +62,53 @@ namespace Parser
                 if (Source.Count != 0)
                 {
                     _Bufer = CreateBufer(Source);
-                    _TotalRowsCount = _Bufer.Count;
-                    _ViewPortRowsCount = this.Height / (RowHeight) - 1;
+                    _TotalRowsCount = _Bufer.Count;                    
+                    _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;
+                    if (_TableWidth > this.Width)
+                    {
+                        var hidenRowsCount = _RowHeight / HorisontalScrollBar.Height;
+                        var remainder = _RowHeight % HorisontalScrollBar.Height;
+                        if (remainder != 0)
+                        {
+                            hidenRowsCount++;
+                        }
+                        _ViewPortRowsCount = _ViewPortRowsCount - hidenRowsCount;
+                    }
                     if (_TotalRowsCount > _ViewPortRowsCount)
                     {
                         VerticalScrollBar.Visible = true;
                     }
                     VerticalScrollBar.Maximum = ((_TotalRowsCount - _ViewPortRowsCount) * _VerticalScrollValueRatio)-1;
                     VerticalScrollBar.SmallChange = _VerticalScrollValueRatio;
-                    if (_TableWidth > this.Width - VerticalScrollBar.Width)
+                   
+                    if (VerticalScrollBar.Visible)
                     {
-                        HorisontalScrollBar.Visible = true;
-                        HorisontalScrollBar.Maximum = (int)_TableWidth - this.Width + VerticalScrollBar.Width * 2;
+                        if (_TableWidth > this.Width - VerticalScrollBar.Width)
+                        {
+                            HorisontalScrollBar.Visible = true;
+                            HorisontalScrollBar.Maximum = (int)(_TableWidth - this.Width + VerticalScrollBar.Width);
+                        }
+                        else
+                        {
+                            HorisontalScrollBar.Visible = false;
+                            HorisontalScrollBar.Maximum = 0;
+                        }
                     }
-                    else
+                    if (!VerticalScrollBar.Visible)
                     {
-                        HorisontalScrollBar.Visible = false;
-                        HorisontalScrollBar.Maximum = 0;
+                        if (_TableWidth > this.Width)
+                        {
+                            HorisontalScrollBar.Visible = true;
+                            HorisontalScrollBar.Maximum = (int)(_TableWidth - this.Width);
+                        }
+                        else
+                        {
+                            HorisontalScrollBar.Visible = false;
+                            HorisontalScrollBar.Maximum = 0;
+                        }
                     }
-                
+
+
                     HorisontalScrollBar.Value = 0;
                     HorisontalScrollBar.SmallChange = _HorisontalScrollValueRatio;
                     Invalidate();
@@ -106,10 +134,10 @@ namespace Parser
         }
         public void DrawOutsideFrame(PaintEventArgs e)
         {
-            e.Graphics.DrawLine(_Pen, Margin.Left, Margin.Top, this.Width - Margin.Left - Margin.Right, Margin.Top);
-            e.Graphics.DrawLine(_Pen, this.Width - Margin.Left - Margin.Right, Margin.Top, this.Width - Margin.Left - Margin.Right, this.Height - Margin.Top - Margin.Bottom);
-            e.Graphics.DrawLine(_Pen, this.Width - Margin.Left - Margin.Right, this.Height - Margin.Top - Margin.Bottom, Margin.Left, this.Height - Margin.Top - Margin.Bottom);
-            e.Graphics.DrawLine(_Pen, Margin.Left, this.Height - Margin.Top - Margin.Bottom, Margin.Left, Margin.Top);
+            e.Graphics.DrawLine(_Pen, 0, 0, this.Width, 0);
+            e.Graphics.DrawLine(_Pen, this.Width, 0, this.Width, this.Height);
+            e.Graphics.DrawLine(_Pen, this.Width, this.Height, Margin.Left, this.Height);
+            e.Graphics.DrawLine(_Pen, 0, this.Height, 0, 0);
 
         }
         public void DrawHeader(PaintEventArgs e)
@@ -118,15 +146,15 @@ namespace Parser
 
             if (_Bufer.Count != 0)
             {
-                int viewPortRowsCount = this.Height / RowHeight - 1;
-                if (viewPortRowsCount > _Bufer.Count - 1)
+          //      int viewPortRowsCount = this.Height / RowHeight - 1;
+                if (_ViewPortRowsCount > _Bufer.Count - 1)
                 {
-                    viewPortRowsCount = _Bufer.Count - 1;
+                    _ViewPortRowsCount = _Bufer.Count - 1;
                 }
                 foreach (var haderCell in _Bufer.First().Cells)
                 {
                     e.Graphics.DrawString(haderCell.Body, this.Font, _Brush, haderCell.XPosition-HorisontalScrollBar.Value, Margin.Top + (RowHeight - FontHeight) / 2);
-                    e.Graphics.DrawLine(_Pen, haderCell.XPosition + haderCell.ColumnWidth * Font.Size -  HorisontalScrollBar.Value, Margin.Top, haderCell.XPosition + haderCell.ColumnWidth * Font.Size - HorisontalScrollBar.Value, Margin.Top + RowHeight * (viewPortRowsCount + 1));
+                    e.Graphics.DrawLine(_Pen, haderCell.XPosition + haderCell.ColumnWidth * Font.Size -  HorisontalScrollBar.Value, Margin.Top, haderCell.XPosition + haderCell.ColumnWidth * Font.Size - HorisontalScrollBar.Value, Margin.Top + RowHeight * (_ViewPortRowsCount+1 ));
                 }
               //  _TableWidth = _Bufer.First().Cells.Last().XPosition + _Bufer.First().Cells.Last().ColumnWidth * Font.Size;
                 e.Graphics.DrawLine(_Pen, Margin.Left - HorisontalScrollBar.Value, RowHeight, _TableWidth - HorisontalScrollBar.Value, RowHeight);
@@ -210,8 +238,18 @@ namespace Parser
         {
             if (_Bufer.Count != 0)
             {
-                _ViewPortRowsCount = this.Height / (RowHeight)-1;
-                if (_TotalRowsCount > _ViewPortRowsCount+1)
+                _ViewPortRowsCount = this.Height / (RowHeight) - 1;
+                if (_TableWidth > this.Width)
+                {
+                    var hidenRowsCount = _RowHeight / HorisontalScrollBar.Height;
+                    var remainder = _RowHeight % HorisontalScrollBar.Height;
+                    if (remainder != 0)
+                    {
+                        hidenRowsCount++;
+                    }
+                    _ViewPortRowsCount = _ViewPortRowsCount - hidenRowsCount;
+                }
+                if (_TotalRowsCount > _ViewPortRowsCount + 1)
                 {
                     VerticalScrollBar.Visible = true;
                 }
@@ -224,7 +262,36 @@ namespace Parser
                     VerticalScrollBar.Minimum = 0;
                     VerticalScrollBar.Value = 0;
                 }
-                VerticalScrollBar.Maximum = ((_TotalRowsCount - _ViewPortRowsCount) * _VerticalScrollValueRatio-1);
+                VerticalScrollBar.Maximum = ((_TotalRowsCount - _ViewPortRowsCount) * _VerticalScrollValueRatio - 1);
+            }
+            if (VerticalScrollBar.Visible)
+            {
+                if (_TableWidth > this.Width - VerticalScrollBar.Width)
+                {
+                    HorisontalScrollBar.Visible = true;
+                    HorisontalScrollBar.Maximum = (int)(_TableWidth - this.Width + VerticalScrollBar.Width);
+                  
+                }
+                else
+                {
+                    HorisontalScrollBar.Visible = false;
+                    HorisontalScrollBar.Maximum = 0;
+                    HorisontalScrollBar.Value = 0;
+                }
+            }
+            if (!VerticalScrollBar.Visible)
+            {
+                if (_TableWidth * _LineWidth > this.Width)
+                {
+                    HorisontalScrollBar.Visible = true;
+                    HorisontalScrollBar.Maximum = (int)(_TableWidth - this.Width);
+                }
+                else
+                {
+                    HorisontalScrollBar.Visible = false;
+                    HorisontalScrollBar.Maximum = 0;
+                    HorisontalScrollBar.Value = 0;
+                }
             }
             Invalidate();
         }
