@@ -92,12 +92,13 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.myDataGrid1.AutoScroll = true;
             this.myDataGrid1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.myDataGrid1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.myDataGrid1.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.myDataGrid1.LineColor = System.Drawing.Color.Black;
             this.myDataGrid1.Location = new System.Drawing.Point(7, 85);
             this.myDataGrid1.Margin = new System.Windows.Forms.Padding(0);
             this.myDataGrid1.Name = "myDataGrid1";
-            this.myDataGrid1.RowHeight = 15;
+            this.myDataGrid1.RowHeight = 18;
             this.myDataGrid1.Size = new System.Drawing.Size(510, 170);
             this.myDataGrid1.Source = ((System.Collections.Generic.List<System.Collections.Generic.List<string>>)(resources.GetObject("myDataGrid1.Source")));
             this.myDataGrid1.TabIndex = 1;

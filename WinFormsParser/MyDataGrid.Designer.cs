@@ -41,7 +41,7 @@
             this.VerticalScrollBar.Size = new System.Drawing.Size(20, 185);
             this.VerticalScrollBar.TabIndex = 0;
             this.VerticalScrollBar.Visible = false;
-            this.VerticalScrollBar.Scroll += new System.Windows.Forms.ScrollEventHandler(this.VerticalScrollBar_Scroll);
+          ;
             this.VerticalScrollBar.ValueChanged += new System.EventHandler(this.VScrollBar1_ValueChanged);
             this.VerticalScrollBar.VisibleChanged += new System.EventHandler(this.VerticalScrollBar_VisibleChanged);
             // 
@@ -67,7 +67,7 @@
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "MyDataGrid";
             this.Size = new System.Drawing.Size(188, 185);
-            this.Load += new System.EventHandler(this.MyDataGrid_Load);
+         
             this.Resize += new System.EventHandler(this.MyDataGrid_Resize);
             this.ResumeLayout(false);
 
