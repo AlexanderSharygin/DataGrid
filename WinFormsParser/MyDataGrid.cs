@@ -21,7 +21,8 @@ namespace Parser
         int _LineWidth = 1;
         int _FirstPrintedRowIndex = 0;
         int _VerticalScrollValueRatio = 10;
-        int _HorisontalScrollValueRatio = 5;
+        int _HorisontalScrollValueRatio = 1;
+        
         int _CellMinMargin = 2;
         int _TotalRowsCount;
         int _ViewPortRowsCount;
@@ -38,7 +39,7 @@ namespace Parser
             VerticalScrollBar.Value = 0;
             if (VerticalScrollBar.Visible)
             {
-                HorisontalScrollBar.Width = this.Width - VerticalScrollBar.Width;
+                HorisontalScrollBar.Width = this.ClientSize.Width - VerticalScrollBar.Width;
             }
             else
             {
@@ -83,6 +84,7 @@ namespace Parser
                     HorisontalScrollProcessor();
                     HorisontalScrollBar.Value = 0;
                     HorisontalScrollBar.SmallChange = _HorisontalScrollValueRatio;
+                    HorisontalScrollBar.LargeChange = _HorisontalScrollValueRatio;
                     Invalidate();
                 }
             }
@@ -112,34 +114,43 @@ namespace Parser
             e.Graphics.DrawLine(_Pen, 0, this.Height, 0, 0);
 
         }
-        public void HorisontalScrollProcessor()
-        {
-            if (VerticalScrollBar.Visible)
+        public void HorisontalScrollProcessor() {
+            var viewportWidth = this.ClientSize.Width - (VerticalScrollBar.Visible? VerticalScrollBar.Width : 0);
+
+            if (_TableWidth >= viewportWidth)
             {
-                if (_TableWidth > this.Width - VerticalScrollBar.Width)
-                {
-                    HorisontalScrollBar.Visible = true;
-                    HorisontalScrollBar.Maximum = (int)(_TableWidth - this.Width + VerticalScrollBar.Width);
-                }
-                else
-                {
-                    HorisontalScrollBar.Visible = false;
-                    HorisontalScrollBar.Maximum = 0;
-                }
-            }
-            if (!VerticalScrollBar.Visible)
+                HorisontalScrollBar.Visible = true;
+                HorisontalScrollBar.Maximum = (int)(_TableWidth - viewportWidth + 1);
+            } else
             {
-                if (_TableWidth > this.Width)
-                {
-                    HorisontalScrollBar.Visible = true;
-                    HorisontalScrollBar.Maximum = (int)(_TableWidth - this.Width);
-                }
-                else
-                {
-                    HorisontalScrollBar.Visible = false;
-                    HorisontalScrollBar.Maximum = 0;
-                }
+                HorisontalScrollBar.Visible = false;
+                HorisontalScrollBar.Maximum = 0;
             }
+            ////
+            //if (VerticalScrollBar.Visible)
+            //{
+            //    if (_TableWidth >= this.ClientSize.Width - VerticalScrollBar.Width)
+            //    {
+            //        HorisontalScrollBar.Visible = true;
+            //        HorisontalScrollBar.Maximum = (int)(_TableWidth - this.ClientSize.Width + VerticalScrollBar.Width + 1);
+            //    } else
+            //    {
+            //        HorisontalScrollBar.Visible = false;
+            //        HorisontalScrollBar.Maximum = 0;
+            //    }
+            //}
+            //if (!VerticalScrollBar.Visible)
+            //{
+            //    if (_TableWidth >= this.ClientSize.Width)
+            //    {
+            //        HorisontalScrollBar.Visible = true;
+            //        HorisontalScrollBar.Maximum = (int)(_TableWidth - this.ClientSize.Width + 1);
+            //    } else
+            //    {
+            //        HorisontalScrollBar.Visible = false;
+            //        HorisontalScrollBar.Maximum = 0;
+            //    }
+            //}
         }
         public void DrawHeader(PaintEventArgs e)
         {

@@ -35,9 +35,9 @@
             // VerticalScrollBar
             // 
             this.VerticalScrollBar.Dock = System.Windows.Forms.DockStyle.Right;
-            this.VerticalScrollBar.Location = new System.Drawing.Point(168, 0);
+            this.VerticalScrollBar.Location = new System.Drawing.Point(231, 0);
             this.VerticalScrollBar.Name = "VerticalScrollBar";
-            this.VerticalScrollBar.Size = new System.Drawing.Size(20, 185);
+            this.VerticalScrollBar.Size = new System.Drawing.Size(20, 228);
             this.VerticalScrollBar.TabIndex = 0;
             this.VerticalScrollBar.Visible = false;
             this.VerticalScrollBar.ValueChanged += new System.EventHandler(this.VScrollBar1_ValueChanged);
@@ -46,9 +46,9 @@
             // HorisontalScrollBar
             // 
             this.HorisontalScrollBar.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.HorisontalScrollBar.Location = new System.Drawing.Point(0, 165);
+            this.HorisontalScrollBar.Location = new System.Drawing.Point(0, 208);
             this.HorisontalScrollBar.Name = "HorisontalScrollBar";
-            this.HorisontalScrollBar.Size = new System.Drawing.Size(168, 20);
+            this.HorisontalScrollBar.Size = new System.Drawing.Size(231, 20);
             this.HorisontalScrollBar.TabIndex = 1;
             this.HorisontalScrollBar.TabStop = true;
             this.HorisontalScrollBar.Visible = false;
@@ -56,14 +56,15 @@
             // 
             // MyDataGrid
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.HorisontalScrollBar);
             this.Controls.Add(this.VerticalScrollBar);
+            this.DoubleBuffered = true;
             this.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "MyDataGrid";
-            this.Size = new System.Drawing.Size(188, 185);
+            this.Size = new System.Drawing.Size(251, 228);
             this.Resize += new System.EventHandler(this.MyDataGrid_Resize);
             this.ResumeLayout(false);
 
