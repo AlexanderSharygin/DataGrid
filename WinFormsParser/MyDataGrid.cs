@@ -11,10 +11,7 @@ using System.Windows.Forms;
 namespace Parser
 {
     public partial class MyDataGrid : UserControl
-    {
-
-      
-       
+    {  
         List<List<string>> _Source = new List<List<string>>();
         List<Row> _Bufer = new List<Row>();
         int _RowHeight;
@@ -22,15 +19,13 @@ namespace Parser
         int _FirstPrintedRowIndex = 0;
         int _VerticalScrollValueRatio = 10;
         int _HorisontalScrollValueRatio = 1;
-        
         int _CellMinMargin = 2;
         int _TotalRowsCount;
         int _ViewPortRowsCount;
         float _TableWidth;
         Brush _Brush;
         Pen _Pen;
-       
-         public MyDataGrid()
+        public MyDataGrid()
         {
             InitializeComponent();
             ResizeRedraw = true;
@@ -50,9 +45,7 @@ namespace Parser
             HorisontalScrollBar.Value = 0;
             _Brush = new SolidBrush(ForeColor);
             _Pen = new Pen(LineColor, _LineWidth);
-
         }
-
         public Color LineColor { get; set; }
         public List<List<string>> Source
         {
@@ -62,7 +55,7 @@ namespace Parser
                 _Source = value;
                 if (Source.Count != 0)
                 {
-                    _Bufer = CreateBufer(Source);
+                    _Bufer = CreateBuffer(Source);
                     _TotalRowsCount = _Bufer.Count;                    
                     _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;
                     if (_TableWidth > this.Width)
@@ -81,15 +74,15 @@ namespace Parser
                     }
                     VerticalScrollBar.Maximum = ((_TotalRowsCount - _ViewPortRowsCount) * _VerticalScrollValueRatio)-1;
                     VerticalScrollBar.SmallChange = _VerticalScrollValueRatio;
-                    HorisontalScrollProcessor();
+                    VerticalScrollBar.LargeChange = _VerticalScrollValueRatio;
+                    HorizontalScrollUpdater();
                     HorisontalScrollBar.Value = 0;
                     HorisontalScrollBar.SmallChange = _HorisontalScrollValueRatio;
                     HorisontalScrollBar.LargeChange = _HorisontalScrollValueRatio;
                     Invalidate();
                 }
             }
-        }
-       
+        }       
 
         public int RowHeight
         {
@@ -114,43 +107,19 @@ namespace Parser
             e.Graphics.DrawLine(_Pen, 0, this.Height, 0, 0);
 
         }
-        public void HorisontalScrollProcessor() {
-            var viewportWidth = this.ClientSize.Width - (VerticalScrollBar.Visible? VerticalScrollBar.Width : 0);
-
+        public void HorizontalScrollUpdater()
+        {
+            var viewportWidth = this.ClientSize.Width - (VerticalScrollBar.Visible ? VerticalScrollBar.Width : 0);
             if (_TableWidth >= viewportWidth)
             {
                 HorisontalScrollBar.Visible = true;
                 HorisontalScrollBar.Maximum = (int)(_TableWidth - viewportWidth + 1);
-            } else
+            }
+            else
             {
                 HorisontalScrollBar.Visible = false;
                 HorisontalScrollBar.Maximum = 0;
             }
-            ////
-            //if (VerticalScrollBar.Visible)
-            //{
-            //    if (_TableWidth >= this.ClientSize.Width - VerticalScrollBar.Width)
-            //    {
-            //        HorisontalScrollBar.Visible = true;
-            //        HorisontalScrollBar.Maximum = (int)(_TableWidth - this.ClientSize.Width + VerticalScrollBar.Width + 1);
-            //    } else
-            //    {
-            //        HorisontalScrollBar.Visible = false;
-            //        HorisontalScrollBar.Maximum = 0;
-            //    }
-            //}
-            //if (!VerticalScrollBar.Visible)
-            //{
-            //    if (_TableWidth >= this.ClientSize.Width)
-            //    {
-            //        HorisontalScrollBar.Visible = true;
-            //        HorisontalScrollBar.Maximum = (int)(_TableWidth - this.ClientSize.Width + 1);
-            //    } else
-            //    {
-            //        HorisontalScrollBar.Visible = false;
-            //        HorisontalScrollBar.Maximum = 0;
-            //    }
-            //}
         }
         public void DrawHeader(PaintEventArgs e)
         {
@@ -180,26 +149,26 @@ namespace Parser
             DrawHeader(e);          
             if (_Bufer.Count != 0)
             {              
-                int buferRowIndex = _FirstPrintedRowIndex + 1;
+                int bufferRowIndex = _FirstPrintedRowIndex + 1;
                 int viewPortRowIndex = 1;
                 for (int i = 0; i < _ViewPortRowsCount; i++)
                 {
-                    if (buferRowIndex < _Bufer.Count)
+                    if (bufferRowIndex < _Bufer.Count)
                     {
                         int xCounterForText = _LineWidth + _CellMinMargin;
-                        foreach (var Cell in _Bufer[buferRowIndex].Cells)
+                        foreach (var Cell in _Bufer[bufferRowIndex].Cells)
                         {
                             e.Graphics.DrawString(Cell.Body, this.Font, _Brush, xCounterForText - HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex) + (RowHeight - FontHeight) / 2);
                             xCounterForText += Cell.ColumnWidth * (int)Font.Size + _CellMinMargin + _LineWidth + _CellMinMargin;
                         }
                         e.Graphics.DrawLine(_Pen,  -HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex + 1), _TableWidth - HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex + 1));
                         viewPortRowIndex++;
-                        buferRowIndex++;
+                        bufferRowIndex++;
                     }
                 }
             }
         }
-        private List<Row> CreateBufer(List<List<string>> Source)
+        private List<Row> CreateBuffer(List<List<string>> Source)
         {
             int currentWidth = Margin.Left + _VerticalScrollValueRatio;
             List<Row> tableRows = new List<Row>();
@@ -280,7 +249,7 @@ namespace Parser
                 }
                 VerticalScrollBar.Maximum = ((_TotalRowsCount - _ViewPortRowsCount) * _VerticalScrollValueRatio - 1);
             }          
-            HorisontalScrollProcessor();
+            HorizontalScrollUpdater();
             Invalidate();
         }
         private void VScrollBar1_ValueChanged(object sender, EventArgs e)
@@ -294,7 +263,7 @@ namespace Parser
         }    
         private void VerticalScrollBar_VisibleChanged(object sender, EventArgs e)
         {
-            if (VerticalScrollBar.Visible==false)
+            if (!VerticalScrollBar.Visible)
             {
                 HorisontalScrollBar.Width = this.Width;
             }

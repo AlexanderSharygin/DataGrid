@@ -26,10 +26,8 @@ namespace WinFormsParser
         {
             var inputText = File.ReadAllText("Files\\Data.txt");
             _JSONObjects = JSONParser.ParseSimpleJSON(inputText);
-            FillFieldsList();
-          
-           
-           
+            FillFieldsList();    
+                 
 
         }
         private void FillFieldsList()
@@ -41,43 +39,9 @@ namespace WinFormsParser
 
         private void Buttom_Show_Click(object sender, EventArgs e)
         {
-            
-            List<List<string>> Table = GetTable();
-          
-            myDataGrid1.Source = Table;
-        
-            DG_Table.Columns.Clear();
-            bool isFirstRow = true;
-            int rowIndex = 0;
+                  
+            DataTable.Source = GetTable();        
            
-            foreach (var row in Table)
-            {
-                int columnIndex = 0;
-                if (isFirstRow)
-                {
-                    foreach (var cell in row)
-                    {
-                        DataGridViewColumn temp = new DataGridViewColumn();
-                        temp.HeaderText = cell;
-                        temp.Name = temp.HeaderText;
-                        temp.CellTemplate = new DataGridViewTextBoxCell();
-                        temp.SortMode = DataGridViewColumnSortMode.Automatic;
-                        DG_Table.Columns.Add(temp);
-                    }
-                    isFirstRow = false;            
-                }
-                else
-                {
-                    DG_Table.Rows.Add();
-
-                    foreach (var cell in row)
-                    {
-                        DG_Table[columnIndex,rowIndex].Value = cell;
-                        columnIndex++;
-                    }
-                    rowIndex++;
-                }
-            }
         }
         private List<List <string>> GetTable()
         {
@@ -119,20 +83,16 @@ namespace WinFormsParser
              
         }
 
-        private void MyDataGrid1_Load(object sender, EventArgs e)
+      
+
+        private void LB_FieldsList_SelectedValueChanged(object sender, EventArgs e)
         {
-
-        }
-
-        private void GB_Table_Enter(object sender, EventArgs e)
-        {
-
+            DataTable.Source = GetTable();
         }
 
         private void MyDataGrid1_Resize(object sender, EventArgs e)
         {
 
-       
         }
     }
 }
