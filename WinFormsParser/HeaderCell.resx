@@ -117,40 +117,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="CheckedMenuItemPrefix" xml:space="preserve">
-    <value>[X] </value>
-  </data>
-  <data name="PreambleStrings" xml:space="preserve">
-    <value>Simple-JSON objects parser.
-UP/Down arrows - menu navigation.
-Space - Adding a field to the ones displayed in the table.</value>
-  </data>
-  <data name="ReductionRatio" xml:space="preserve">
-    <value>3</value>
-  </data>
-  <data name="UndefinedFieldText" xml:space="preserve">
-    <value>Undefined field</value>
-  </data>
-  <data name="ColumnInterval" xml:space="preserve">
-    <value>5</value>
-  </data>
-  <data name="TableMargin" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="Ellipsis" xml:space="preserve">
-    <value>...</value>
-  </data>
-  <data name="PreambleStringsCount" xml:space="preserve">
-    <value>3</value>
-  </data>
-  <data name="UncheckedMenuItemPrefix" xml:space="preserve">
-    <value>[ ] </value>
-  </data>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="depositphotos_126071218-stock-illustration-direction-up-vector-icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\depositphotos_126071218-stock-illustration-direction-up-vector-icon.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Down" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Down.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
 </root>

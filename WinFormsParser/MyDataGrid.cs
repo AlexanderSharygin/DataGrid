@@ -52,6 +52,7 @@ namespace Parser
             get => _Source;
             set
             {
+               
                 _Source = value;
                 if (Source.Count != 0)
                 {
@@ -123,23 +124,49 @@ namespace Parser
         }
         public void DrawHeader(PaintEventArgs e)
         {
+            
             if (_Bufer.Count != 0)
             {       
                 if (_ViewPortRowsCount > _Bufer.Count - 1)
                 {
                     _ViewPortRowsCount = _Bufer.Count - 1;
                 }
-                int xCounterForLine = 0;
-                int xCounterForText = _LineWidth+_CellMinMargin;
+                int xCounterForLine = 0;             
                 foreach (var haderCell in _Bufer.First().Cells)
                 {
-                    e.Graphics.DrawString(haderCell.Body, this.Font, _Brush, xCounterForText-HorisontalScrollBar.Value, (RowHeight - FontHeight) / 2);
-                    e.Graphics.DrawLine(_Pen,xCounterForLine - HorisontalScrollBar.Value, 0, xCounterForLine - HorisontalScrollBar.Value,  RowHeight * (_ViewPortRowsCount+1 ));
+                     e.Graphics.DrawLine(_Pen,xCounterForLine - HorisontalScrollBar.Value, 0, xCounterForLine - HorisontalScrollBar.Value,  RowHeight * (_ViewPortRowsCount+1 ));
                     xCounterForLine +=_LineWidth + _CellMinMargin + haderCell.ColumnWidth*(int)this.Font.Size + _CellMinMargin;
-                    xCounterForText = xCounterForLine + _LineWidth + _CellMinMargin;
-                } 
-                e.Graphics.DrawLine(_Pen, _TableWidth- HorisontalScrollBar.Value,0, _TableWidth - HorisontalScrollBar.Value, 0 + RowHeight * (_ViewPortRowsCount + 1));
-                e.Graphics.DrawLine(_Pen, 0 - HorisontalScrollBar.Value, RowHeight, _TableWidth - HorisontalScrollBar.Value, RowHeight);
+                 } 
+               e.Graphics.DrawLine(_Pen, _TableWidth- HorisontalScrollBar.Value,0, _TableWidth - HorisontalScrollBar.Value, 0 + RowHeight * (_ViewPortRowsCount + 1));
+              e.Graphics.DrawLine(_Pen, 0 - HorisontalScrollBar.Value, RowHeight, _TableWidth - HorisontalScrollBar.Value, RowHeight);
+                      
+                Control HorizontalScroll = Controls[0];
+                Control VerticalScroll = Controls[1];
+                Controls.Clear();
+                Controls.Add(HorizontalScroll);
+                Controls.Add(VerticalScroll);
+                int xCounter = 0;
+                HeaderCell[] Header = new HeaderCell[_Bufer.First().Cells.Count];
+                for (int i = 0; i < Header.Length; i++)
+                {
+                    Header[i] = new HeaderCell();                   
+                    Header[i].Font = this.Font;
+                    Header[i].Width = (int)(_LineWidth*2 + _CellMinMargin + _Bufer.First().Cells[i].ColumnWidth * (int)this.Font.Size + _CellMinMargin);
+                    Header[i].Height = _RowHeight;
+                    Header[i].Location = new Point(xCounter-HorisontalScrollBar.Value, 0);
+                    Header[i].Text = _Bufer.First().Cells[i].Body;
+                    Header[i].ColumnIndex = i;
+                    if (SortProcessor.ColumnSortIndex == i)
+                    {
+                        Header[i].SortDirection = SortProcessor.SortDirection;
+                    }
+                    else
+                    {
+                        Header[i].SortDirection = 0;
+                    }
+                    xCounter += _LineWidth + _CellMinMargin + _Bufer.First().Cells[i].ColumnWidth * (int)this.Font.Size + _CellMinMargin;
+                    Controls.Add(Header[i]);
+                }          
             }
         }
 
@@ -278,6 +305,52 @@ namespace Parser
             Invalidate();
         }
     }
+    static class SortProcessor
+    {
+        static int _SortDirection = 0;
+        static int _ColumnSortIndex = 0;
+        static bool _IsColumnChanged = false;
+        public static int ColumnSortIndex
+        { get =>_ColumnSortIndex;
+            set
+            {
+                if (_ColumnSortIndex == value)
+                {
+                    _IsColumnChanged = false;
+                }
+                else
+                {
+                    _IsColumnChanged = true;
+                }
+                _ColumnSortIndex = value;
+            }
+        }
+       public static int SortDirection { get => _SortDirection;}
+       public static void ChangeSortDirection()
+        {
+            if (!_IsColumnChanged)
+            {
+                if (_SortDirection < 0)
+                {
+                    _SortDirection = 0;
+
+                }
+
+                else if (_SortDirection == 0)
+                {
+                    _SortDirection = 1;
+                }
+                else
+                {
+                    _SortDirection = -1;
+                }
+            }
+        }
+     
+    }
+
+
+
     
 }
 
