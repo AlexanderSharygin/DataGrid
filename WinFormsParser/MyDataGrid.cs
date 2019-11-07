@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+
 using System.Drawing;
 using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+
 
 namespace Parser
 {
@@ -14,6 +13,7 @@ namespace Parser
     {  
         List<List<string>> _Source = new List<List<string>>();
         List<Row> _Bufer = new List<Row>();
+       
         int _RowHeight;
         int _LineWidth = 1;
         int _FirstPrintedRowIndex = 0;
@@ -57,6 +57,9 @@ namespace Parser
                 if (Source.Count != 0)
                 {
                     _Bufer = CreateBuffer(Source);
+                   // _DefaultBufer = new List<Row>(_Bufer.Count);
+                   
+                  
                     _TotalRowsCount = _Bufer.Count;                    
                     _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;
                     if (_TableWidth > this.Width)
@@ -126,7 +129,12 @@ namespace Parser
         {
             
             if (_Bufer.Count != 0)
-            {       
+            {
+                if (SortProcessor.ColumnSortIndex>_Bufer.First().Cells.Count-1)
+                {
+                    SortProcessor.ColumnSortIndex = _Bufer.First().Cells.Count - 1;
+                    
+                }               
                 if (_ViewPortRowsCount > _Bufer.Count - 1)
                 {
                     _ViewPortRowsCount = _Bufer.Count - 1;
@@ -173,17 +181,54 @@ namespace Parser
         public void DrawTable(PaintEventArgs e)
         {
             DrawOutsideFrame(e);
-            DrawHeader(e);          
-            if (_Bufer.Count != 0)
-            {              
-                int bufferRowIndex = _FirstPrintedRowIndex + 1;
+            DrawHeader(e);
+            if (_Bufer.Count != 0 && _Bufer.First().Cells.Count!=0)
+            { 
+                List<Row> SortedBufer = new List<Row>();
+                if (SortProcessor.SortDirection == 0)
+                {
+                    SortedBufer.AddRange(_Bufer);
+                    SortedBufer.RemoveAt(0);
+                }
+                else
+                {
+                    if (SortProcessor.SortDirection > 0)
+                    {
+                        // var SortedData = _Bufer.Select(d => d)
+                        //   .Where(d => d.Cells.First() != _Bufer.First().Cells.First())
+                        //  .OrderBy(k => k.Cells[SortProcessor.ColumnSortIndex].Body).ToList();
+                        //SortedBufer.Add(_Bufer.First());
+                        //SortedBufer.AddRange(SortedData);
+                        SortedBufer.AddRange(_Bufer);
+                        SortedBufer.RemoveAt(0);
+                        UpComparer u = new UpComparer();
+                        SortedBufer.Sort(u);
+                      //  SortedBufer.Insert(0, _Bufer.First());
+                       
+                    }
+                    if (SortProcessor.SortDirection < 0)
+                    {
+                        SortedBufer.AddRange(_Bufer);
+                        SortedBufer.RemoveAt(0);
+                        DownComparer d = new DownComparer();
+                        SortedBufer.Sort(d);
+                   //     SortedBufer.Insert(0, _Bufer.First());
+                        // var SortedData = _Bufer.Select(d => d)
+                        //   .Where(d => d.Cells.First() != _Bufer.First().Cells.First())
+                        //  .OrderByDescending(k => k.Cells[SortProcessor.ColumnSortIndex].Body).ToList();
+                        //      SortedData.Sort();
+                        // SortedBufer.Add(_Bufer.First());
+                        // SortedBufer.AddRange(SortedData);
+                    }
+                }                        
+                int bufferRowIndex = _FirstPrintedRowIndex;
                 int viewPortRowIndex = 1;
                 for (int i = 0; i < _ViewPortRowsCount; i++)
                 {
-                    if (bufferRowIndex < _Bufer.Count)
+                    if (bufferRowIndex < SortedBufer.Count)
                     {
                         int xCounterForText = _LineWidth + _CellMinMargin;
-                        foreach (var Cell in _Bufer[bufferRowIndex].Cells)
+                        foreach (var Cell in SortedBufer[bufferRowIndex].Cells)
                         {
                             e.Graphics.DrawString(Cell.Body, this.Font, _Brush, xCounterForText - HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex) + (RowHeight - FontHeight) / 2);
                             xCounterForText += Cell.ColumnWidth * (int)Font.Size + _CellMinMargin + _LineWidth + _CellMinMargin;
@@ -242,9 +287,70 @@ namespace Parser
                 this.Body = Body;        
             }
         }
-        class Row
+        class UpComparer : IComparer<Row>
         {
-            public List<Cell> Cells { get; set; } = new List<Cell>();
+            public int Compare(Row x, Row y)
+            {
+                int i = SortProcessor.ColumnSortIndex;
+                int tempDigit;
+                int cellDigit;
+                if (int.TryParse(x.Cells[i].Body, out cellDigit) && int.TryParse(y.Cells[i].Body, out tempDigit))
+                {
+                    if (cellDigit < tempDigit)
+                    {
+                        return -1;
+                    }
+                    if (cellDigit < tempDigit)
+                    {
+                        return 1;
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }
+                else
+                {
+                    return x.Cells[i].Body.CompareTo(y.Cells[i].Body);
+                }
+
+
+            }
+        }
+        class DownComparer : IComparer<Row>
+        {
+            public int Compare(Row x, Row y)
+            {
+                int i = SortProcessor.ColumnSortIndex;
+                int tempDigit;
+                int cellDigit;
+                if (int.TryParse(x.Cells[i].Body, out cellDigit) && int.TryParse(y.Cells[i].Body, out tempDigit))
+                {
+                    if (cellDigit > tempDigit)
+                    {
+                        return -1;
+                    }
+                    if (cellDigit > tempDigit)
+                    {
+                        return 1;
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }
+                else
+                {
+                    return y.Cells[i].Body.CompareTo(x.Cells[i].Body);
+                }
+
+
+            }
+        }
+        class Row 
+        {
+            public List<Cell> Cells { get; set; } = new List<Cell>();     
+                    
         }
         private void MyDataGrid_Resize(object sender, EventArgs e)
         {
@@ -314,6 +420,10 @@ namespace Parser
         { get =>_ColumnSortIndex;
             set
             {
+                if (value < 0)
+                {
+                    value = 0;
+                }
                 if (_ColumnSortIndex == value)
                 {
                     _IsColumnChanged = false;
