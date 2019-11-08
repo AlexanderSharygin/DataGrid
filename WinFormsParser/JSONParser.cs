@@ -26,8 +26,8 @@ namespace WinFormsParser
         {
             var inputText = File.ReadAllText("Files\\Data.txt");
             _JSONObjects = JSONParser.ParseSimpleJSON(inputText);
-            FillFieldsList();    
-                 
+            FillFieldsList();
+           
 
         }
         private void FillFieldsList()
@@ -88,11 +88,10 @@ namespace WinFormsParser
         private void LB_FieldsList_SelectedValueChanged(object sender, EventArgs e)
         {
             DataTable.Source = GetTable();
+        
+                      
         }
 
-        private void MyDataGrid1_Resize(object sender, EventArgs e)
-        {
-
-        }
+      
     }
 }

@@ -62,6 +62,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HeaderCell.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="HeaderCell.Designer.cs">
+      <DependentUpon>HeaderCell.cs</DependentUpon>
+    </Compile>
     <Compile Include="JSONParser.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -81,6 +87,9 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="HeaderCell.resx">
+      <DependentUpon>HeaderCell.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="JSONParser.resx">
       <DependentUpon>JSONParser.cs</DependentUpon>
     </EmbeddedResource>
@@ -127,6 +136,12 @@
     <None Include="Files\Data.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\depositphotos_126071218-stock-illustration-direction-up-vector-icon.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Down.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
