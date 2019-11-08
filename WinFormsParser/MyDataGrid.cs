@@ -12,8 +12,7 @@ namespace Parser
     public partial class MyDataGrid : UserControl
     {  
         List<List<string>> _Source = new List<List<string>>();
-        List<Row> _Bufer = new List<Row>();
-       
+        List<Row> _Bufer = new List<Row>();       
         int _RowHeight;
         int _LineWidth = 1;
         int _FirstPrintedRowIndex = 0;
@@ -51,15 +50,11 @@ namespace Parser
         {
             get => _Source;
             set
-            {
-               
+            {               
                 _Source = value;
                 if (Source.Count != 0)
                 {
-                    _Bufer = CreateBuffer(Source);
-                   // _DefaultBufer = new List<Row>(_Bufer.Count);
-                   
-                  
+                    _Bufer = CreateBuffer(Source);                                   
                     _TotalRowsCount = _Bufer.Count;                    
                     _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;
                     if (_TableWidth > this.Width)
@@ -79,7 +74,7 @@ namespace Parser
                     VerticalScrollBar.Maximum = ((_TotalRowsCount - _ViewPortRowsCount) * _VerticalScrollValueRatio)-1;
                     VerticalScrollBar.SmallChange = _VerticalScrollValueRatio;
                     VerticalScrollBar.LargeChange = _VerticalScrollValueRatio;
-                    HorizontalScrollUpdater();
+                    UpdateHorizontalScroll();
                     HorisontalScrollBar.Value = 0;
                     HorisontalScrollBar.SmallChange = _HorisontalScrollValueRatio;
                     HorisontalScrollBar.LargeChange = _HorisontalScrollValueRatio;
@@ -99,8 +94,7 @@ namespace Parser
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            _Pen.Color = LineColor;
-          
+            _Pen.Color = LineColor;          
             DrawTable(e);
         }
         public void DrawOutsideFrame(PaintEventArgs e)
@@ -109,31 +103,16 @@ namespace Parser
             e.Graphics.DrawLine(_Pen, this.Width, 0, this.Width, this.Height);
             e.Graphics.DrawLine(_Pen, this.Width, this.Height, 0,  this.Height);
             e.Graphics.DrawLine(_Pen, 0, this.Height, 0, 0);
-
         }
-        public void HorizontalScrollUpdater()
-        {
-            var viewportWidth = this.ClientSize.Width - (VerticalScrollBar.Visible ? VerticalScrollBar.Width : 0);
-            if (_TableWidth >= viewportWidth)
-            {
-                HorisontalScrollBar.Visible = true;
-                HorisontalScrollBar.Maximum = (int)(_TableWidth - viewportWidth + 1);
-            }
-            else
-            {
-                HorisontalScrollBar.Visible = false;
-                HorisontalScrollBar.Maximum = 0;
-            }
-        }
+       
         public void DrawHeader(PaintEventArgs e)
         {
             
             if (_Bufer.Count != 0)
             {
-                if (SortProcessor.ColumnSortIndex>_Bufer.First().Cells.Count-1)
+                if (SortData.ColumnIndex>_Bufer.First().Cells.Count-1)
                 {
-                    SortProcessor.ColumnSortIndex = _Bufer.First().Cells.Count - 1;
-                    
+                    SortData.ColumnIndex = _Bufer.First().Cells.Count - 1;                    
                 }               
                 if (_ViewPortRowsCount > _Bufer.Count - 1)
                 {
@@ -164,9 +143,9 @@ namespace Parser
                     Header[i].Location = new Point(xCounter-HorisontalScrollBar.Value, 0);
                     Header[i].Text = _Bufer.First().Cells[i].Body;
                     Header[i].ColumnIndex = i;
-                    if (SortProcessor.ColumnSortIndex == i)
+                    if (SortData.ColumnIndex == i)
                     {
-                        Header[i].SortDirection = SortProcessor.SortDirection;
+                        Header[i].SortDirection = SortData.SortDirection;
                     }
                     else
                     {
@@ -185,41 +164,12 @@ namespace Parser
             if (_Bufer.Count != 0 && _Bufer.First().Cells.Count!=0)
             { 
                 List<Row> SortedBufer = new List<Row>();
-                if (SortProcessor.SortDirection == 0)
+                SortedBufer.AddRange(_Bufer);
+                SortedBufer.RemoveAt(0);
+                if (SortData.SortDirection != 0)
                 {
-                    SortedBufer.AddRange(_Bufer);
-                    SortedBufer.RemoveAt(0);
-                }
-                else
-                {
-                    if (SortProcessor.SortDirection > 0)
-                    {
-                        // var SortedData = _Bufer.Select(d => d)
-                        //   .Where(d => d.Cells.First() != _Bufer.First().Cells.First())
-                        //  .OrderBy(k => k.Cells[SortProcessor.ColumnSortIndex].Body).ToList();
-                        //SortedBufer.Add(_Bufer.First());
-                        //SortedBufer.AddRange(SortedData);
-                        SortedBufer.AddRange(_Bufer);
-                        SortedBufer.RemoveAt(0);
-                        UpComparer u = new UpComparer();
-                        SortedBufer.Sort(u);
-                      //  SortedBufer.Insert(0, _Bufer.First());
-                       
-                    }
-                    if (SortProcessor.SortDirection < 0)
-                    {
-                        SortedBufer.AddRange(_Bufer);
-                        SortedBufer.RemoveAt(0);
-                        DownComparer d = new DownComparer();
-                        SortedBufer.Sort(d);
-                   //     SortedBufer.Insert(0, _Bufer.First());
-                        // var SortedData = _Bufer.Select(d => d)
-                        //   .Where(d => d.Cells.First() != _Bufer.First().Cells.First())
-                        //  .OrderByDescending(k => k.Cells[SortProcessor.ColumnSortIndex].Body).ToList();
-                        //      SortedData.Sort();
-                        // SortedBufer.Add(_Bufer.First());
-                        // SortedBufer.AddRange(SortedData);
-                    }
+                    RowComparer u = (SortData.SortDirection > 0) ? new RowComparer(true) : new RowComparer(false);
+                    SortedBufer.Sort(u);
                 }                        
                 int bufferRowIndex = _FirstPrintedRowIndex;
                 int viewPortRowIndex = 1;
@@ -238,6 +188,20 @@ namespace Parser
                         bufferRowIndex++;
                     }
                 }
+            }
+        }
+        public void UpdateHorizontalScroll()
+        {
+            var viewportWidth = this.ClientSize.Width - (VerticalScrollBar.Visible ? VerticalScrollBar.Width : 0);
+            if (_TableWidth >= viewportWidth)
+            {
+                HorisontalScrollBar.Visible = true;
+                HorisontalScrollBar.Maximum = (int)(_TableWidth - viewportWidth + 1);
+            }
+            else
+            {
+                HorisontalScrollBar.Visible = false;
+                HorisontalScrollBar.Maximum = 0;
             }
         }
         private List<Row> CreateBuffer(List<List<string>> Source)
@@ -280,29 +244,35 @@ namespace Parser
         }
         class Cell
         {
-            public string Body { get; set; }       
+            public string Body { get; }       
             public int ColumnWidth { get; set; }
             public Cell(string Body) 
             {
                 this.Body = Body;        
             }
         }
-        class UpComparer : IComparer<Row>
+        class RowComparer : IComparer<Row>
         {
+            bool _Direction;
+            public RowComparer(bool direction)
+            {
+                _Direction = direction;
+            }
             public int Compare(Row x, Row y)
             {
-                int i = SortProcessor.ColumnSortIndex;
-                int tempDigit;
-                int cellDigit;
-                if (int.TryParse(x.Cells[i].Body, out cellDigit) && int.TryParse(y.Cells[i].Body, out tempDigit))
+                int dir = (_Direction)?1:-1;               
+                int ColumnIndex = SortData.ColumnIndex;
+                int yDigit;
+                int xDigit;
+                if (int.TryParse(x.Cells[ColumnIndex].Body, out xDigit) && int.TryParse(y.Cells[ColumnIndex].Body, out yDigit))
                 {
-                    if (cellDigit < tempDigit)
+                    if (xDigit < yDigit)
                     {
-                        return -1;
+                        return -1*dir;
                     }
-                    if (cellDigit < tempDigit)
+                    if (xDigit > yDigit)
                     {
-                        return 1;
+                        return 1*dir;
                     }
                     else
                     {
@@ -311,42 +281,10 @@ namespace Parser
                 }
                 else
                 {
-                    return x.Cells[i].Body.CompareTo(y.Cells[i].Body);
+                    return (_Direction)? x.Cells[ColumnIndex].Body.CompareTo(y.Cells[ColumnIndex].Body): y.Cells[ColumnIndex].Body.CompareTo(x.Cells[ColumnIndex].Body);
                 }
-
-
             }
-        }
-        class DownComparer : IComparer<Row>
-        {
-            public int Compare(Row x, Row y)
-            {
-                int i = SortProcessor.ColumnSortIndex;
-                int tempDigit;
-                int cellDigit;
-                if (int.TryParse(x.Cells[i].Body, out cellDigit) && int.TryParse(y.Cells[i].Body, out tempDigit))
-                {
-                    if (cellDigit > tempDigit)
-                    {
-                        return -1;
-                    }
-                    if (cellDigit > tempDigit)
-                    {
-                        return 1;
-                    }
-                    else
-                    {
-                        return 0;
-                    }
-                }
-                else
-                {
-                    return y.Cells[i].Body.CompareTo(x.Cells[i].Body);
-                }
-
-
-            }
-        }
+        }        
         class Row 
         {
             public List<Cell> Cells { get; set; } = new List<Cell>();     
@@ -382,7 +320,7 @@ namespace Parser
                 }
                 VerticalScrollBar.Maximum = ((_TotalRowsCount - _ViewPortRowsCount) * _VerticalScrollValueRatio - 1);
             }          
-            HorizontalScrollUpdater();
+            UpdateHorizontalScroll();
             Invalidate();
         }
         private void VScrollBar1_ValueChanged(object sender, EventArgs e)
@@ -405,54 +343,43 @@ namespace Parser
                 HorisontalScrollBar.Width = this.Width - VerticalScrollBar.Width;
             }
         }
-
         private void HorisontalScrollBar_Scroll(object sender, ScrollEventArgs e)
         {
             Invalidate();
         }
     }
-    static class SortProcessor
+    static class SortData
     {
-        static int _SortDirection = 0;
-        static int _ColumnSortIndex = 0;
+        static int _ColumnIndex = 0;
         static bool _IsColumnChanged = false;
-        public static int ColumnSortIndex
-        { get =>_ColumnSortIndex;
+        public static int ColumnIndex
+        { get =>_ColumnIndex;
             set
             {
                 if (value < 0)
                 {
                     value = 0;
                 }
-                if (_ColumnSortIndex == value)
-                {
-                    _IsColumnChanged = false;
-                }
-                else
-                {
-                    _IsColumnChanged = true;
-                }
-                _ColumnSortIndex = value;
+                _IsColumnChanged = (_ColumnIndex == value) ? false : true;              
+                _ColumnIndex = value;
             }
         }
-       public static int SortDirection { get => _SortDirection;}
-       public static void ChangeSortDirection()
+        public static int SortDirection { get; private set; } = 0;
+        public static void ChangeSortDirection()
         {
             if (!_IsColumnChanged)
             {
-                if (_SortDirection < 0)
+                if (SortDirection < 0)
                 {
-                    _SortDirection = 0;
-
+                    SortDirection = 0;
                 }
-
-                else if (_SortDirection == 0)
+                else if (SortDirection == 0)
                 {
-                    _SortDirection = 1;
+                    SortDirection = 1;
                 }
                 else
                 {
-                    _SortDirection = -1;
+                    SortDirection = -1;
                 }
             }
         }

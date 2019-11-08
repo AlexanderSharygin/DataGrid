@@ -61,8 +61,8 @@ namespace Parser
 
         private void HeaderCell_Click(object sender, EventArgs e)
         {
-            SortProcessor.ColumnSortIndex = ColumnIndex;
-            SortProcessor.ChangeSortDirection();
+            SortData.ColumnIndex = ColumnIndex;
+            SortData.ChangeSortDirection();
            
             Parent.Invalidate();
            
