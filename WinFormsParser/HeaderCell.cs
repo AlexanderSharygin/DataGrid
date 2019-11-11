@@ -12,9 +12,10 @@ namespace Parser
 {
     public partial class HeaderCell : UserControl
     {
-        int _CellMinMargin = 2;
-        int _SortDirection = 0;
-       
+        int _CellMinMargin = 2;      
+        Column _ColumnData = new Column("",0,0);
+        List<HeaderCell> _OtherCells = new List<HeaderCell>();
+        public List<HeaderCell> OtherCells { get =>_OtherCells; set { _OtherCells = value; } }
         public HeaderCell()
         {
             InitializeComponent();
@@ -22,23 +23,41 @@ namespace Parser
 
             
         }
-        public int ColumnIndex { get; set; }
-        public int SortDirection
+        public HeaderCell(Column ColumnData)
         {
-            get => _SortDirection;
-            set
+            InitializeComponent();
+            this.Height = Font.Height + _CellMinMargin * 2;
+            _ColumnData = ColumnData;
+
+        }
+        public int ColumnIndex { get; set; }
+        public Sort SortDirection
+        {
+            get => _ColumnData.SortDirecion;
+           
+        }
+        public void ChangeSortDirection()
+        {
+            
+            if (_ColumnData.SortDirecion == Sort.DESC)
             {
-                _SortDirection = value;
-               
-               Invalidate();
+               _ColumnData.SortDirecion = Sort.None;
+            }
+            else if (_ColumnData.SortDirecion == Sort.None)
+            {
+                _ColumnData.SortDirecion = Sort.ASC;
+            }
+            else
+            {
+                _ColumnData.SortDirecion = Sort.DESC;
             }
         }
-      
+
         protected override void OnPaint(PaintEventArgs e)
         {
 
             e.Graphics.DrawString(Text, Font, new SolidBrush(Color.Black), _CellMinMargin, _CellMinMargin);
-            if (_SortDirection < 0)
+            if (_ColumnData.SortDirecion == Sort.DESC)
             {
                 Point[] p = new Point[3];
                 int a = this.Height / 2 - _CellMinMargin * 2;
@@ -48,7 +67,7 @@ namespace Parser
                
                 e.Graphics.FillPolygon(new SolidBrush(Color.Black),p);
             }
-            if (_SortDirection > 0)
+            if (_ColumnData.SortDirecion == Sort.ASC)
             {
                 Point[] p = new Point[3];
                 int a = this.Height / 2 - _CellMinMargin * 2;
@@ -58,13 +77,23 @@ namespace Parser
                e.Graphics.FillPolygon(new SolidBrush(Color.Black), p);
             }
         }
-
+        public void DropSorting()
+        {
+            _ColumnData.IsSortedBy = false;
+            _ColumnData.SortDirecion = Sort.None;
+            Invalidate();
+        }
         private void HeaderCell_Click(object sender, EventArgs e)
         {
-            SortData.ColumnIndex = ColumnIndex;
-            SortData.ChangeSortDirection();
-           
-            Parent.Invalidate();
+
+            foreach (var item in _OtherCells)
+            {
+                item.DropSorting();
+            }
+            _ColumnData.IsSortedBy = true;
+            ChangeSortDirection();
+            Invalidate();
+           Parent.Invalidate();
            
         }
     }

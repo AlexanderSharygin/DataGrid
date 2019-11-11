@@ -12,7 +12,8 @@ namespace Parser
     public partial class MyDataGrid : UserControl
     {  
         List<List<string>> _Source = new List<List<string>>();
-        List<Row> _Bufer = new List<Row>();       
+        List<Row> _Bufer = new List<Row>();
+        APIModel _API;      
         int _RowHeight;
         int _LineWidth = 1;
         int _FirstPrintedRowIndex = 0;
@@ -24,9 +25,11 @@ namespace Parser
         float _TableWidth;
         Brush _Brush;
         Pen _Pen;
+      
         public MyDataGrid()
         {
             InitializeComponent();
+            _API = new APIModel();
             ResizeRedraw = true;
             components = new System.ComponentModel.Container();
             VerticalScrollBar.Minimum = 0;
@@ -48,13 +51,15 @@ namespace Parser
         public Color LineColor { get; set; }
         public List<List<string>> Source
         {
+            
             get => _Source;
             set
             {               
                 _Source = value;
                 if (Source.Count != 0)
                 {
-                    _Bufer = CreateBuffer(Source);                                   
+                    _Bufer = CreateBuffer(Source);
+                    _API.Update(Source);
                     _TotalRowsCount = _Bufer.Count;                    
                     _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;
                     if (_TableWidth > this.Width)
@@ -136,24 +141,30 @@ namespace Parser
                 HeaderCell[] Header = new HeaderCell[_Bufer.First().Cells.Count];
                 for (int i = 0; i < Header.Length; i++)
                 {
-                    Header[i] = new HeaderCell();                   
+                    Header[i] = new HeaderCell(_API.Columns[i]);                   
                     Header[i].Font = this.Font;
                     Header[i].Width = (int)(_LineWidth*2 + _CellMinMargin + _Bufer.First().Cells[i].ColumnWidth * (int)this.Font.Size + _CellMinMargin);
                     Header[i].Height = _RowHeight;
                     Header[i].Location = new Point(xCounter-HorisontalScrollBar.Value, 0);
                     Header[i].Text = _Bufer.First().Cells[i].Body;
-                    Header[i].ColumnIndex = i;
-                    if (SortData.ColumnIndex == i)
-                    {
-                        Header[i].SortDirection = SortData.SortDirection;
-                    }
-                    else
-                    {
-                        Header[i].SortDirection = 0;
-                    }
+                    Header[i].ColumnIndex = i;                  
                     xCounter += _LineWidth + _CellMinMargin + _Bufer.First().Cells[i].ColumnWidth * (int)this.Font.Size + _CellMinMargin;
                     Controls.Add(Header[i]);
-                }          
+                }
+                for (int i = 0; i < Header.Length; i++)
+                {
+                    List<HeaderCell> temp = new List<HeaderCell>();
+                    for (int j = 0; j < Header.Length; j++)
+                    {
+                        if (i != j)
+                        {
+                            temp.Add(Header[j]);
+                        }
+                        Header[i].OtherCells.Clear();
+                        Header[i].OtherCells.AddRange(temp);
+                    }
+                }
+                
             }
         }
 
@@ -162,15 +173,27 @@ namespace Parser
             DrawOutsideFrame(e);
             DrawHeader(e);
             if (_Bufer.Count != 0 && _Bufer.First().Cells.Count!=0)
-            { 
-                List<Row> SortedBufer = new List<Row>();
-                SortedBufer.AddRange(_Bufer);
-                SortedBufer.RemoveAt(0);
-                if (SortData.SortDirection != 0)
+            {
+                int index = -1;
+                foreach (var item in _API.Columns)
                 {
-                    RowComparer u = (SortData.SortDirection > 0) ? new RowComparer(true) : new RowComparer(false);
-                    SortedBufer.Sort(u);
-                }                        
+                    if (item.IsSortedBy)
+                    {
+                        index = item.Index;
+                    }
+                }
+               
+                    List<Row> SortedBufer = new List<Row>();
+                    SortedBufer.AddRange(_Bufer);
+                    SortedBufer.RemoveAt(0);
+                if (index > -1)
+                {
+                    if (_API.Columns[index].SortDirecion!=Sort.None)
+                    {
+                        RowComparer u = (_API.Columns[index].SortDirecion == Sort.ASC) ? new RowComparer(true, index) : new RowComparer(false, index);
+                        SortedBufer.Sort(u);
+                    }
+                }
                 int bufferRowIndex = _FirstPrintedRowIndex;
                 int viewPortRowIndex = 1;
                 for (int i = 0; i < _ViewPortRowsCount; i++)
@@ -254,17 +277,20 @@ namespace Parser
         class RowComparer : IComparer<Row>
         {
             bool _Direction;
-            public RowComparer(bool direction)
+            int _ColumnIndex;
+            public RowComparer(bool direction, int index)
             {
                 _Direction = direction;
+                _ColumnIndex = index;
             }
             public int Compare(Row x, Row y)
             {
-                int dir = (_Direction)?1:-1;               
-                int ColumnIndex = SortData.ColumnIndex;
+                int dir = (_Direction)?1:-1;
+
+                
                 int yDigit;
                 int xDigit;
-                if (int.TryParse(x.Cells[ColumnIndex].Body, out xDigit) && int.TryParse(y.Cells[ColumnIndex].Body, out yDigit))
+                if (int.TryParse(x.Cells[_ColumnIndex].Body, out xDigit) && int.TryParse(y.Cells[_ColumnIndex].Body, out yDigit))
                 {
                     if (xDigit < yDigit)
                     {
@@ -281,7 +307,7 @@ namespace Parser
                 }
                 else
                 {
-                    return (_Direction)? x.Cells[ColumnIndex].Body.CompareTo(y.Cells[ColumnIndex].Body): y.Cells[ColumnIndex].Body.CompareTo(x.Cells[ColumnIndex].Body);
+                    return (_Direction)? x.Cells[_ColumnIndex].Body.CompareTo(y.Cells[_ColumnIndex].Body): y.Cells[_ColumnIndex].Body.CompareTo(x.Cells[_ColumnIndex].Body);
                 }
             }
         }        
