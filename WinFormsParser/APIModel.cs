@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Parser
 {
-  class APIModel
+  class APICore
     {
         List<Column> _Columns = new List<Column>();
         public List<Column> Columns { get =>_Columns; }
@@ -14,8 +14,7 @@ namespace Parser
         {
             Column item = (Column)_Columns.Select(k => k.IsSortedBy = true);
            
-                item.SortDirecion = direction;
-           
+                item.SortDirecion = direction;           
         }
         public void ChangeSortedColumn(int columnIndex)
         {
@@ -26,10 +25,15 @@ namespace Parser
                 _Columns[columnIndex].IsSortedBy = true;
             }
         }
+        public void SortColumns()
+        {
+            _Columns = _Columns.OrderBy(k => k.Index).ToList();
+        }
         public void ChangeIndexes(int firstColumnIndex, int secondColumnIndex)
         {
             _Columns[firstColumnIndex].Index = secondColumnIndex;
             _Columns[secondColumnIndex].Index = firstColumnIndex;
+            SortColumns();
         }
         public void AddColumn(List<string> source, int columnIndex)
         {
@@ -42,19 +46,14 @@ namespace Parser
             }
         }
         public void RemoveColumn(int columnIndex)
-        {
-           
-            
-                _Columns.RemoveAt(columnIndex);
+        {              
+               _Columns.RemoveAt(columnIndex);
                 for (int i = 0; i < _Columns.Count; i++)
                 {              
                     _Columns[i].Index=i;
-                }
-               
-            
-            
+                }          
         }
-        public void Update(List<List<string>> source)
+        public void UpdateColumns(List<List<string>> source)
         {
             if (_Columns.Count == 0)
             {

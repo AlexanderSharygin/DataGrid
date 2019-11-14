@@ -12,10 +12,10 @@ namespace Parser
 {
     public partial class HeaderCell : UserControl
     {
-        int _CellMinMargin = 2;      
+        int _CellMinMargin = 2;
+        bool _IsToRemove = false;
         Column _ColumnData = new Column("",0,0);
-        List<HeaderCell> _OtherCells = new List<HeaderCell>();
-        public List<HeaderCell> OtherCells { get =>_OtherCells; set { _OtherCells = value; } }
+         public List<HeaderCell> NeighborCells { get; set; } = new List<HeaderCell>();
         public HeaderCell()
         {
             InitializeComponent();
@@ -29,14 +29,13 @@ namespace Parser
             this.Height = Font.Height + _CellMinMargin * 2;
             _ColumnData = ColumnData;
 
-        }
-        public int ColumnIndex { get; set; }
+        }    
         public Sort SortDirection
         {
             get => _ColumnData.SortDirecion;
            
         }
-        public void ChangeSortDirection()
+        private void ChangeSortDirection()
         {
             
             if (_ColumnData.SortDirecion == Sort.DESC)
@@ -85,16 +84,59 @@ namespace Parser
         }
         private void HeaderCell_Click(object sender, EventArgs e)
         {
-
-            foreach (var item in _OtherCells)
-            {
-                item.DropSorting();
-            }
-            _ColumnData.IsSortedBy = true;
-            ChangeSortDirection();
-            Invalidate();
-           Parent.Invalidate();
            
+           
+        }
+
+        private void HeaderCell_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button==MouseButtons.Left)
+            {
+                bool Removing = false;
+                int newIndex = -1;
+                foreach (var item in NeighborCells)
+                {
+                    if (item._IsToRemove == true)
+                    {                        
+                        newIndex = item._ColumnData.Index;
+                        item._ColumnData.Index = _ColumnData.Index;
+                        _ColumnData.Index = newIndex;
+                        Removing = true;
+                        break;
+                    }
+                }
+                if (!Removing)
+                {
+                    foreach (var item in NeighborCells)
+                    {
+                        item.DropSorting();
+                    }
+                    _ColumnData.IsSortedBy = true;
+                    ChangeSortDirection();
+                    Invalidate();
+                }
+                Parent.Invalidate();
+            }
+            if (e.Button == MouseButtons.Right)
+            {
+                if (!_IsToRemove)
+                {
+                    BackColor = Color.Coral;
+                    _IsToRemove = true;
+                    foreach (var item in NeighborCells)
+                    {
+                        item._IsToRemove = false;
+                        item.BackColor = Parent.BackColor;
+                    }
+                }
+                else if (_IsToRemove)
+                {
+                    BackColor = Parent.BackColor;
+                    _IsToRemove = false;
+                }
+               
+                
+            }
         }
     }
     
