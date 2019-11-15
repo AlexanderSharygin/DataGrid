@@ -14,6 +14,7 @@ namespace Parser
     {
         int _CellMinMargin = 2;
         bool _IsToRemove = false;
+        public string HeaderText { get; set; }
         Column _ColumnData = new Column("",0,0);
          public List<HeaderCell> NeighborCells { get; set; } = new List<HeaderCell>();
         public HeaderCell()
@@ -25,9 +26,9 @@ namespace Parser
         }
         public HeaderCell(Column ColumnData)
         {
-            InitializeComponent();
-            this.Height = Font.Height + _CellMinMargin * 2;
+            InitializeComponent();       
             _ColumnData = ColumnData;
+            HeaderText = ColumnData.HeaderText;
 
         }    
         public Sort SortDirection
@@ -55,7 +56,7 @@ namespace Parser
         protected override void OnPaint(PaintEventArgs e)
         {
 
-            e.Graphics.DrawString(Text, Font, new SolidBrush(Color.Black), _CellMinMargin, _CellMinMargin);
+            e.Graphics.DrawString(HeaderText, Font, new SolidBrush(Color.Black), _CellMinMargin, _CellMinMargin);
             if (_ColumnData.SortDirecion == Sort.DESC)
             {
                 Point[] p = new Point[3];
