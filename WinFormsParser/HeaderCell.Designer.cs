@@ -39,7 +39,8 @@
             this.DoubleBuffered = true;
             this.Name = "HeaderCell";
             this.Size = new System.Drawing.Size(127, 31);
-            this.Click += new System.EventHandler(this.HeaderCell_Click);
+           
+            this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.HeaderCell_MouseClick);
             this.ResumeLayout(false);
 
         }

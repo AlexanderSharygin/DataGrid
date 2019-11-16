@@ -13,8 +13,10 @@ namespace Parser
     public partial class HeaderCell : UserControl
     {
         int _CellMinMargin = 2;
-        int _SortDirection = 0;
-       
+        bool _IsToMoving = false;
+        public string HeaderText { get; set; }
+        Column _ColumnData = new Column("",0,0);
+         public List<HeaderCell> NeighborCells { get; set; } = new List<HeaderCell>();
         public HeaderCell()
         {
             InitializeComponent();
@@ -22,23 +24,40 @@ namespace Parser
 
             
         }
-        public int ColumnIndex { get; set; }
-        public int SortDirection
+        public HeaderCell(Column ColumnData)
         {
-            get => _SortDirection;
-            set
+            InitializeComponent();       
+            _ColumnData = ColumnData;
+            HeaderText = ColumnData.HeaderText;
+
+        }    
+        public Sort SortDirection
+        {
+            get => _ColumnData.SortDirecion;
+           
+        }
+        private void ChangeSortDirection()
+        {
+            
+            if (_ColumnData.SortDirecion == Sort.DESC)
             {
-                _SortDirection = value;
-               
-               Invalidate();
+               _ColumnData.SortDirecion = Sort.None;
+            }
+            else if (_ColumnData.SortDirecion == Sort.None)
+            {
+                _ColumnData.SortDirecion = Sort.ASC;
+            }
+            else
+            {
+                _ColumnData.SortDirecion = Sort.DESC;
             }
         }
-      
+
         protected override void OnPaint(PaintEventArgs e)
         {
 
-            e.Graphics.DrawString(Text, Font, new SolidBrush(Color.Black), _CellMinMargin, _CellMinMargin);
-            if (_SortDirection < 0)
+            e.Graphics.DrawString(HeaderText, Font, new SolidBrush(Color.Black), _CellMinMargin, _CellMinMargin);
+            if (_ColumnData.SortDirecion == Sort.DESC)
             {
                 Point[] p = new Point[3];
                 int a = this.Height / 2 - _CellMinMargin * 2;
@@ -48,7 +67,7 @@ namespace Parser
                
                 e.Graphics.FillPolygon(new SolidBrush(Color.Black),p);
             }
-            if (_SortDirection > 0)
+            if (_ColumnData.SortDirecion == Sort.ASC)
             {
                 Point[] p = new Point[3];
                 int a = this.Height / 2 - _CellMinMargin * 2;
@@ -58,14 +77,62 @@ namespace Parser
                e.Graphics.FillPolygon(new SolidBrush(Color.Black), p);
             }
         }
-
-        private void HeaderCell_Click(object sender, EventArgs e)
+        public void DropSorting()
         {
-            SortData.ColumnIndex = ColumnIndex;
-            SortData.ChangeSortDirection();
-           
-            Parent.Invalidate();
-           
+            _ColumnData.IsSortedBy = false;
+            _ColumnData.SortDirecion = Sort.None;
+            Invalidate();
+        }      
+
+        private void HeaderCell_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button==MouseButtons.Left)
+            {
+                bool MovingMode = false;
+                int newIndex = -1;
+                foreach (var item in NeighborCells)
+                {
+                    if (item._IsToMoving == true)
+                    {                        
+                        newIndex = item._ColumnData.Index;
+                        item._ColumnData.Index = _ColumnData.Index;
+                        _ColumnData.Index = newIndex;
+                        MovingMode = true;
+                        break;
+                    }
+                }
+                if (!MovingMode)
+                {
+                    foreach (var item in NeighborCells)
+                    {
+                        item.DropSorting();
+                    }
+                    _ColumnData.IsSortedBy = true;
+                    ChangeSortDirection();
+                    Invalidate();
+                }
+                Parent.Invalidate();
+            }
+            if (e.Button == MouseButtons.Right)
+            {
+                if (!_IsToMoving)
+                {
+                    BackColor = Color.Coral;
+                    _IsToMoving = true;
+                    foreach (var item in NeighborCells)
+                    {
+                        item._IsToMoving = false;
+                        item.BackColor = Parent.BackColor;
+                    }
+                }
+                else if (_IsToMoving)
+                {
+                    BackColor = Parent.BackColor;
+                    _IsToMoving = false;
+                }
+               
+                
+            }
         }
     }
     
