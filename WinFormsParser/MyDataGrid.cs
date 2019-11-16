@@ -121,7 +121,6 @@ namespace Parser
                     _ViewPortRowsCount = _Bufer.Count - 1;
                 }
                 int xCounterForLine = 0;
-
                 for (int i = 0; i < _API.Columns.Count; i++)                           
                 {               
                    e.Graphics.DrawLine(_Pen, xCounterForLine - HorisontalScrollBar.Value, 0, xCounterForLine - HorisontalScrollBar.Value, RowHeight * (_ViewPortRowsCount + 1));
@@ -153,55 +152,35 @@ namespace Parser
                 {
 
                     List<HeaderCell> temp = new List<HeaderCell>();                   
-                    var a = Header.Select(k => k).Where(k => k!=headerCell).ToList();                   
+                    var OtherCells = Header.Select(k => k).Where(k => k!=headerCell).ToList();                   
                        headerCell.NeighborCells.Clear();
-                        headerCell.NeighborCells.AddRange(a);                  
+                        headerCell.NeighborCells.AddRange(OtherCells);                  
                 }
                 
             }
         }
-        public void SortBufer()
+        public void SortBuferColumns()
         {
-            for (int i = 0; i < _Bufer.Count; i++)
+            foreach (var Cell in _Bufer.First().Cells)
             {
-                if (i == 0)
-                {
-                    for (int j = 0; j < _Bufer[i].Cells.Count; j++)
+                Cell.ColumnNumber = _API.Columns.Where(u => Cell.Body == u.HeaderText).Select(u => u.Index).Single();
+            }        
+            for (int i = 1; i < _Bufer.Count; i++)
+            {                              
+                    for (int j = 0; j <_Bufer.First().Cells.Count; j++)
                     {
-                        for (int k = 0; k < _API.Columns.Count; k++)
-                        {
-                            if (_Bufer[i].Cells[j].Body == _API.Columns[k].HeaderText)
-                            {
-                                _Bufer[i].Cells[j].ColumnNumber = _API.Columns[k].Index;
-
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    for (int j = 0; j < _Bufer[i].Cells.Count; j++)
-                    {
-
-                        _Bufer[i].Cells[j].ColumnNumber = _Bufer[0].Cells[j].ColumnNumber;
-
-
-                    }
-                }
-
-
-            }
-            for (int i = 0; i < _Bufer.Count; i++)
-            {
-                _Bufer[i].Cells = _Bufer[i].Cells.OrderBy(k => k.ColumnNumber).ToList();
-            }
+                        var Column = _Bufer.Select(k => k.Cells[j]).ToList();
+                        Column.ForEach(k => k.ColumnNumber = Column.First().ColumnNumber);
+                    }                       
+            }                  
+             _Bufer.ForEach(k => k.Cells = k.Cells.OrderBy(f => f.ColumnNumber).ToList());       
         }
         public void DrawTable(PaintEventArgs e)
         {
             DrawOutsideFrame(e);           
             if (_Bufer.Count != 0 && _Bufer.First().Cells.Count!=0)
             {               
-                SortBufer();
+                SortBuferColumns();
                 _API.SortColumns();
                 DrawHeader(e);
                 int ColumnIndex = -1;

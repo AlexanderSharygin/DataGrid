@@ -13,7 +13,7 @@ namespace Parser
     public partial class HeaderCell : UserControl
     {
         int _CellMinMargin = 2;
-        bool _IsToRemove = false;
+        bool _IsToMoving = false;
         public string HeaderText { get; set; }
         Column _ColumnData = new Column("",0,0);
          public List<HeaderCell> NeighborCells { get; set; } = new List<HeaderCell>();
@@ -82,31 +82,26 @@ namespace Parser
             _ColumnData.IsSortedBy = false;
             _ColumnData.SortDirecion = Sort.None;
             Invalidate();
-        }
-        private void HeaderCell_Click(object sender, EventArgs e)
-        {
-           
-           
-        }
+        }      
 
         private void HeaderCell_MouseClick(object sender, MouseEventArgs e)
         {
             if (e.Button==MouseButtons.Left)
             {
-                bool Removing = false;
+                bool MovingMode = false;
                 int newIndex = -1;
                 foreach (var item in NeighborCells)
                 {
-                    if (item._IsToRemove == true)
+                    if (item._IsToMoving == true)
                     {                        
                         newIndex = item._ColumnData.Index;
                         item._ColumnData.Index = _ColumnData.Index;
                         _ColumnData.Index = newIndex;
-                        Removing = true;
+                        MovingMode = true;
                         break;
                     }
                 }
-                if (!Removing)
+                if (!MovingMode)
                 {
                     foreach (var item in NeighborCells)
                     {
@@ -120,20 +115,20 @@ namespace Parser
             }
             if (e.Button == MouseButtons.Right)
             {
-                if (!_IsToRemove)
+                if (!_IsToMoving)
                 {
                     BackColor = Color.Coral;
-                    _IsToRemove = true;
+                    _IsToMoving = true;
                     foreach (var item in NeighborCells)
                     {
-                        item._IsToRemove = false;
+                        item._IsToMoving = false;
                         item.BackColor = Parent.BackColor;
                     }
                 }
-                else if (_IsToRemove)
+                else if (_IsToMoving)
                 {
                     BackColor = Parent.BackColor;
-                    _IsToRemove = false;
+                    _IsToMoving = false;
                 }
                
                 
