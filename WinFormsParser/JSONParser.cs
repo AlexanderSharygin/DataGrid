@@ -92,6 +92,9 @@ namespace WinFormsParser
                       
         }
 
-      
+        private void LB_FieldsList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

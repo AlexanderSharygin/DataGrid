@@ -14,21 +14,33 @@ namespace Parser
     {
         int _CellMinMargin = 2;
         bool _IsToMoving = false;
+     
         public string HeaderText { get; set; }
         Column _ColumnData = new Column("",0,0);
          public List<HeaderCell> NeighborCells { get; set; } = new List<HeaderCell>();
+       TypeSelector TypeSelector = new TypeSelector();
         public HeaderCell()
         {
             InitializeComponent();
             this.Height = Font.Height + _CellMinMargin * 2;
+          
 
             
         }
         public HeaderCell(Column ColumnData)
         {
-            InitializeComponent();       
+            InitializeComponent();
+            components = new System.ComponentModel.Container();
             _ColumnData = ColumnData;
             HeaderText = ColumnData.HeaderText;
+            TypeSelector.Items = ColumnData.AllTypes.TypesCollection.Keys.ToList();
+            TypeSelector.SelectedItem = ColumnData.AllTypes.GetKeyyValue(ColumnData.ColumnType);
+            TypeSelector.Visible = false;
+            TypeSelector.Font = this.Font;
+            Controls.Add(TypeSelector);
+            TypeSelector.ColumnData = ColumnData;
+         
+         
 
         }    
         public Sort SortDirection
@@ -56,6 +68,7 @@ namespace Parser
         protected override void OnPaint(PaintEventArgs e)
         {
 
+            _ColumnData.ColumnType = _ColumnData.AllTypes.TypesCollection[TypeSelector.SelectedItem];
             e.Graphics.DrawString(HeaderText, Font, new SolidBrush(Color.Black), _CellMinMargin, _CellMinMargin);
             if (_ColumnData.SortDirecion == Sort.DESC)
             {
@@ -86,6 +99,39 @@ namespace Parser
 
         private void HeaderCell_MouseClick(object sender, MouseEventArgs e)
         {
+
+            if (e.Button == MouseButtons.Middle)
+            {
+
+                for (int i = 0; i < Parent.Controls.Count; i++)
+                {
+                   Type Type = Parent.Controls[i].GetType();
+
+                    if (Type == typeof(TypeSelector))
+                    {
+                        Parent.Controls.RemoveAt(i);
+                    }
+                }
+          
+                if (TypeSelector.Visible)
+                {
+                    TypeSelector.Visible = false;
+                }
+                else
+                {
+                    
+                    TypeSelector.Width = 80;
+                    TypeSelector.Height = 20;
+                    TypeSelector.Location = new Point(this.Location.X + 5, this.Location.Y + 5);
+                    TypeSelector.Visible = true;                    
+                    TypeSelector.Parent = this.Parent;
+                    TypeSelector.BringToFront();
+                }
+              
+
+
+
+            }
             if (e.Button==MouseButtons.Left)
             {
                 bool MovingMode = false;
@@ -133,6 +179,26 @@ namespace Parser
                
                 
             }
+        }
+
+     
+
+     
+
+        private void HeaderCell_Leave(object sender, EventArgs e)
+        {
+          
+         
+        }
+
+        private void HeaderCell_MouseLeave(object sender, EventArgs e)
+        {
+           
+        }
+
+        private void HeaderCell_ParentChanged(object sender, EventArgs e)
+        {
+
         }
     }
     

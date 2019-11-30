@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using Parser.Properties;
 using System.Drawing;
 using System.Data;
 using System.Linq;
@@ -56,6 +56,7 @@ namespace Parser
             set
             {               
                 _Source = value;
+              
                 if (Source.Count != 0)
                 {
                     _API.UpdateColumns(Source);
@@ -84,6 +85,15 @@ namespace Parser
                     HorisontalScrollBar.SmallChange = _HorisontalScrollValueRatio;
                     HorisontalScrollBar.LargeChange = _HorisontalScrollValueRatio;
                     Invalidate();
+                    for (int i = 0; i < Controls.Count; i++)
+                    {
+                        Type Type = Controls[i].GetType();
+
+                        if (Type == typeof(TypeSelector))
+                        {
+                            Controls[i].Visible=false;
+                        }
+                    }
                 }
             }
         }       
@@ -99,8 +109,11 @@ namespace Parser
 
         protected override void OnPaint(PaintEventArgs e)
         {
+
+           
             _Pen.Color = LineColor;          
             DrawTable(e);
+           
         }
         public void DrawOutsideFrame(PaintEventArgs e)
         {
@@ -150,11 +163,13 @@ namespace Parser
                 }
                 foreach (var headerCell in Header)
                 {
-
+                    
                     List<HeaderCell> temp = new List<HeaderCell>();                   
                     var OtherCells = Header.Select(k => k).Where(k => k!=headerCell).ToList();                   
                        headerCell.NeighborCells.Clear();
-                        headerCell.NeighborCells.AddRange(OtherCells);                  
+                        headerCell.NeighborCells.AddRange(OtherCells);
+                  
+                   
                 }
                 
             }
@@ -177,12 +192,15 @@ namespace Parser
         }
         public void DrawTable(PaintEventArgs e)
         {
-            DrawOutsideFrame(e);           
-            if (_Bufer.Count != 0 && _Bufer.First().Cells.Count!=0)
-            {               
+            DrawOutsideFrame(e);
+            
+            if (_Bufer.Count != 0 && _Bufer.First().Cells.Count != 0)
+            {
                 SortBuferColumns();
                 _API.SortColumns();
-                DrawHeader(e);
+           
+               
+           
                 int ColumnIndex = -1;
                 foreach (var item in _API.Columns)
                 {
@@ -198,7 +216,7 @@ namespace Parser
                 {
                     if (_API.Columns[ColumnIndex].SortDirecion!=Sort.None)
                     {
-                        RowComparer u = (_API.Columns[ColumnIndex].SortDirecion == Sort.ASC) ? new RowComparer(true, ColumnIndex) : new RowComparer(false, ColumnIndex);
+                        RowComparer u = (_API.Columns[ColumnIndex].SortDirecion == Sort.ASC) ? new RowComparer(true, ColumnIndex, _API.Columns[ColumnIndex].ColumnType) : new RowComparer(false, ColumnIndex, _API.Columns[ColumnIndex].ColumnType);
                         SortedBufer.Sort(u);
                     }
                 }
@@ -223,7 +241,8 @@ namespace Parser
                     }
                 }
             }
-            
+            DrawHeader(e);
+
         }
         public void UpdateHorizontalScroll()
         {
@@ -275,7 +294,7 @@ namespace Parser
         }
         class Cell
         {
-            public string Body { get; }     
+            public string Body { get; set; }     
           
             public int ColumnNumber { get; set; }
             public Cell(string Body) 
@@ -292,37 +311,58 @@ namespace Parser
         {
             bool _Direction;
             int _ColumnIndex;
-            public RowComparer(bool direction, int index)
+            Type _Type;
+            public RowComparer(bool direction, int index, Type t)
             {
                 _Direction = direction;
                 _ColumnIndex = index;
+                _Type = t;
             }
             public int Compare(Row x, Row y)
             {
-                int dir = (_Direction)?1:-1;
-
-                
-                int yDigit;
-                int xDigit;
-                if (int.TryParse(x.Cells[_ColumnIndex].Body, out xDigit) && int.TryParse(y.Cells[_ColumnIndex].Body, out yDigit))
+                object xValue=null;
+                object yValue=null;
+                if (x.Cells[_ColumnIndex].Body != Resources.UndefinedFieldText)
+               {
+                    try
+                    {
+                        xValue = Convert.ChangeType(x.Cells[_ColumnIndex].Body, _Type);
+                    }
+                    catch
+                    {
+                        xValue = null; 
+                    }
+               }
+                if (y.Cells[_ColumnIndex].Body != Resources.UndefinedFieldText)
                 {
-                    if (xDigit < yDigit)
+                    try
                     {
-                        return -1*dir;
+                        yValue = Convert.ChangeType(y.Cells[_ColumnIndex].Body, _Type);
                     }
-                    if (xDigit > yDigit)
+                    catch
                     {
-                        return 1*dir;
+                        yValue = null;
                     }
-                    else
-                    {
-                        return 0;
-                    }
+                }
+
+                int dir = (_Direction)?1:-1;
+              
+               
+               
+                if (xValue != null && xValue is IComparable)
+                {
+
+                    return (xValue as IComparable).CompareTo(yValue) * ((_Direction) ? 1 : -1);
+                }
+                if (yValue != null && xValue is IComparable)
+                {
+                    return (yValue as IComparable).CompareTo(xValue) * ((_Direction) ? 1 : -1);
                 }
                 else
                 {
-                    return (_Direction)? x.Cells[_ColumnIndex].Body.CompareTo(y.Cells[_ColumnIndex].Body): y.Cells[_ColumnIndex].Body.CompareTo(x.Cells[_ColumnIndex].Body);
-                }
+                    return (x.Cells[_ColumnIndex].Body as string).CompareTo(y.Cells[_ColumnIndex].Body as string) * ((_Direction) ? 1 : -1);
+                }        
+
             }
         }        
         

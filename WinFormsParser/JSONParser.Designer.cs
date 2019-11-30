@@ -59,7 +59,7 @@
             this.LB_FieldsList.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
             this.LB_FieldsList.Size = new System.Drawing.Size(179, 381);
             this.LB_FieldsList.TabIndex = 0;
-         
+            this.LB_FieldsList.SelectedIndexChanged += new System.EventHandler(this.LB_FieldsList_SelectedIndexChanged);
             this.LB_FieldsList.SelectedValueChanged += new System.EventHandler(this.LB_FieldsList_SelectedValueChanged);
             // 
             // GB_Table
@@ -91,7 +91,6 @@
             this.DataTable.Size = new System.Drawing.Size(532, 381);
             this.DataTable.Source = ((System.Collections.Generic.List<System.Collections.Generic.List<string>>)(resources.GetObject("DataTable.Source")));
             this.DataTable.TabIndex = 1;
-          
             // 
             // Show_Button
             // 

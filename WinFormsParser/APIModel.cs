@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System;
 
 
 namespace Parser
 {
   class APICore
     {
+       
         public List<Column> Columns { get; private set; } = new List<Column>();
         public void ChangeSortDirection(Sort direction)
         {
@@ -57,6 +59,7 @@ namespace Parser
                 {
                     var columnStrings = source.Select(k => k[i]).ToList<string>();
                     AddColumn(columnStrings, i);
+                  
                 }
             }
             else
@@ -68,6 +71,7 @@ namespace Parser
                     {
                         var columnStrings = source.Select(k => k[i]).ToList<string>();
                         AddColumn(columnStrings, i);
+                    
                     }
                  }
                 for (int i = 0; i < Columns.Count; i++)
@@ -77,7 +81,7 @@ namespace Parser
                     {
                         if (Columns[i].HeaderText == source.First()[j])
                         {
-                            toDelete = false;
+                            toDelete = false;                           
                             break;
                         }
                     }
@@ -98,12 +102,16 @@ namespace Parser
             HeaderText = headerText;
             Index = index;
             Width = width;
+            AllTypes = new Types();
+           
         }
         public string HeaderText { get; set; }
         public int Index { get; set; }
         public int Width { get; set; }
         public Sort SortDirecion { get; set; } = Sort.None;
         public bool IsSortedBy { get; set; } = false;
+        public Type ColumnType { get; set; } = typeof(String);
+        public Types AllTypes { get; set; }
 
     }
     public enum Sort
@@ -112,5 +120,28 @@ namespace Parser
         DESC,
         None
     }
-
+    public class Types
+    {
+        public Dictionary<string, Type> TypesCollection = new Dictionary<string, Type>();
+        public Types()
+        {
+            TypesCollection.Add("String", typeof(String));
+            TypesCollection.Add("Integer", typeof(Int32));
+            TypesCollection.Add("Date/Time", typeof(DateTime));
+        }
+        public string GetKeyyValue(Type t)
+        {
+            string res = "";
+            foreach (var item in TypesCollection)
+            {
+                if (item.Value == t)
+                {
+                    res = item.Key;
+                    break;
+                }
+            }
+            return res;
+        }
+    }
+    
 }
