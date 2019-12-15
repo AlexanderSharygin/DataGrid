@@ -1,19 +1,24 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System;
-
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 
 namespace Parser
 {
   class APICore
     {
-       
-        public List<Column> Columns { get; private set; } = new List<Column>();
+
+
+      public ObservableCollection<Column> Columns { get;  set; } = new ObservableCollection<Column>();
+        
         public void ChangeSortDirection(Sort direction)
         {
+            //Columns.CollectionChanged += ColumnsChannge;
             Column item = (Column)Columns.Select(k => k.IsSortedBy = true);           
             item.SortDirecion = direction;           
         }
+    
         public void ChangeSortedColumn(int columnIndex)
         {
             if (columnIndex < Columns.Count)
@@ -25,7 +30,7 @@ namespace Parser
         }
         public void SortColumns()
         {
-            Columns = Columns.OrderBy(k => k.Index).ToList();
+           Columns = new ObservableCollection<Column>(Columns.OrderBy(k => k.Index));
         }
         public void ChangeColumnsPlaces(int firstColumnIndex, int secondColumnIndex)
         {
@@ -51,7 +56,7 @@ namespace Parser
                     Columns[i].Index=i;
                 }          
         }
-        public void UpdateColumns(List<List<string>> source)
+        public void UpdateColumns(ObservableCollection<List<string>> source)
         {
             if (Columns.Count == 0)
             {
@@ -94,24 +99,49 @@ namespace Parser
         }
 
     }
-    public class Column
+    internal class Column
     {
-       
+
+        public string _HeaderText;
         public Column(string headerText, int index, int width)
         {
             HeaderText = headerText;
             Index = index;
             Width = width;
             AllTypes = new Types();
-           
+            Type  = typeof(String);
+
         }
-        public string HeaderText { get; set; }
+        public Column(string headerText, int index, Type type, List<string> items)
+        {
+            _HeaderText = headerText;
+            Index = index;
+            Type = type;
+           
+            AllTypes = new Types();
+            Items = items;
+            Visible = true;
+            Width = (items.Max(k=>k.Length)>headerText.Length)? items.Max(k => k.Length) : headerText.Length ;
+        }
+        public string HeaderText
+        {
+            get => _HeaderText;
+            set
+            {
+                Width = value.Length;
+                _HeaderText = value;
+            }
+
+        }
         public int Index { get; set; }
         public int Width { get; set; }
         public Sort SortDirecion { get; set; } = Sort.None;
         public bool IsSortedBy { get; set; } = false;
-        public Type ColumnType { get; set; } = typeof(String);
+        public Type Type { get; set; }
+        public bool Visible { get; set; }
         public Types AllTypes { get; set; }
+        public List<string> Items { get; set; } = new List<string>();
+       
 
     }
     public enum Sort
@@ -120,14 +150,15 @@ namespace Parser
         DESC,
         None
     }
-    public class Types
+      class Types
     {
-        public Dictionary<string, Type> TypesCollection = new Dictionary<string, Type>();
+       internal Dictionary<string, Type> TypesCollection { get; } = new Dictionary<string, Type>();
         public Types()
         {
             TypesCollection.Add("String", typeof(String));
             TypesCollection.Add("Integer", typeof(Int32));
             TypesCollection.Add("Date/Time", typeof(DateTime));
+
         }
         public string GetKeyyValue(Type t)
         {

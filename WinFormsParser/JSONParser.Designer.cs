@@ -33,6 +33,7 @@
             this.LB_FieldsList = new System.Windows.Forms.ListBox();
             this.GB_Table = new System.Windows.Forms.GroupBox();
             this.DataTable = new Parser.MyDataGrid();
+            this.button1 = new System.Windows.Forms.Button();
             this.GB_Fields.SuspendLayout();
             this.GB_Table.SuspendLayout();
             this.SuspendLayout();
@@ -44,7 +45,7 @@
             this.GB_Fields.Controls.Add(this.LB_FieldsList);
             this.GB_Fields.Location = new System.Drawing.Point(12, 12);
             this.GB_Fields.Name = "GB_Fields";
-            this.GB_Fields.Size = new System.Drawing.Size(192, 415);
+            this.GB_Fields.Size = new System.Drawing.Size(192, 379);
             this.GB_Fields.TabIndex = 0;
             this.GB_Fields.TabStop = false;
             this.GB_Fields.Text = "Список полей";
@@ -57,7 +58,7 @@
             this.LB_FieldsList.Location = new System.Drawing.Point(7, 20);
             this.LB_FieldsList.Name = "LB_FieldsList";
             this.LB_FieldsList.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
-            this.LB_FieldsList.Size = new System.Drawing.Size(179, 381);
+            this.LB_FieldsList.Size = new System.Drawing.Size(179, 342);
             this.LB_FieldsList.TabIndex = 0;
             this.LB_FieldsList.SelectedIndexChanged += new System.EventHandler(this.LB_FieldsList_SelectedIndexChanged);
             this.LB_FieldsList.SelectedValueChanged += new System.EventHandler(this.LB_FieldsList_SelectedValueChanged);
@@ -70,7 +71,7 @@
             this.GB_Table.Controls.Add(this.DataTable);
             this.GB_Table.Location = new System.Drawing.Point(210, 12);
             this.GB_Table.Name = "GB_Table";
-            this.GB_Table.Size = new System.Drawing.Size(559, 415);
+            this.GB_Table.Size = new System.Drawing.Size(559, 433);
             this.GB_Table.TabIndex = 2;
             this.GB_Table.TabStop = false;
             this.GB_Table.Text = "Таблица полей";
@@ -88,15 +89,26 @@
             this.DataTable.Margin = new System.Windows.Forms.Padding(0);
             this.DataTable.Name = "DataTable";
             this.DataTable.RowHeight = 18;
-            this.DataTable.Size = new System.Drawing.Size(532, 381);
-            this.DataTable.Source = ((System.Collections.Generic.List<System.Collections.Generic.List<string>>)(resources.GetObject("DataTable.Source")));
+            this.DataTable.Size = new System.Drawing.Size(532, 399);
+           // this.DataTable.Source = ((System.Collections.Generic.List<System.Collections.Generic.List<string>>)(resources.GetObject("DataTable.Source")));
             this.DataTable.TabIndex = 1;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(12, 407);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 3;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.Button1_Click);
             // 
             // Show_Button
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(781, 439);
+            this.ClientSize = new System.Drawing.Size(781, 457);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.GB_Table);
             this.Controls.Add(this.GB_Fields);
             this.Name = "Show_Button";
@@ -114,6 +126,7 @@
         private System.Windows.Forms.ListBox LB_FieldsList;
         private System.Windows.Forms.GroupBox GB_Table;
         private Parser.MyDataGrid DataTable;
+        private System.Windows.Forms.Button button1;
     }
 }
 

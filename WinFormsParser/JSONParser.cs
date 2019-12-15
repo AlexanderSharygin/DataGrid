@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
@@ -39,8 +40,15 @@ namespace WinFormsParser
 
         private void Buttom_Show_Click(object sender, EventArgs e)
         {
-                  
-            DataTable.Source = GetTable();        
+
+            ObservableCollection<List<string>> a = new ObservableCollection<List<string>>();
+            List<List<string>> b = new List<List<string>>();
+            b = GetTable();
+            foreach (var item in b)
+            {
+                a.Add(item);
+            }
+            DataTable.ColumnsData = a;        
            
         }
         private List<List <string>> GetTable()
@@ -83,18 +91,65 @@ namespace WinFormsParser
              
         }
 
-      
+        public List<string> GetColumnItems(string FieldName)
+        {
+            List<string> ColumnItems = new List<string>();
+            ColumnItems.Add(FieldName);
+            foreach (var item in _JSONObjects)
+            {
+                if (item.ContainsKey(FieldName))
+                {
+                    if (item[FieldName].Length < FieldName.Length * Convert.ToInt32(Resources.ReductionRatio))
+                    {
+                        ColumnItems.Add(item[FieldName]);
+                    }
+                    else
+                    {
+                        ColumnItems.Add(item[FieldName].Substring(0, FieldName.Length * Convert.ToInt32(Resources.ReductionRatio)) + Resources.Ellipsis);
+                    }
+                }
+                else
+                {
+                    ColumnItems.Add(Resources.UndefinedFieldText);
+                }
+            }
+            return ColumnItems;
+        }
 
         private void LB_FieldsList_SelectedValueChanged(object sender, EventArgs e)
         {
-            DataTable.Source = GetTable();
-        
-                      
+            ObservableCollection<List<string>> a = new ObservableCollection<List<string>>();
+            List<List<string>> b = new List<List<string>>();
+            b = GetTable();
+            foreach (var item in b)
+            {
+                a.Add(item);
+            }
+            DataTable.ColumnsData = a;
+
+
         }
 
         private void LB_FieldsList_SelectedIndexChanged(object sender, EventArgs e)
         {
+            
+        }
+
+        private void Button1_Click(object sender, EventArgs e)
+        {
+            List<string> AggregatedObjectsFields = _JSONObjects.SelectMany(j => j.Keys).Distinct().ToList();
+            LB_FieldsList.Items.Clear();
+            AggregatedObjectsFields.ForEach(k => LB_FieldsList.Items.Add(k));
+            int index = 0;
+            foreach (var item in AggregatedObjectsFields)
+            {
+                List<string> temp = GetColumnItems(item);
+                DataTable.Columns.Add(new Column(temp.First(), index, typeof(string), temp.GetRange(1, temp.Count - 1)));
+                index++;
+            }         
+            DataTable.Update();
 
         }
+        
     }
 }

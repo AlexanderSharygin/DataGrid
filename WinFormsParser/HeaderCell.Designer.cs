@@ -38,13 +38,8 @@
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.DoubleBuffered = true;
             this.Name = "HeaderCell";
-            this.Size = new System.Drawing.Size(127, 31);
-          
-            this.Leave += new System.EventHandler(this.HeaderCell_Leave);
+            this.Size = new System.Drawing.Size(127, 31);       
             this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.HeaderCell_MouseClick);
-         
-            this.MouseLeave += new System.EventHandler(this.HeaderCell_MouseLeave);
-            this.ParentChanged += new System.EventHandler(this.HeaderCell_ParentChanged);
             this.ResumeLayout(false);
 
         }

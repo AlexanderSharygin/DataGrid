@@ -5,15 +5,17 @@ using System.Drawing;
 using System.Data;
 using System.Linq;
 using System.Windows.Forms;
-
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 
 namespace Parser
 {
     public partial class MyDataGrid : UserControl
-    {  
-        List<List<string>> _Source = new List<List<string>>();
+    {
+        ObservableCollection<List<string>> _ColumnsData = new ObservableCollection<List<string>>();
+
         List<Row> _Bufer = new List<Row>();
-        APICore _API;      
+        APICore _API;
         int _RowHeight;
         int _LineWidth = 1;
         int _FirstPrintedRowIndex = 0;
@@ -25,11 +27,29 @@ namespace Parser
         float _TableWidth;
         Brush _Brush;
         Pen _Pen;
-      
+
+        internal ObservableCollection<Column> Columns
+        {
+            get
+            {
+                return _API.Columns;
+
+            }
+            set
+            {
+                _API.Columns = value;
+                Invalidate();
+            }
+
+        }
+
         public MyDataGrid()
         {
             InitializeComponent();
+          
+         //   _ColumnsData.CollectionChanged += ColumnsData_CollectionChanged;
             _API = new APICore();
+            Columns.CollectionChanged += Columns_CollectionChanged;
             ResizeRedraw = true;
             components = new System.ComponentModel.Container();
             VerticalScrollBar.Minimum = 0;
@@ -48,20 +68,21 @@ namespace Parser
             _Brush = new SolidBrush(ForeColor);
             _Pen = new Pen(LineColor, _LineWidth);
         }
+
         public Color LineColor { get; set; }
-        public List<List<string>> Source
+        public ObservableCollection<List<string>> ColumnsData
         {
-            
-            get => _Source;
+
+            get => _ColumnsData;
             set
-            {               
-                _Source = value;
-              
-                if (Source.Count != 0)
+            {
+                _ColumnsData = value;
+
+                if (ColumnsData.Count != 0)
                 {
-                    _API.UpdateColumns(Source);
-                    _Bufer = CreateBuffer(Source);                    
-                    _TotalRowsCount = _Bufer.Count;                    
+                   _API.UpdateColumns(ColumnsData);
+                    _Bufer = CreateBuffer(ColumnsData);
+                    _TotalRowsCount = _Bufer.Count;
                     _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;
                     if (_TableWidth > this.Width)
                     {
@@ -77,7 +98,7 @@ namespace Parser
                     {
                         VerticalScrollBar.Visible = true;
                     }
-                    VerticalScrollBar.Maximum = ((_TotalRowsCount - _ViewPortRowsCount) * _VerticalScrollValueRatio)-1;
+                    VerticalScrollBar.Maximum = ((_TotalRowsCount - _ViewPortRowsCount) * _VerticalScrollValueRatio) - 1;
                     VerticalScrollBar.SmallChange = _VerticalScrollValueRatio;
                     VerticalScrollBar.LargeChange = _VerticalScrollValueRatio;
                     UpdateHorizontalScroll();
@@ -91,12 +112,12 @@ namespace Parser
 
                         if (Type == typeof(TypeSelector))
                         {
-                            Controls[i].Visible=false;
+                            Controls[i].Visible = false;
                         }
                     }
                 }
             }
-        }       
+        }
 
         public int RowHeight
         {
@@ -107,13 +128,73 @@ namespace Parser
             }
         }
 
+        public void Update()
+        {
+           
+            if (_API.Columns.Count != 0)
+            {
+                foreach (var item in _API.Columns)
+                {
+                    if (ColumnsData.Count == 0)
+                    {
+                        ColumnsData.Add(new List<string>());
+                    }
+
+                    ColumnsData.First().Add(item.HeaderText);
+                    for (int i = 0; i < item.Items.Count; i++)
+                    {
+                        if (ColumnsData.Count < i + 2)
+                        {
+                            ColumnsData.Add(new List<string>());
+                        }
+                        ColumnsData[i + 1].Add(item.Items[i]);
+                    }
+                }
+            }
+            ColumnsData = ColumnsData;
+        }
         protected override void OnPaint(PaintEventArgs e)
         {
-
-           
-            _Pen.Color = LineColor;          
+          
+            _Pen.Color = LineColor;
             DrawTable(e);
+
+        }
+       
+        public void AddColumnData(List<string> data)
+        {
+            for (int i = 0; i < data.Count; i++)
+            {
+                if ( ColumnsData.Count <i+1)
+                {
+                    ColumnsData.Add(new List<string>());
+                }
+                ColumnsData[i].Add(data[i]);
+            }
+
+            ColumnsData = ColumnsData;
+        }
+        private void ColumnsData_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
            
+        }
+        private void Columns_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                for (int i = 0; i < Columns.Count; i++)
+                {
+                    
+                    for (int j = i+1; j < Columns.Count; j++)
+                    {
+                        if (Columns[i].HeaderText == Columns[j].HeaderText)
+                        {                           
+                            Columns[j].HeaderText = Columns[j].HeaderText + "_Copy";
+                            
+                        }
+                    }
+                }
+            }
         }
         public void DrawOutsideFrame(PaintEventArgs e)
         {
@@ -150,6 +231,7 @@ namespace Parser
                 Controls.Add(VerticalScroll);
                 int xCounter = 0;
                 _API.SortColumns();
+                
                 HeaderCell[] Header = new HeaderCell[_API.Columns.Count];               
                 for (int i = 0; i < Header.Length; i++)
                 {
@@ -216,7 +298,7 @@ namespace Parser
                 {
                     if (_API.Columns[ColumnIndex].SortDirecion!=Sort.None)
                     {
-                        RowComparer u = (_API.Columns[ColumnIndex].SortDirecion == Sort.ASC) ? new RowComparer(true, ColumnIndex, _API.Columns[ColumnIndex].ColumnType) : new RowComparer(false, ColumnIndex, _API.Columns[ColumnIndex].ColumnType);
+                        RowComparer u = (_API.Columns[ColumnIndex].SortDirecion == Sort.ASC) ? new RowComparer(true, ColumnIndex, _API.Columns[ColumnIndex].Type) : new RowComparer(false, ColumnIndex, _API.Columns[ColumnIndex].Type);
                         SortedBufer.Sort(u);
                     }
                 }
@@ -258,7 +340,7 @@ namespace Parser
                 HorisontalScrollBar.Maximum = 0;
             }
         }
-        private List<Row> CreateBuffer(List<List<string>> Source)
+        private List<Row> CreateBuffer(ObservableCollection<List<string>> Source)
         {        
             List<Row> tableRows = new List<Row>();
             for (int i = 0; i < Source.Count; i++)
@@ -269,9 +351,9 @@ namespace Parser
             int cellIndex = 0;
             foreach (var Row in tableRows)
             {
-                foreach (var item in _Source[rowIndex])
+                foreach (var item in _ColumnsData[rowIndex])
                 {
-                    Row.Cells.Add(new Cell(_Source[rowIndex][cellIndex]));
+                    Row.Cells.Add(new Cell(_ColumnsData[rowIndex][cellIndex]));
                     cellIndex++;
                 }
                 rowIndex++;
