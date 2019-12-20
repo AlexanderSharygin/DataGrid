@@ -17,6 +17,7 @@ namespace WinFormsParser
     public partial class Show_Button : Form
     {
         List<Dictionary<string, string>> _JSONObjects;
+        List<int> prev = new List<int>();
         public Show_Button()
         {
             InitializeComponent();
@@ -41,14 +42,11 @@ namespace WinFormsParser
         private void Buttom_Show_Click(object sender, EventArgs e)
         {
 
-            ObservableCollection<List<string>> a = new ObservableCollection<List<string>>();
+          
             List<List<string>> b = new List<List<string>>();
             b = GetTable();
-            foreach (var item in b)
-            {
-                a.Add(item);
-            }
-            DataTable.ColumnsData = a;        
+           
+            DataTable.ColumnsData = b;        
            
         }
         private List<List <string>> GetTable()
@@ -118,38 +116,118 @@ namespace WinFormsParser
 
         private void LB_FieldsList_SelectedValueChanged(object sender, EventArgs e)
         {
-            ObservableCollection<List<string>> a = new ObservableCollection<List<string>>();
-            List<List<string>> b = new List<List<string>>();
-            b = GetTable();
-            foreach (var item in b)
+          
+
+            var a = LB_FieldsList.SelectedIndices;
+
+            List<int> Selected = new List<int>();
+            string SelectedItem="";
+            foreach (var item in a)
             {
-                a.Add(item);
+                Selected.Add((int)item);
             }
-            DataTable.ColumnsData = a;
+            if (prev.Count > 0)
+            {
+                if (Selected.Count > prev.Count)
+                {
+                    foreach (var item in Selected)
+                    {
+                        var ind = prev.IndexOf(item);
+                        if (ind == -1)
+                        {
+                            SelectedItem = LB_FieldsList.Items[item].ToString();
+                        }
+                    }
 
-
-        }
-
-        private void LB_FieldsList_SelectedIndexChanged(object sender, EventArgs e)
-        {
+                }
+                else if (Selected.Count < prev.Count)
+                {
+                    foreach (var item in prev)
+                    {
+                        var ind = Selected.IndexOf(item);
+                        if (ind == -1)
+                        {
+                            SelectedItem = LB_FieldsList.Items[item].ToString();
+                        }
+                    }
+                }
+            }
+            else
+            {
+                SelectedItem = LB_FieldsList.SelectedItem.ToString();
+            }
             
+            
+            foreach (var item in DataTable.Columns)
+            {
+                if (item.HeaderText == SelectedItem)
+                {
+                    if (Selected.Count > prev.Count)
+                    {
+                        item.Visible = true;
+                        DataTable.Invalidate();
+                    }
+                    if (Selected.Count < prev.Count)
+                    {
+                        item.Visible = false;
+                        DataTable.Invalidate();
+                    }
+                }
+            }
+            prev = Selected;
+            //  ObservableCollection<List<string>> a = new ObservableCollection<List<string>>();
+            //List<List<string>> b = new List<List<string>>();
+            //  b = GetTable();
+            //   foreach (var item in b)
+            // {
+            //        a.Add(item);
+            //  }
+            //    DataTable.ColumnsData = a;
+
+
         }
+
+
 
         private void Button1_Click(object sender, EventArgs e)
         {
-            List<string> AggregatedObjectsFields = _JSONObjects.SelectMany(j => j.Keys).Distinct().ToList();
+
             LB_FieldsList.Items.Clear();
+            List<string> New = new List<string> { "eeg", "gwfg", "wewefv" };
+            DataTable.Columns.Add(new Column("ID", 0, typeof(string), New));
+           DataTable.Columns.Add(new Column("ID", 0, typeof(string), New));
+            List<string> AggregatedObjectsFields = _JSONObjects.SelectMany(j => j.Keys).Distinct().ToList();
+           
             AggregatedObjectsFields.ForEach(k => LB_FieldsList.Items.Add(k));
             int index = 0;
+
             foreach (var item in AggregatedObjectsFields)
             {
                 List<string> temp = GetColumnItems(item);
                 DataTable.Columns.Add(new Column(temp.First(), index, typeof(string), temp.GetRange(1, temp.Count - 1)));
+
+                DataTable.Columns.Last().Visible = false;
+
                 index++;
-            }         
-            DataTable.Update();
+            }
+
+
+
+
 
         }
-        
+
+       
+
+        private void Button2_Click(object sender, EventArgs e)
+        {
+            
+            List<string> New4 = new List<string> { "ejeg", "gwjfg", "wewjefv" };
+           
+            DataTable.Columns.Add(new Column("ID1", 2, typeof(string), New4));
+            DataTable.Columns.Add(new Column("ID1", 3, typeof(string), New4));
+          
+          
+        }
     }
 }

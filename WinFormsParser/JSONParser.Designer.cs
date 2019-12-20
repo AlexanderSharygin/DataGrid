@@ -34,6 +34,7 @@
             this.GB_Table = new System.Windows.Forms.GroupBox();
             this.DataTable = new Parser.MyDataGrid();
             this.button1 = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
             this.GB_Fields.SuspendLayout();
             this.GB_Table.SuspendLayout();
             this.SuspendLayout();
@@ -60,7 +61,7 @@
             this.LB_FieldsList.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
             this.LB_FieldsList.Size = new System.Drawing.Size(179, 342);
             this.LB_FieldsList.TabIndex = 0;
-            this.LB_FieldsList.SelectedIndexChanged += new System.EventHandler(this.LB_FieldsList_SelectedIndexChanged);
+          
             this.LB_FieldsList.SelectedValueChanged += new System.EventHandler(this.LB_FieldsList_SelectedValueChanged);
             // 
             // GB_Table
@@ -82,6 +83,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.DataTable.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+        
             this.DataTable.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.DataTable.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.DataTable.LineColor = System.Drawing.Color.Black;
@@ -90,7 +92,6 @@
             this.DataTable.Name = "DataTable";
             this.DataTable.RowHeight = 18;
             this.DataTable.Size = new System.Drawing.Size(532, 399);
-           // this.DataTable.Source = ((System.Collections.Generic.List<System.Collections.Generic.List<string>>)(resources.GetObject("DataTable.Source")));
             this.DataTable.TabIndex = 1;
             // 
             // button1
@@ -103,11 +104,22 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.Button1_Click);
             // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(104, 407);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(75, 23);
+            this.button2.TabIndex = 4;
+            this.button2.Text = "button2";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.Button2_Click);
+            // 
             // Show_Button
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(781, 457);
+            this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.GB_Table);
             this.Controls.Add(this.GB_Fields);
@@ -127,6 +139,7 @@
         private System.Windows.Forms.GroupBox GB_Table;
         private Parser.MyDataGrid DataTable;
         private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button button2;
     }
 }
 

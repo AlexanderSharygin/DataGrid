@@ -11,14 +11,68 @@ namespace Parser
 
 
       public ObservableCollection<Column> Columns { get;  set; } = new ObservableCollection<Column>();
-        
+       
+
+        public APICore()
+        {
+            Columns.CollectionChanged += ColumnsChannge;
+           
+        }
         public void ChangeSortDirection(Sort direction)
         {
-            //Columns.CollectionChanged += ColumnsChannge;
+            
             Column item = (Column)Columns.Select(k => k.IsSortedBy = true);           
             item.SortDirecion = direction;           
         }
-    
+
+        private void ColumnsChannge(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action==NotifyCollectionChangedAction.Add)
+            {
+                int newIndex = e.NewStartingIndex;
+                int columnsCount = 0;
+                foreach (var item in Columns)
+                {
+                    if (item.Index == Columns[newIndex].Index)
+                    {
+                        columnsCount++;
+                    }
+                }
+                if (columnsCount>1)
+                {
+                   int a = Columns.Max(k => k.Index);
+                    Columns[newIndex].Index = a + 1;
+                }
+                for (int i = 0; i < Columns.Count; i++)
+                {
+
+                    for (int j = i + 1; j < Columns.Count; j++)
+                    {
+                        if (Columns[i].HeaderText == Columns[j].HeaderText)
+                        {
+                            Columns[j].HeaderText = Columns[j].HeaderText + "_Copy";
+
+                        }
+                    }
+                }
+
+                int MaxColumnsItemsCount = Columns.Max(k => k.Items.Count);
+                foreach (var item in Columns)
+                {
+
+                    if (item.Items.Count< MaxColumnsItemsCount)
+                    {
+                        int a = MaxColumnsItemsCount - item.Items.Count;
+                        for (int i = 0; i<a; i++)
+                        {
+                            item.Items.Add("");
+                        }
+                    }
+                }
+            }
+           
+        }
+
         public void ChangeSortedColumn(int columnIndex)
         {
             if (columnIndex < Columns.Count)
