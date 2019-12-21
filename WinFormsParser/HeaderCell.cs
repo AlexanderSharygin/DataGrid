@@ -42,23 +42,23 @@ namespace Parser
         }
         public Sort SortDirection
         {
-            get => _ColumnData.SortDirecion;
+            get => _ColumnData.SortDirection;
 
         }
         private void ChangeSortDirection()
         {
 
-            if (_ColumnData.SortDirecion == Sort.DESC)
+            if (_ColumnData.SortDirection == Sort.DESC)
             {
-                _ColumnData.SortDirecion = Sort.None;
+                _ColumnData.SortDirection = Sort.None;
             }
-            else if (_ColumnData.SortDirecion == Sort.None)
+            else if (_ColumnData.SortDirection == Sort.None)
             {
-                _ColumnData.SortDirecion = Sort.ASC;
+                _ColumnData.SortDirection = Sort.ASC;
             }
             else
             {
-                _ColumnData.SortDirecion = Sort.DESC;
+                _ColumnData.SortDirection = Sort.DESC;
             }
         }
 
@@ -67,7 +67,7 @@ namespace Parser
 
             _ColumnData.Type = _ColumnData.AllTypes.TypesCollection[TypeSelector.SelectedItem];
             e.Graphics.DrawString(HeaderText, Font, new SolidBrush(Color.Black), _CellMinMargin, _CellMinMargin);
-            if (_ColumnData.SortDirecion == Sort.DESC)
+            if (_ColumnData.SortDirection == Sort.DESC)
             {
                 Point[] p = new Point[3];
                 int a = this.Height / 2 - _CellMinMargin * 2;
@@ -77,7 +77,7 @@ namespace Parser
 
                 e.Graphics.FillPolygon(new SolidBrush(Color.Black), p);
             }
-            if (_ColumnData.SortDirecion == Sort.ASC)
+            if (_ColumnData.SortDirection == Sort.ASC)
             {
                 Point[] p = new Point[3];
                 int a = this.Height / 2 - _CellMinMargin * 2;
@@ -90,7 +90,7 @@ namespace Parser
         public void DropSorting()
         {
             _ColumnData.IsSortedBy = false;
-            _ColumnData.SortDirecion = Sort.None;
+            _ColumnData.SortDirection = Sort.None;
             Invalidate();
         }
 

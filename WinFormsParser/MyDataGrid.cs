@@ -7,6 +7,7 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 
 namespace Parser
 {
@@ -210,10 +211,31 @@ namespace Parser
       
        private void Columns_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
        {
-                        
-               UpdateColumns();            
+
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                UpdateColumns();
+            }
+            foreach (var item in Columns)
+            {
+                item.PropertyChanged += OnPropertyChanged;
+            }
          
-       }
+
+        }
+        private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "Visible")
+            {
+                Invalidate();
+
+            }
+            if (e.PropertyName == "SortDirection")
+            {
+                Invalidate();
+
+            }
+        }
         public void DrawOutsideFrame(PaintEventArgs e)
         {
             e.Graphics.DrawLine(_Pen, 0, 0, this.Width, 0);
@@ -321,9 +343,9 @@ namespace Parser
                 SortedBufer.RemoveAt(0);
                 if (ColumnIndex > -1)
                 {
-                    if (_API.Columns[ColumnIndex].SortDirecion!=Sort.None)
+                    if (_API.Columns[ColumnIndex].SortDirection!=Sort.None)
                     {
-                        RowComparer u = (_API.Columns[ColumnIndex].SortDirecion == Sort.ASC) ? new RowComparer(true, ColumnIndex, _API.Columns[ColumnIndex].Type) : new RowComparer(false, ColumnIndex, _API.Columns[ColumnIndex].Type);
+                        RowComparer u = (_API.Columns[ColumnIndex].SortDirection == Sort.ASC) ? new RowComparer(true, ColumnIndex, _API.Columns[ColumnIndex].Type) : new RowComparer(false, ColumnIndex, _API.Columns[ColumnIndex].Type);
                         SortedBufer.Sort(u);
                     }
                 }

@@ -3,36 +3,59 @@ using System.Linq;
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using Amazon.EC2.Model;
 
 namespace Parser
 {
-  class APICore
+   
+    public static class ObservableCollectionExtensions
+    {
+        public static void Sort<T>(this ObservableCollection<T> collection, Comparison<T> comparison)
+        {
+            var sortableList = new List<T>(collection);
+            sortableList.Sort(comparison);
+
+            for (int i = 0; i < sortableList.Count; i++)
+            {
+                collection.Move(collection.IndexOf(sortableList[i]), i);
+            }
+
+        }
+    }
+   
+    class APICore
     {
 
-
-      public ObservableCollection<Column> Columns { get;  set; } = new ObservableCollection<Column>();
+      
+        public ObservableCollection<Column> Columns { get;  set; } = new ObservableCollection<Column>();
        
 
         public APICore()
         {
             Columns.CollectionChanged += ColumnsChannge;
            
+           
+
         }
         public void ChangeSortDirection(Sort direction)
         {
             
             Column item = (Column)Columns.Select(k => k.IsSortedBy = true);           
-            item.SortDirecion = direction;           
+            item.SortDirection = direction;           
         }
 
         private void ColumnsChannge(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if (e.Action==NotifyCollectionChangedAction.Add)
+           
+
+            if (e.Action== NotifyCollectionChangedAction.Add)
             {
                 int newIndex = e.NewStartingIndex;
                 int columnsCount = 0;
                 foreach (var item in Columns)
-                {
+                {                  
                     if (item.Index == Columns[newIndex].Index)
                     {
                         columnsCount++;
@@ -51,6 +74,7 @@ namespace Parser
                         if (Columns[i].HeaderText == Columns[j].HeaderText)
                         {
                             Columns[j].HeaderText = Columns[j].HeaderText + "_Copy";
+                           
 
                         }
                     }
@@ -71,8 +95,7 @@ namespace Parser
                 }
             }
            
-        }
-
+        }   
         public void ChangeSortedColumn(int columnIndex)
         {
             if (columnIndex < Columns.Count)
@@ -82,9 +105,11 @@ namespace Parser
                 Columns[columnIndex].IsSortedBy = true;
             }
         }
+        
         public void SortColumns()
-        {
-           Columns = new ObservableCollection<Column>(Columns.OrderBy(k => k.Index));
+        {          
+            Columns.Sort((a,b) => {return a.Index.CompareTo(b.Index); });
+        
         }
         public void ChangeColumnsPlaces(int firstColumnIndex, int secondColumnIndex)
         {
@@ -153,7 +178,25 @@ namespace Parser
         }
 
     }
-    internal class Column
+    public class NotifyPropertyChangedBase : INotifyPropertyChanged
+    {
+        protected void RaisePropertyChanged([CallerMemberName] string propertyName = null) =>
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public virtual bool Set<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (Equals(field, value))
+            {
+                return false;
+            }
+            T Storage = value;
+            RaisePropertyChanged(propertyName);
+            return true;
+        }
+    }
+    internal class Column : NotifyPropertyChangedBase
     {
 
         public string _HeaderText;
@@ -174,7 +217,7 @@ namespace Parser
            
             AllTypes = new Types();
             Items = items;
-            Visible = true;
+            _Visible = true;
             Width = (items.Max(k=>k.Length)>headerText.Length)? items.Max(k => k.Length) : headerText.Length ;
         }
         public string HeaderText
@@ -187,15 +230,37 @@ namespace Parser
             }
 
         }
+        bool _Visible;
         public int Index { get; set; }
         public int Width { get; set; }
-        public Sort SortDirecion { get; set; } = Sort.None;
+        Sort _SortDirecion = Sort.None;
+        public Sort SortDirection
+        {
+            get
+            {
+                return _SortDirecion;
+            }
+            set
+            {
+                Set(ref _SortDirecion, value); _SortDirecion= value; ;
+            }
+        }
         public bool IsSortedBy { get; set; } = false;
         public Type Type { get; set; }
-        public bool Visible { get; set; }
+        public bool Visible
+        { get
+            {
+                return _Visible;
+            }
+            set
+            {
+                Set(ref _Visible, value); _Visible = value; ;
+            }
+            }
         public Types AllTypes { get; set; }
         public List<string> Items { get; set; } = new List<string>();
        
+
 
     }
     public enum Sort

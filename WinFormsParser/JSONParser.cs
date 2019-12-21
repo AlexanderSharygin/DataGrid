@@ -164,13 +164,11 @@ namespace WinFormsParser
                 {
                     if (Selected.Count > prev.Count)
                     {
-                        item.Visible = true;
-                        DataTable.Invalidate();
+                        item.Visible = true;            
                     }
                     if (Selected.Count < prev.Count)
                     {
-                        item.Visible = false;
-                        DataTable.Invalidate();
+                        item.Visible = false;           
                     }
                 }
             }
@@ -221,12 +219,12 @@ namespace WinFormsParser
 
         private void Button2_Click(object sender, EventArgs e)
         {
-            
-            List<string> New4 = new List<string> { "ejeg", "gwjfg", "wewjefv" };
-           
-            DataTable.Columns.Add(new Column("ID1", 2, typeof(string), New4));
-            DataTable.Columns.Add(new Column("ID1", 3, typeof(string), New4));
-          
+
+            // List<string> New4 = new List<string> { "ejeg", "gwjfg", "wewjefv" };
+
+            // DataTable.Columns.Add(new Column("ID1", 3, typeof(string), New4));
+            // DataTable.Columns.Add(new Column("ID1", 2, typeof(string), New4));
+            DataTable.Columns[3].SortDirection = Sort.DESC;
           
         }
     }
