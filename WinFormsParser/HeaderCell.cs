@@ -14,7 +14,7 @@ namespace Parser
         bool _IsToMoving = false;
 
         public string HeaderText { get; set; }
-        Column _ColumnData = new Column("", 0, 0);
+        Column _ColumnData; //= new Column("", 0, 0);
         public List<HeaderCell> NeighborCells { get; set; } = new List<HeaderCell>();
         TypeSelector TypeSelector = new TypeSelector();
         public HeaderCell()
@@ -48,6 +48,7 @@ namespace Parser
         private void ChangeSortDirection()
         {
 
+            
             if (_ColumnData.SortDirection == Sort.DESC)
             {
                 _ColumnData.SortDirection = Sort.None;
@@ -87,12 +88,12 @@ namespace Parser
                 e.Graphics.FillPolygon(new SolidBrush(Color.Black), p);
             }
         }
-        public void DropSorting()
-        {
-            _ColumnData.IsSortedBy = false;
-            _ColumnData.SortDirection = Sort.None;
-            Invalidate();
-        }
+      //  public void DropSorting()
+      //  {
+       //     _ColumnData.IsSortedBy = false;
+       ////     _ColumnData.SortDirection = Sort.None;
+      //      Invalidate();
+      //  }
 
         private void HeaderCell_MouseClick(object sender, MouseEventArgs e)
         {
@@ -143,15 +144,19 @@ namespace Parser
                 }
                 if (!MovingMode)
                 {
-                    foreach (var item in NeighborCells)
-                    {
-                        item.DropSorting();
-                    }
+                    // foreach (var item in NeighborCells)
+                    // {
+                    //      item.DropSorting();
+                    //  }
                     _ColumnData.IsSortedBy = true;
                     ChangeSortDirection();
-                    Invalidate();
+                    // Invalidate();
                 }
-                Parent.Invalidate();
+                else
+                {
+                    Parent.Invalidate();
+                }
+              // 
             }
             if (e.Button == MouseButtons.Right)
             {

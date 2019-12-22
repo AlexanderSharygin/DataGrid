@@ -24,46 +24,47 @@ namespace Parser
 
         }
     }
-   
+
     class APICore
     {
 
-      
-        public ObservableCollection<Column> Columns { get;  set; } = new ObservableCollection<Column>();
-       
+
+        public ObservableCollection<Column> Columns { get; set; } = new ObservableCollection<Column>();
+
 
         public APICore()
         {
             Columns.CollectionChanged += ColumnsChannge;
-           
-           
+
+
 
         }
-        public void ChangeSortDirection(Sort direction)
+        public void ChangeSortDirection(int index, Sort direction)
         {
-            
-            Column item = (Column)Columns.Select(k => k.IsSortedBy = true);           
-            item.SortDirection = direction;           
+
+            //  Column item = (Column)Columns.Select(k => k.IsSortedBy = true);
+            //  item.SortDirection = direction;
+            Columns[index].SortDirection = direction;
         }
 
         private void ColumnsChannge(object sender, NotifyCollectionChangedEventArgs e)
         {
            
 
-            if (e.Action== NotifyCollectionChangedAction.Add)
+            if (e.Action == NotifyCollectionChangedAction.Add)
             {
                 int newIndex = e.NewStartingIndex;
                 int columnsCount = 0;
                 foreach (var item in Columns)
-                {                  
+                {
                     if (item.Index == Columns[newIndex].Index)
                     {
                         columnsCount++;
                     }
                 }
-                if (columnsCount>1)
+                if (columnsCount > 1)
                 {
-                   int a = Columns.Max(k => k.Index);
+                    int a = Columns.Max(k => k.Index);
                     Columns[newIndex].Index = a + 1;
                 }
                 for (int i = 0; i < Columns.Count; i++)
@@ -74,7 +75,7 @@ namespace Parser
                         if (Columns[i].HeaderText == Columns[j].HeaderText)
                         {
                             Columns[j].HeaderText = Columns[j].HeaderText + "_Copy";
-                           
+
 
                         }
                     }
@@ -84,32 +85,46 @@ namespace Parser
                 foreach (var item in Columns)
                 {
 
-                    if (item.Items.Count< MaxColumnsItemsCount)
+                    if (item.Items.Count < MaxColumnsItemsCount)
                     {
                         int a = MaxColumnsItemsCount - item.Items.Count;
-                        for (int i = 0; i<a; i++)
+                        for (int i = 0; i < a; i++)
                         {
                             item.Items.Add("");
                         }
                     }
                 }
+               
+
+
             }
-           
-        }   
-        public void ChangeSortedColumn(int columnIndex)
+
+
+        }
+
+        
+
+        internal void ChangeSortedColumn(int columnIndex)
         {
             if (columnIndex < Columns.Count)
             {
-                Column CurrentlySorted = (Column)Columns.Select(k => k.IsSortedBy = true);
-                CurrentlySorted.IsSortedBy = false;
+                foreach (var item in Columns)
+                {
+                    if (item.IsSortedBy)
+                    {
+                        item.IsSortedBy = false;
+                        item.SortDirection = Sort.None;
+                    }
+                }
+
                 Columns[columnIndex].IsSortedBy = true;
             }
         }
-        
-        public void SortColumns()
-        {          
-            Columns.Sort((a,b) => {return a.Index.CompareTo(b.Index); });
-        
+
+        internal void SortColumns()
+        {
+            Columns.Sort((a, b) => { return a.Index.CompareTo(b.Index); });
+
         }
         public void ChangeColumnsPlaces(int firstColumnIndex, int secondColumnIndex)
         {
@@ -128,14 +143,15 @@ namespace Parser
             }
         }
         public void DeleteColumn(int columnIndex)
-        {              
-               Columns.RemoveAt(columnIndex);
-                for (int i = 0; i < Columns.Count; i++)
-                {              
-                    Columns[i].Index=i;
-                }          
+        {
+            Columns.RemoveAt(columnIndex);
+            for (int i = 0; i < Columns.Count; i++)
+            {
+                Columns[i].Index = i;
+            }
         }
-        public void UpdateColumns(ObservableCollection<List<string>> source)
+   
+       /* public void UpdateColumns(ObservableCollection<List<string>> source)
         {
             if (Columns.Count == 0)
             {
@@ -175,25 +191,25 @@ namespace Parser
                     }
                 }
             }
-        }
+        }*/
 
     }
     public class NotifyPropertyChangedBase : INotifyPropertyChanged
     {
         protected void RaisePropertyChanged([CallerMemberName] string propertyName = null) =>
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public virtual bool Set<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+       public virtual bool Set<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             if (Equals(field, value))
             {
                 return false;
             }
-            T Storage = value;
-            RaisePropertyChanged(propertyName);
-            return true;
+           T Storage = value;
+          RaisePropertyChanged(propertyName);
+           return true;
         }
     }
     internal class Column : NotifyPropertyChangedBase
@@ -230,6 +246,7 @@ namespace Parser
             }
 
         }
+        public bool isSigned { get; set; }
         bool _Visible;
         public int Index { get; set; }
         public int Width { get; set; }
@@ -242,7 +259,7 @@ namespace Parser
             }
             set
             {
-                Set(ref _SortDirecion, value); _SortDirecion= value; ;
+                Set(ref _SortDirecion, value);  _SortDirecion= (Visible)? value: Sort.None ;
             }
         }
         public bool IsSortedBy { get; set; } = false;
@@ -254,7 +271,7 @@ namespace Parser
             }
             set
             {
-                Set(ref _Visible, value); _Visible = value; ;
+               Set(ref _Visible, value); _Visible = value; ;
             }
             }
         public Types AllTypes { get; set; }

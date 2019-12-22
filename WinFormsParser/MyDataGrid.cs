@@ -216,10 +216,15 @@ namespace Parser
             {
                 UpdateColumns();
             }
+         //   Column item1 = (Column)e.NewItems;
             foreach (var item in Columns)
-            {
-                item.PropertyChanged += OnPropertyChanged;
-            }
+           {
+                if (!item.isSigned)
+                {
+                    item.PropertyChanged += OnPropertyChanged;
+                    item.isSigned = true;
+                }
+           }
          
 
         }
@@ -227,14 +232,21 @@ namespace Parser
         {
             if (e.PropertyName == "Visible")
             {
-                Invalidate();
+               Invalidate();
 
             }
             if (e.PropertyName == "SortDirection")
             {
-                Invalidate();
+                Column a = (Column)sender;
+               
+                    _API.ChangeSortedColumn(a.Index);
 
+
+               
+                Invalidate();
             }
+          
+          
         }
         public void DrawOutsideFrame(PaintEventArgs e)
         {
@@ -273,7 +285,7 @@ namespace Parser
                 Controls.Add(HorizontalScroll);
                 Controls.Add(VerticalScroll);
                 int xCounter = 0;
-                _API.SortColumns();
+             //   _API.SortColumns();
                 
                 List<HeaderCell> Header = new List<HeaderCell>();               
                 for (int i = 0; i < _API.Columns.Count; i++)
@@ -326,7 +338,7 @@ namespace Parser
             if (_Bufer.Count != 0 && _Bufer.First().Cells.Count != 0)
             {
                 SortBuferColumns();
-                _API.SortColumns();
+               _API.SortColumns();
            
                
            
