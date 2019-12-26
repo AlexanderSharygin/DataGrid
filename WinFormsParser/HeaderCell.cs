@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -36,19 +37,28 @@ namespace Parser
             TypeSelector.Font = this.Font;
             Controls.Add(TypeSelector);
             TypeSelector.ColumnData = ColumnData;
-
+           
 
 
         }
+      
+
+
+       
         public Sort SortDirection
         {
             get => _ColumnData.SortDirection;
 
         }
+       
         private void ChangeSortDirection()
         {
+          //  foreach (var item in NeighborCells)
+         //   {
+          //       item.DropSorting();
+          //      item.Invalidate();
+          //  }
 
-            
             if (_ColumnData.SortDirection == Sort.DESC)
             {
                 _ColumnData.SortDirection = Sort.None;
@@ -68,32 +78,36 @@ namespace Parser
 
             _ColumnData.Type = _ColumnData.AllTypes.TypesCollection[TypeSelector.SelectedItem];
             e.Graphics.DrawString(HeaderText, Font, new SolidBrush(Color.Black), _CellMinMargin, _CellMinMargin);
-            if (_ColumnData.SortDirection == Sort.DESC)
+            if (_ColumnData.IsSortedBy)
             {
-                Point[] p = new Point[3];
-                int a = this.Height / 2 - _CellMinMargin * 2;
-                p[0] = new Point(this.Width - 2, this.Height / 2 - a);
-                p[1] = new Point(this.Width - 7, this.Height / 2 + a);
-                p[2] = new Point(this.Width - 12, this.Height / 2 - a);
+                if (_ColumnData.SortDirection == Sort.DESC)
+                {
+                    Point[] p = new Point[3];
+                    int a = this.Height / 2 - _CellMinMargin * 2;
+                    p[0] = new Point(this.Width - 2, this.Height / 2 - a);
+                    p[1] = new Point(this.Width - 7, this.Height / 2 + a);
+                    p[2] = new Point(this.Width - 12, this.Height / 2 - a);
 
-                e.Graphics.FillPolygon(new SolidBrush(Color.Black), p);
+                    e.Graphics.FillPolygon(new SolidBrush(Color.Black), p);
+                }
+                if (_ColumnData.SortDirection == Sort.ASC)
+                {
+                    Point[] p = new Point[3];
+                    int a = this.Height / 2 - _CellMinMargin * 2;
+                    p[0] = new Point(this.Width - 2, this.Height / 2 + a);
+                    p[1] = new Point(this.Width - 7, this.Height / 2 - a);
+                    p[2] = new Point(this.Width - 12, this.Height / 2 + a);
+                    e.Graphics.FillPolygon(new SolidBrush(Color.Black), p);
+                }
             }
-            if (_ColumnData.SortDirection == Sort.ASC)
-            {
-                Point[] p = new Point[3];
-                int a = this.Height / 2 - _CellMinMargin * 2;
-                p[0] = new Point(this.Width - 2, this.Height / 2 + a);
-                p[1] = new Point(this.Width - 7, this.Height / 2 - a);
-                p[2] = new Point(this.Width - 12, this.Height / 2 + a);
-                e.Graphics.FillPolygon(new SolidBrush(Color.Black), p);
-            }
+           
         }
-      //  public void DropSorting()
-      //  {
-       //     _ColumnData.IsSortedBy = false;
-       ////     _ColumnData.SortDirection = Sort.None;
-      //      Invalidate();
-      //  }
+       public void DropSorting()
+       {
+           _ColumnData.IsSortedBy = false;
+           _ColumnData.SortDirection = Sort.None;
+           Invalidate();
+       }
 
         private void HeaderCell_MouseClick(object sender, MouseEventArgs e)
         {
@@ -144,13 +158,13 @@ namespace Parser
                 }
                 if (!MovingMode)
                 {
-                    // foreach (var item in NeighborCells)
-                    // {
-                    //      item.DropSorting();
-                    //  }
+                   // foreach (var item in NeighborCells)
+                  //  {
+                   //     item.DropSorting();
+                  // }
                     _ColumnData.IsSortedBy = true;
                     ChangeSortDirection();
-                    // Invalidate();
+                 ;
                 }
                 else
                 {
@@ -180,7 +194,10 @@ namespace Parser
             }
         }
 
+        private void HeaderCell_Load(object sender, EventArgs e)
+        {
 
+        }
     }
 
 }

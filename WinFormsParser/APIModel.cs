@@ -106,15 +106,21 @@ namespace Parser
 
         internal void ChangeSortedColumn(int columnIndex)
         {
+            
             if (columnIndex < Columns.Count)
             {
-                foreach (var item in Columns)
+                var list = Columns.Select(k => k).Where(k => k.Visible).ToList();
+                foreach (var item in list)
                 {
                     if (item.IsSortedBy)
                     {
+                        
                         item.IsSortedBy = false;
-                        item.SortDirection = Sort.None;
+                        item.SortDirection=Sort.None;
+                       
                     }
+                  
+
                 }
 
                 Columns[columnIndex].IsSortedBy = true;
@@ -194,25 +200,8 @@ namespace Parser
         }*/
 
     }
-    public class NotifyPropertyChangedBase : INotifyPropertyChanged
-    {
-        protected void RaisePropertyChanged([CallerMemberName] string propertyName = null) =>
-       PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-       public virtual bool Set<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
-        {
-            if (Equals(field, value))
-            {
-                return false;
-            }
-           T Storage = value;
-          RaisePropertyChanged(propertyName);
-           return true;
-        }
-    }
-    internal class Column : NotifyPropertyChangedBase
+ 
+    internal class Column : INotifyPropertyChanged
     {
 
         public string _HeaderText;
@@ -250,16 +239,27 @@ namespace Parser
         bool _Visible;
         public int Index { get; set; }
         public int Width { get; set; }
-        Sort _SortDirecion = Sort.None;
+        Sort _SortDirection = Sort.None;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        
+        public void OnPropertyChanged([CallerMemberName]string prop = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
+        }
+
         public Sort SortDirection
         {
             get
             {
-                return _SortDirecion;
+                return _SortDirection;
             }
             set
             {
-                Set(ref _SortDirecion, value);  _SortDirecion= (Visible)? value: Sort.None ;
+               
+                _SortDirection = (Visible)? value: Sort.None;
+                OnPropertyChanged();
+
             }
         }
         public bool IsSortedBy { get; set; } = false;
@@ -268,10 +268,13 @@ namespace Parser
         { get
             {
                 return _Visible;
+                
             }
             set
             {
-               Set(ref _Visible, value); _Visible = value; ;
+              // Set(ref _Visible, value);
+                _Visible = value;
+                OnPropertyChanged();
             }
             }
         public Types AllTypes { get; set; }

@@ -237,16 +237,12 @@ namespace Parser
             }
             if (e.PropertyName == "SortDirection")
             {
-                Column a = (Column)sender;
+                Column a = (Column)sender;               
+                _API.ChangeSortedColumn(a.Index);               
                
-                    _API.ChangeSortedColumn(a.Index);
-
-
-               
-                Invalidate();
             }
-          
-          
+            Invalidate();
+
         }
         public void DrawOutsideFrame(PaintEventArgs e)
         {
