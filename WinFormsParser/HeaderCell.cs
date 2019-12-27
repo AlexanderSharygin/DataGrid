@@ -15,7 +15,8 @@ namespace Parser
         bool _IsToMoving = false;
 
         public string HeaderText { get; set; }
-        Column _ColumnData; //= new Column("", 0, 0);
+        Column _ColumnData;
+        internal APICore API;
         public List<HeaderCell> NeighborCells { get; set; } = new List<HeaderCell>();
         TypeSelector TypeSelector = new TypeSelector();
         public HeaderCell()
@@ -37,8 +38,8 @@ namespace Parser
             TypeSelector.Font = this.Font;
             Controls.Add(TypeSelector);
             TypeSelector.ColumnData = ColumnData;
+          
            
-
 
         }
       
@@ -49,28 +50,27 @@ namespace Parser
         {
             get => _ColumnData.SortDirection;
 
-        }
-       
-        private void ChangeSortDirection()
-        {
-          //  foreach (var item in NeighborCells)
-         //   {
-          //       item.DropSorting();
-          //      item.Invalidate();
-          //  }
 
-            if (_ColumnData.SortDirection == Sort.DESC)
-            {
-                _ColumnData.SortDirection = Sort.None;
-            }
-            else if (_ColumnData.SortDirection == Sort.None)
-            {
-                _ColumnData.SortDirection = Sort.ASC;
-            }
-            else
-            {
-                _ColumnData.SortDirection = Sort.DESC;
-            }
+        }
+
+        public void ChangeSortDirection()
+        {
+
+        
+
+                if (_ColumnData.SortDirection == Sort.DESC)
+                {
+                    _ColumnData.SortDirection = Sort.None;
+                }
+                else if (_ColumnData.SortDirection == Sort.None)
+                {
+                    _ColumnData.SortDirection = Sort.ASC;
+                }
+                else
+                {
+                    _ColumnData.SortDirection = Sort.DESC;
+                }
+          
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -78,8 +78,8 @@ namespace Parser
 
             _ColumnData.Type = _ColumnData.AllTypes.TypesCollection[TypeSelector.SelectedItem];
             e.Graphics.DrawString(HeaderText, Font, new SolidBrush(Color.Black), _CellMinMargin, _CellMinMargin);
-            if (_ColumnData.IsSortedBy)
-            {
+
+           
                 if (_ColumnData.SortDirection == Sort.DESC)
                 {
                     Point[] p = new Point[3];
@@ -99,13 +99,13 @@ namespace Parser
                     p[2] = new Point(this.Width - 12, this.Height / 2 + a);
                     e.Graphics.FillPolygon(new SolidBrush(Color.Black), p);
                 }
-            }
+            
+          
            
         }
        public void DropSorting()
        {
-           _ColumnData.IsSortedBy = false;
-           _ColumnData.SortDirection = Sort.None;
+           _ColumnData.SortDirection=Sort.None;          
            Invalidate();
        }
 
@@ -158,19 +158,19 @@ namespace Parser
                 }
                 if (!MovingMode)
                 {
-                   // foreach (var item in NeighborCells)
-                  //  {
+                    foreach (var item in NeighborCells)
+                    {
                    //     item.DropSorting();
-                  // }
-                    _ColumnData.IsSortedBy = true;
+                    }
+
                     ChangeSortDirection();
-                 ;
+
                 }
                 else
                 {
                     Parent.Invalidate();
                 }
-              // 
+         
             }
             if (e.Button == MouseButtons.Right)
             {

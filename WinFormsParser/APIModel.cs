@@ -102,30 +102,31 @@ namespace Parser
 
         }
 
-        
+      
 
-        internal void ChangeSortedColumn(int columnIndex)
-        {
+       // internal void ChangeSortedColumn(int columnIndex)
+     //   {
             
-            if (columnIndex < Columns.Count)
-            {
-                var list = Columns.Select(k => k).Where(k => k.Visible).ToList();
-                foreach (var item in list)
-                {
-                    if (item.IsSortedBy)
-                    {
+       //     if (columnIndex < Columns.Count)
+        //    {
+           //     var list = Columns.Select(k => k).Where(k => k.Visible).ToList();
+              //  foreach (var item in list)
+             //   {
+               //     if (item.IsSortedBy)
+               //     {
                         
-                        item.IsSortedBy = false;
-                        item.SortDirection=Sort.None;
+               //         item.IsSortedBy = false;
+               //         item.SortDirection = Sort.None;
+                    
                        
-                    }
+             //       }
                   
 
-                }
+             //   }
 
-                Columns[columnIndex].IsSortedBy = true;
-            }
-        }
+             //   Columns[columnIndex].IsSortedBy = true;
+        //    }
+     //   }
 
         internal void SortColumns()
         {
@@ -200,7 +201,7 @@ namespace Parser
         }*/
 
     }
- 
+
     internal class Column : INotifyPropertyChanged
     {
 
@@ -211,7 +212,7 @@ namespace Parser
             Index = index;
             Width = width;
             AllTypes = new Types();
-            Type  = typeof(String);
+            Type = typeof(String);
 
         }
         public Column(string headerText, int index, Type type, List<string> items)
@@ -219,11 +220,11 @@ namespace Parser
             _HeaderText = headerText;
             Index = index;
             Type = type;
-           
+
             AllTypes = new Types();
             Items = items;
             _Visible = true;
-            Width = (items.Max(k=>k.Length)>headerText.Length)? items.Max(k => k.Length) : headerText.Length ;
+            Width = (items.Max(k => k.Length) > headerText.Length) ? items.Max(k => k.Length) : headerText.Length;
         }
         public string HeaderText
         {
@@ -235,16 +236,19 @@ namespace Parser
             }
 
         }
-        public bool isSigned { get; set; }
+       public bool isSigned { get; set; }
+     
         bool _Visible;
         public int Index { get; set; }
         public int Width { get; set; }
-        Sort _SortDirection = Sort.None;
+        internal Sort _SortDirection = Sort.None;
 
         public event PropertyChangedEventHandler PropertyChanged;
-        
-        public void OnPropertyChanged([CallerMemberName]string prop = "")
+
+         public void OnPropertyChanged([CallerMemberName]string prop = "")
         {
+
+       
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
         }
 
@@ -256,13 +260,22 @@ namespace Parser
             }
             set
             {
-               
-                _SortDirection = (Visible)? value: Sort.None;
-                OnPropertyChanged();
 
+               
+
+               _SortDirection = (Visible) ? value : Sort.None;
+              
+                  OnPropertyChanged();
+
+              
             }
         }
-        public bool IsSortedBy { get; set; } = false;
+        
+      
+      
+       
+      
+    
         public Type Type { get; set; }
         public bool Visible
         { get
@@ -272,7 +285,7 @@ namespace Parser
             }
             set
             {
-              // Set(ref _Visible, value);
+             
                 _Visible = value;
                 OnPropertyChanged();
             }

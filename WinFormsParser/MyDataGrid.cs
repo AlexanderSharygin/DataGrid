@@ -228,6 +228,7 @@ namespace Parser
          
 
         }
+      
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "Visible")
@@ -237,11 +238,11 @@ namespace Parser
             }
             if (e.PropertyName == "SortDirection")
             {
-                Column a = (Column)sender;               
-                _API.ChangeSortedColumn(a.Index);               
-               
+                Invalidate();
+
+
             }
-            Invalidate();
+        
 
         }
         public void DrawOutsideFrame(PaintEventArgs e)
@@ -293,6 +294,7 @@ namespace Parser
                        Cell.Width = (int)(_LineWidth * 2 + _CellMinMargin + _API.Columns[i].Width * (int)this.Font.Size + _CellMinMargin);
                         Cell.Height = _RowHeight;
                         Cell.Location = new Point(xCounter - HorisontalScrollBar.Value, 0);
+                        Cell.API = _API;
                         xCounter += _LineWidth + _CellMinMargin + _API.Columns[i].Width * (int)this.Font.Size + _CellMinMargin;
                         Header.Add(Cell);
                         Controls.Add(Cell);
@@ -341,7 +343,7 @@ namespace Parser
                 int ColumnIndex = -1;
                 foreach (var item in _API.Columns)
                 {
-                    if (item.IsSortedBy)
+                    if (item.SortDirection!=Sort.None)
                     {
                         ColumnIndex = item.Index;
                     }
@@ -351,9 +353,9 @@ namespace Parser
                 SortedBufer.RemoveAt(0);
                 if (ColumnIndex > -1)
                 {
-                    if (_API.Columns[ColumnIndex].SortDirection!=Sort.None)
+                    if (_API.Columns[ColumnIndex]._SortDirection!=Sort.None)
                     {
-                        RowComparer u = (_API.Columns[ColumnIndex].SortDirection == Sort.ASC) ? new RowComparer(true, ColumnIndex, _API.Columns[ColumnIndex].Type) : new RowComparer(false, ColumnIndex, _API.Columns[ColumnIndex].Type);
+                        RowComparer u = (_API.Columns[ColumnIndex]._SortDirection == Sort.ASC) ? new RowComparer(true, ColumnIndex, _API.Columns[ColumnIndex].Type) : new RowComparer(false, ColumnIndex, _API.Columns[ColumnIndex].Type);
                         SortedBufer.Sort(u);
                     }
                 }
