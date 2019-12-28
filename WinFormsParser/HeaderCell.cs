@@ -23,8 +23,6 @@ namespace Parser
         {
             InitializeComponent();
             this.Height = Font.Height + _CellMinMargin * 2;
-
-
         }
         internal HeaderCell(Column ColumnData)
         {
@@ -37,40 +35,23 @@ namespace Parser
             TypeSelector.Visible = false;
             TypeSelector.Font = this.Font;
             Controls.Add(TypeSelector);
-            TypeSelector.ColumnData = ColumnData;
-          
-           
-
-        }
-      
-
-
-       
-        public Sort SortDirection
-        {
-            get => _ColumnData.SortDirection;
-
-
-        }
+            TypeSelector.ColumnData = ColumnData;                
+        }   
 
         public void ChangeSortDirection()
-        {
-
-        
-
-                if (_ColumnData.SortDirection == Sort.DESC)
+        {      
+                if (API.SortDirection == Sort.DESC)
                 {
-                    _ColumnData.SortDirection = Sort.None;
+                API.SortDirection = Sort.None;
                 }
-                else if (_ColumnData.SortDirection == Sort.None)
+                else if (API.SortDirection == Sort.None)
                 {
-                    _ColumnData.SortDirection = Sort.ASC;
+                API.SortDirection = Sort.ASC;
                 }
                 else
                 {
-                    _ColumnData.SortDirection = Sort.DESC;
-                }
-          
+                API.SortDirection = Sort.DESC;
+                }          
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -79,8 +60,9 @@ namespace Parser
             _ColumnData.Type = _ColumnData.AllTypes.TypesCollection[TypeSelector.SelectedItem];
             e.Graphics.DrawString(HeaderText, Font, new SolidBrush(Color.Black), _CellMinMargin, _CellMinMargin);
 
-           
-                if (_ColumnData.SortDirection == Sort.DESC)
+            if (API.SortedColumnIndex == _ColumnData.Index)
+            {
+                if (API.SortDirection == Sort.DESC)
                 {
                     Point[] p = new Point[3];
                     int a = this.Height / 2 - _CellMinMargin * 2;
@@ -90,7 +72,7 @@ namespace Parser
 
                     e.Graphics.FillPolygon(new SolidBrush(Color.Black), p);
                 }
-                if (_ColumnData.SortDirection == Sort.ASC)
+                if (API.SortDirection == Sort.ASC)
                 {
                     Point[] p = new Point[3];
                     int a = this.Height / 2 - _CellMinMargin * 2;
@@ -99,16 +81,8 @@ namespace Parser
                     p[2] = new Point(this.Width - 12, this.Height / 2 + a);
                     e.Graphics.FillPolygon(new SolidBrush(Color.Black), p);
                 }
-            
-          
-           
-        }
-       public void DropSorting()
-       {
-           _ColumnData.SortDirection=Sort.None;          
-           Invalidate();
-       }
-
+            }           
+        }  
         private void HeaderCell_MouseClick(object sender, MouseEventArgs e)
         {
 
@@ -132,7 +106,6 @@ namespace Parser
                 }
                 else
                 {
-
                     TypeSelector.Width = 80;
                     TypeSelector.Height = 20;
                     TypeSelector.Location = new Point(this.Location.X + 5, this.Location.Y + 5);
@@ -153,18 +126,25 @@ namespace Parser
                         item._ColumnData.Index = _ColumnData.Index;
                         _ColumnData.Index = newIndex;
                         MovingMode = true;
+                        if (API.SortedColumnIndex == item._ColumnData.Index) 
+                        {
+                            API.SortedColumnIndex = newIndex;
+                        }
+                        else if (API.SortedColumnIndex == newIndex)
+                        {
+                            API.SortedColumnIndex = item._ColumnData.Index;
+                        }
                         break;
                     }
                 }
                 if (!MovingMode)
-                {
-                    foreach (var item in NeighborCells)
+                {                  
+                   if (API.SortedColumnIndex != _ColumnData.Index)
                     {
-                   //     item.DropSorting();
-                    }
-
-                    ChangeSortDirection();
-
+                       API.SortDirection = Sort.None;
+                   }
+                  API.SortedColumnIndex = _ColumnData.Index;
+                  ChangeSortDirection();                 
                 }
                 else
                 {
@@ -193,11 +173,7 @@ namespace Parser
 
             }
         }
-
-        private void HeaderCell_Load(object sender, EventArgs e)
-        {
-
-        }
+     
     }
 
 }

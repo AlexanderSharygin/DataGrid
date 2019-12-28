@@ -5,9 +5,9 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using Amazon.EC2.Model;
 
-namespace Parser
+
+namespace Parser 
 {
    
     public static class ObservableCollectionExtensions
@@ -25,8 +25,29 @@ namespace Parser
         }
     }
 
-    class APICore
+    class APICore : INotifyPropertyChanged
     {
+        public Sort _SortDirection = Sort.None;
+          public Sort SortDirection
+        {
+            get => _SortDirection;
+              set
+            {
+                _SortDirection = value;
+                OnPropertyChanged(); }
+        }
+        int _SortedColumnIndex = -1;
+        public int SortedColumnIndex
+        {
+            get => _SortedColumnIndex;
+
+            set
+            {
+                _SortedColumnIndex = value;
+            }
+         
+        }
+        
 
 
         public ObservableCollection<Column> Columns { get; set; } = new ObservableCollection<Column>();
@@ -35,21 +56,22 @@ namespace Parser
         public APICore()
         {
             Columns.CollectionChanged += ColumnsChannge;
-
-
-
+            
         }
-        public void ChangeSortDirection(int index, Sort direction)
+
+        public event PropertyChangedEventHandler PropertyChanged;
+     
+
+        public void OnPropertyChanged([CallerMemberName]string prop = "")
         {
-
-            //  Column item = (Column)Columns.Select(k => k.IsSortedBy = true);
-            //  item.SortDirection = direction;
-            Columns[index].SortDirection = direction;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
         }
+
+    
 
         private void ColumnsChannge(object sender, NotifyCollectionChangedEventArgs e)
         {
-           
+
 
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
@@ -94,7 +116,7 @@ namespace Parser
                         }
                     }
                 }
-               
+
 
 
             }
@@ -102,31 +124,6 @@ namespace Parser
 
         }
 
-      
-
-       // internal void ChangeSortedColumn(int columnIndex)
-     //   {
-            
-       //     if (columnIndex < Columns.Count)
-        //    {
-           //     var list = Columns.Select(k => k).Where(k => k.Visible).ToList();
-              //  foreach (var item in list)
-             //   {
-               //     if (item.IsSortedBy)
-               //     {
-                        
-               //         item.IsSortedBy = false;
-               //         item.SortDirection = Sort.None;
-                    
-                       
-             //       }
-                  
-
-             //   }
-
-             //   Columns[columnIndex].IsSortedBy = true;
-        //    }
-     //   }
 
         internal void SortColumns()
         {
@@ -157,48 +154,48 @@ namespace Parser
                 Columns[i].Index = i;
             }
         }
-   
-       /* public void UpdateColumns(ObservableCollection<List<string>> source)
-        {
-            if (Columns.Count == 0)
-            {
-                for (int i = 0; i < source.First().Count; i++)
-                {
-                    var columnStrings = source.Select(k => k[i]).ToList<string>();
-                    AddColumn(columnStrings, i);
-                  
-                }
-            }
-            else
-            {
-                for (int i = 0; i < source.First().Count; i++)
-                {
-                    List<string> ExisitinColumns = Columns.Select(k => k.HeaderText).ToList<string>();
-                    if (ExisitinColumns.IndexOf(source.First()[i])==-1)
-                    {
-                        var columnStrings = source.Select(k => k[i]).ToList<string>();
-                        AddColumn(columnStrings, i);
-                    
-                    }
+
+        /* public void UpdateColumns(ObservableCollection<List<string>> source)
+         {
+             if (Columns.Count == 0)
+             {
+                 for (int i = 0; i < source.First().Count; i++)
+                 {
+                     var columnStrings = source.Select(k => k[i]).ToList<string>();
+                     AddColumn(columnStrings, i);
+
                  }
-                for (int i = 0; i < Columns.Count; i++)
-                {
-                    bool toDelete = true;
-                    for (int j = 0; j < source.First().Count; j++)
-                    {
-                        if (Columns[i].HeaderText == source.First()[j])
-                        {
-                            toDelete = false;                           
-                            break;
-                        }
-                    }
-                    if (toDelete)
-                    {
-                        DeleteColumn(i);
-                    }
-                }
-            }
-        }*/
+             }
+             else
+             {
+                 for (int i = 0; i < source.First().Count; i++)
+                 {
+                     List<string> ExisitinColumns = Columns.Select(k => k.HeaderText).ToList<string>();
+                     if (ExisitinColumns.IndexOf(source.First()[i])==-1)
+                     {
+                         var columnStrings = source.Select(k => k[i]).ToList<string>();
+                         AddColumn(columnStrings, i);
+
+                     }
+                  }
+                 for (int i = 0; i < Columns.Count; i++)
+                 {
+                     bool toDelete = true;
+                     for (int j = 0; j < source.First().Count; j++)
+                     {
+                         if (Columns[i].HeaderText == source.First()[j])
+                         {
+                             toDelete = false;                           
+                             break;
+                         }
+                     }
+                     if (toDelete)
+                     {
+                         DeleteColumn(i);
+                     }
+                 }
+             }
+         }*/
 
     }
 
@@ -241,41 +238,15 @@ namespace Parser
         bool _Visible;
         public int Index { get; set; }
         public int Width { get; set; }
-        internal Sort _SortDirection = Sort.None;
+    
 
         public event PropertyChangedEventHandler PropertyChanged;
 
          public void OnPropertyChanged([CallerMemberName]string prop = "")
-        {
-
-       
+        {       
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
-        }
-
-        public Sort SortDirection
-        {
-            get
-            {
-                return _SortDirection;
-            }
-            set
-            {
-
-               
-
-               _SortDirection = (Visible) ? value : Sort.None;
-              
-                  OnPropertyChanged();
-
-              
-            }
-        }
-        
-      
-      
+        }  
        
-      
-    
         public Type Type { get; set; }
         public bool Visible
         { get

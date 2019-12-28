@@ -43,13 +43,25 @@ namespace Parser
             }
 
         }
+        public void ChangeSorting(string columnName, Sort sortDirection)
+        {
 
+            var a = Columns.Select(k => k).Where(u => u.HeaderText == columnName).Single();
+            if (a.Visible)
+            {
+                _API.SortDirection = sortDirection;
+                _API.SortedColumnIndex = a.Index;
+            }
+              
+            
+        }
         public MyDataGrid()
         {
             InitializeComponent();
           
           
             _API = new APICore();
+            _API.PropertyChanged += APIPropertyChanged;
            Columns.CollectionChanged +=Columns_CollectionChanged;
             ResizeRedraw = true;
             components = new System.ComponentModel.Container();
@@ -68,6 +80,14 @@ namespace Parser
             HorisontalScrollBar.Value = 0;
             _Brush = new SolidBrush(ForeColor);
             _Pen = new Pen(LineColor, _LineWidth);
+        }
+
+        private void APIPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "SortDirection")
+            {
+                Invalidate();
+            }
         }
 
         public Color LineColor { get; set; }
@@ -216,7 +236,7 @@ namespace Parser
             {
                 UpdateColumns();
             }
-         //   Column item1 = (Column)e.NewItems;
+        
             foreach (var item in Columns)
            {
                 if (!item.isSigned)
@@ -282,7 +302,7 @@ namespace Parser
                 Controls.Add(HorizontalScroll);
                 Controls.Add(VerticalScroll);
                 int xCounter = 0;
-             //   _API.SortColumns();
+          
                 
                 List<HeaderCell> Header = new List<HeaderCell>();               
                 for (int i = 0; i < _API.Columns.Count; i++)
@@ -336,26 +356,20 @@ namespace Parser
             if (_Bufer.Count != 0 && _Bufer.First().Cells.Count != 0)
             {
                 SortBuferColumns();
-               _API.SortColumns();
-           
+               _API.SortColumns();         
                
            
                 int ColumnIndex = -1;
-                foreach (var item in _API.Columns)
-                {
-                    if (item.SortDirection!=Sort.None)
-                    {
-                        ColumnIndex = item.Index;
-                    }
-                }
+            
                 List<Row> SortedBufer = new List<Row>();
                 SortedBufer.AddRange(_Bufer);
                 SortedBufer.RemoveAt(0);
-                if (ColumnIndex > -1)
+         
+                if(_API.SortedColumnIndex!=-1)
                 {
-                    if (_API.Columns[ColumnIndex]._SortDirection!=Sort.None)
+                    if (_API.SortDirection!=Sort.None)
                     {
-                        RowComparer u = (_API.Columns[ColumnIndex]._SortDirection == Sort.ASC) ? new RowComparer(true, ColumnIndex, _API.Columns[ColumnIndex].Type) : new RowComparer(false, ColumnIndex, _API.Columns[ColumnIndex].Type);
+                        RowComparer u = (_API.SortDirection == Sort.ASC) ? new RowComparer(true, _API.SortedColumnIndex, _API.Columns[_API.SortedColumnIndex].Type) : new RowComparer(false, _API.SortedColumnIndex, _API.Columns[_API.SortedColumnIndex].Type);
                         SortedBufer.Sort(u);
                     }
                 }
@@ -413,16 +427,7 @@ namespace Parser
             foreach (var Row in tableRows)
             {
                 for (int i = 0; i < Source.First().Count; i++)
-                {
-                   // if (Source.First().Count - Source[rowIndex].Count != 0)
-                  //  {
-                  //      int delta = Source.First().Count - Source[rowIndex].Count;
-                  //      for (int j = 0; j < delta; j++)
-                   //     {
-                   //         Source[rowIndex].Add("");
-                   //     }
-
-                  //  }
+                {                
                 
                     Row.Cells.Add(new Cell(Source[rowIndex][i]));
                     cellIndex++;

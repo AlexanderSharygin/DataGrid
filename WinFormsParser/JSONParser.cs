@@ -224,7 +224,7 @@ namespace WinFormsParser
 
             // DataTable.Columns.Add(new Column("ID1", 3, typeof(string), New4));
             // DataTable.Columns.Add(new Column("ID1", 2, typeof(string), New4));
-            DataTable.Columns[3].SortDirection = Sort.DESC;
+            DataTable.ChangeSorting("FirstName", Sort.DESC);
           
         }
     }
