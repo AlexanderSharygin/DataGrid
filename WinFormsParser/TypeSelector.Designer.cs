@@ -1,6 +1,6 @@
 ﻿namespace Parser
 {
-    partial class HeaderCell
+    partial class TypeSelector
     {
         /// <summary> 
         /// Обязательная переменная конструктора.
@@ -28,23 +28,35 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
-            // HeaderCell
+            // comboBox1
+            // 
+            this.comboBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Location = new System.Drawing.Point(3, 3);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(121, 21);
+            this.comboBox1.TabIndex = 0;
+            this.comboBox1.Text = "Select Type";
+            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.ComboBox1_SelectedIndexChanged);
+            // 
+            // TypeSelector
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.DoubleBuffered = true;
-            this.Name = "HeaderCell";
-            this.Size = new System.Drawing.Size(127, 31);
-         
-            this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.HeaderCell_MouseClick);
+            this.Controls.Add(this.comboBox1);
+            this.Name = "TypeSelector";
+            this.Size = new System.Drawing.Size(128, 27);
             this.ResumeLayout(false);
 
         }
 
         #endregion
+
+        private System.Windows.Forms.ComboBox comboBox1;
     }
 }
