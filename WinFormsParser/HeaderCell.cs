@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Parser
@@ -13,17 +11,15 @@ namespace Parser
     {
         int _CellMinMargin = 2;
         bool _IsToMoving = false;
-
-        public string HeaderText { get; set; }
-        Column _ColumnData; //= new Column("", 0, 0);
-        public List<HeaderCell> NeighborCells { get; set; } = new List<HeaderCell>();
-        TypeSelector TypeSelector = new TypeSelector();
+        Column _ColumnData;
+        internal APICore _API;
+        TypeSelector _TypeSelector = new TypeSelector();
+        public string HeaderText { get; set; }       
+        internal List<HeaderCell> NeighborCells { get; set; } = new List<HeaderCell>();    
         public HeaderCell()
         {
             InitializeComponent();
             this.Height = Font.Height + _CellMinMargin * 2;
-
-
         }
         internal HeaderCell(Column ColumnData)
         {
@@ -31,56 +27,35 @@ namespace Parser
             components = new System.ComponentModel.Container();
             _ColumnData = ColumnData;
             HeaderText = ColumnData.HeaderText;
-            TypeSelector.Items = ColumnData.AllTypes.TypesCollection.Keys.ToList();
-            TypeSelector.SelectedItem = ColumnData.AllTypes.GetKeyyValue(ColumnData.Type);
-            TypeSelector.Visible = false;
-            TypeSelector.Font = this.Font;
-            Controls.Add(TypeSelector);
-            TypeSelector.ColumnData = ColumnData;
-           
-
-
+            _TypeSelector.Items = ColumnData.AllTypes.TypesCollection.Keys.ToList();
+            _TypeSelector.SelectedItem = ColumnData.AllTypes.GetKeyyValue(ColumnData.Type);
+            _TypeSelector.Visible = false;
+            _TypeSelector.Font = this.Font;
+            Controls.Add(_TypeSelector);
+            _TypeSelector.ColumnData = ColumnData;                
+        }   
+        public void ChangeSortDirection()
+        {      
+                if (_API.SortDirection == Sort.DESC)
+                {
+                _API.SortDirection = Sort.None;
+                }
+                else if (_API.SortDirection == Sort.None)
+                {
+                _API.SortDirection = Sort.ASC;
+                }
+                else
+                {
+                _API.SortDirection = Sort.DESC;
+                }          
         }
-      
-
-
-       
-        public Sort SortDirection
-        {
-            get => _ColumnData.SortDirection;
-
-        }
-       
-        private void ChangeSortDirection()
-        {
-          //  foreach (var item in NeighborCells)
-         //   {
-          //       item.DropSorting();
-          //      item.Invalidate();
-          //  }
-
-            if (_ColumnData.SortDirection == Sort.DESC)
-            {
-                _ColumnData.SortDirection = Sort.None;
-            }
-            else if (_ColumnData.SortDirection == Sort.None)
-            {
-                _ColumnData.SortDirection = Sort.ASC;
-            }
-            else
-            {
-                _ColumnData.SortDirection = Sort.DESC;
-            }
-        }
-
         protected override void OnPaint(PaintEventArgs e)
         {
-
-            _ColumnData.Type = _ColumnData.AllTypes.TypesCollection[TypeSelector.SelectedItem];
+            _ColumnData.Type = _ColumnData.AllTypes.TypesCollection[_TypeSelector.SelectedItem];
             e.Graphics.DrawString(HeaderText, Font, new SolidBrush(Color.Black), _CellMinMargin, _CellMinMargin);
-            if (_ColumnData.IsSortedBy)
+            if (_API.SortedColumnIndex == _ColumnData.Index)
             {
-                if (_ColumnData.SortDirection == Sort.DESC)
+                if (_API.SortDirection == Sort.DESC)
                 {
                     Point[] p = new Point[3];
                     int a = this.Height / 2 - _CellMinMargin * 2;
@@ -90,7 +65,7 @@ namespace Parser
 
                     e.Graphics.FillPolygon(new SolidBrush(Color.Black), p);
                 }
-                if (_ColumnData.SortDirection == Sort.ASC)
+                if (_API.SortDirection == Sort.ASC)
                 {
                     Point[] p = new Point[3];
                     int a = this.Height / 2 - _CellMinMargin * 2;
@@ -99,19 +74,10 @@ namespace Parser
                     p[2] = new Point(this.Width - 12, this.Height / 2 + a);
                     e.Graphics.FillPolygon(new SolidBrush(Color.Black), p);
                 }
-            }
-           
-        }
-       public void DropSorting()
-       {
-           _ColumnData.IsSortedBy = false;
-           _ColumnData.SortDirection = Sort.None;
-           Invalidate();
-       }
-
+            }           
+        }  
         private void HeaderCell_MouseClick(object sender, MouseEventArgs e)
         {
-
             if (e.Button == MouseButtons.Middle)
             {
 
@@ -124,53 +90,57 @@ namespace Parser
                         Parent.Controls.RemoveAt(i);
                     }
                 }
-
-                if (TypeSelector.Visible)
+                if (_TypeSelector.Visible)
                 {
-                    TypeSelector.Visible = false;
+                    _TypeSelector.Visible = false;
                     Parent.Invalidate();
                 }
                 else
                 {
-
-                    TypeSelector.Width = 80;
-                    TypeSelector.Height = 20;
-                    TypeSelector.Location = new Point(this.Location.X + 5, this.Location.Y + 5);
-                    TypeSelector.Visible = true;
-                    TypeSelector.Parent = this.Parent;
-                    TypeSelector.BringToFront();
+                    _TypeSelector.Width = 80;
+                    _TypeSelector.Height = 20;
+                    _TypeSelector.Location = new Point(this.Location.X + 5, this.Location.Y + 5);
+                    _TypeSelector.Visible = true;
+                    _TypeSelector.Parent = this.Parent;
+                    _TypeSelector.BringToFront();
                 }
             }
             if (e.Button == MouseButtons.Left)
             {
                 bool MovingMode = false;
-                int newIndex = -1;
                 foreach (var item in NeighborCells)
                 {
                     if (item._IsToMoving == true)
                     {
-                        newIndex = item._ColumnData.Index;
+                        int newIndex = item._ColumnData.Index;
                         item._ColumnData.Index = _ColumnData.Index;
                         _ColumnData.Index = newIndex;
                         MovingMode = true;
+                        if (_API.SortedColumnIndex == item._ColumnData.Index) 
+                        {
+                            _API.SortedColumnIndex = newIndex;
+                        }
+                        else if (_API.SortedColumnIndex == newIndex)
+                        {
+                            _API.SortedColumnIndex = item._ColumnData.Index;
+                        }
                         break;
                     }
                 }
                 if (!MovingMode)
-                {
-                   // foreach (var item in NeighborCells)
-                  //  {
-                   //     item.DropSorting();
-                  // }
-                    _ColumnData.IsSortedBy = true;
-                    ChangeSortDirection();
-                 ;
+                {                  
+                   if (_API.SortedColumnIndex != _ColumnData.Index)
+                    {
+                       _API.SortDirection = Sort.None;
+                   }
+                  _API.SortedColumnIndex = _ColumnData.Index;
+                  ChangeSortDirection();                 
                 }
                 else
                 {
                     Parent.Invalidate();
                 }
-              // 
+         
             }
             if (e.Button == MouseButtons.Right)
             {
@@ -193,11 +163,7 @@ namespace Parser
 
             }
         }
-
-        private void HeaderCell_Load(object sender, EventArgs e)
-        {
-
-        }
+     
     }
 
 }
