@@ -28,7 +28,7 @@ namespace WinFormsParser
         {
             var inputText = File.ReadAllText("Files\\Data.txt");
             _JSONObjects = JSONParser.ParseSimpleJSON(inputText);
-            FillFieldsList();
+           // FillFieldsList();
            
 
         }
@@ -114,12 +114,10 @@ namespace WinFormsParser
             return ColumnItems;
         }
 
-        private void LB_FieldsList_SelectedValueChanged(object sender, EventArgs e)
+        private void LB_FieldsList_MouseClick(object sender, EventArgs e)
         {
           
-
             var a = LB_FieldsList.SelectedIndices;
-
             List<int> Selected = new List<int>();
             string SelectedItem="";
             foreach (var item in a)
@@ -172,15 +170,7 @@ namespace WinFormsParser
                     }
                 }
             }
-            prev = Selected;
-            //  ObservableCollection<List<string>> a = new ObservableCollection<List<string>>();
-            //List<List<string>> b = new List<List<string>>();
-            //  b = GetTable();
-            //   foreach (var item in b)
-            // {
-            //        a.Add(item);
-            //  }
-            //    DataTable.ColumnsData = a;
+            prev = Selected;     
 
 
         }
@@ -189,16 +179,11 @@ namespace WinFormsParser
 
         private void Button1_Click(object sender, EventArgs e)
         {
-
-            LB_FieldsList.Items.Clear();
-            List<string> New = new List<string> { "eeg", "gwfg", "wewefv" };
-            DataTable.Columns.Add(new Column("ID", 0, typeof(string), New));
-           DataTable.Columns.Add(new Column("ID", 0, typeof(string), New));
+          
             List<string> AggregatedObjectsFields = _JSONObjects.SelectMany(j => j.Keys).Distinct().ToList();
-           
-            AggregatedObjectsFields.ForEach(k => LB_FieldsList.Items.Add(k));
-            int index = 0;
-
+           int index = 0;
+            List<string> selectedItems = new List<string>();
+            
             foreach (var item in AggregatedObjectsFields)
             {
                 List<string> temp = GetColumnItems(item);
@@ -208,10 +193,24 @@ namespace WinFormsParser
 
                 index++;
             }
+            LB_FieldsList.Items.Clear();
+             CB_FieldsList1.Items.Clear();
+            CB_FieldsList2.Items.Clear();
 
 
-
-
+            foreach (var item in DataTable.Columns)
+            {
+               
+                LB_FieldsList.Items.Add(item.HeaderText);
+                if (item.Visible)
+                {
+                    LB_FieldsList.SelectedItems.Add(item.HeaderText);
+                }
+                CB_FieldsList1.Items.Add(item.HeaderText);
+                CB_FieldsList2.Items.Add(item.HeaderText);
+            }
+            CB_FieldsList2.Text = "";
+            NU_FieldsIndexes.Maximum = DataTable.Columns.Count-1;
 
         }
 
@@ -220,12 +219,56 @@ namespace WinFormsParser
         private void Button2_Click(object sender, EventArgs e)
         {
 
-            // List<string> New4 = new List<string> { "ejeg", "gwjfg", "wewjefv" };
-
-            // DataTable.Columns.Add(new Column("ID1", 3, typeof(string), New4));
-            // DataTable.Columns.Add(new Column("ID1", 2, typeof(string), New4));
-            DataTable.ChangeSorting("FirstName", Sort.DESC);
           
+            if (CB_SortDirection.SelectedItem.ToString()=="ASC")
+            {
+                DataTable.ChangeSorting((string)CB_FieldsList1.SelectedItem, Sort.ASC);
+            }
+            if (CB_SortDirection.SelectedItem.ToString() == "DESC")
+            {
+                DataTable.ChangeSorting((string)CB_FieldsList1.SelectedItem, Sort.DESC);
+
+            }
+            if (CB_SortDirection.SelectedItem.ToString() == "None")
+            {
+                DataTable.ChangeSorting((string)CB_FieldsList1.SelectedItem, Sort.None);
+
+            }
         }
+
+        private void Remove_Click(object sender, EventArgs e)
+        {
+            DataTable.Columns.RemoveByName(CB_FieldsList2.SelectedItem.ToString(), k => DataTable.Columns.Where(t=>t.HeaderText== CB_FieldsList2.SelectedItem.ToString()).Select(t=>t.Index).Single()) ;
+            LB_FieldsList.Items.Remove(CB_FieldsList2.SelectedItem.ToString());
+            UpdateUI();
+        }
+
+      
+        private void Button1_Click_1(object sender, EventArgs e)
+        {
+            string temp = DataTable.Columns[(int)NU_FieldsIndexes.Value].HeaderText;
+            DataTable.Columns.RemoveAt(DataTable.Columns[(int)NU_FieldsIndexes.Value].Index);
+            LB_FieldsList.Items.Remove(temp);
+            temp = "";
+            UpdateUI();
+        }
+        private void UpdateUI()
+        {
+            CB_FieldsList1.Items.Clear();
+            CB_FieldsList2.Items.Clear();
+            prev.Clear();
+            foreach (var item in DataTable.Columns)
+            {
+                CB_FieldsList1.Items.Add(item.HeaderText);
+                CB_FieldsList2.Items.Add(item.HeaderText);
+                if (item.Visible)
+                {
+                    prev.Add(item.Index);
+                }
+            }
+            CB_FieldsList2.Text = "";
+            NU_FieldsIndexes.Maximum = DataTable.Columns.Count - 1;
+        }
+   
     }
 }
