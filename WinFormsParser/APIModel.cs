@@ -7,9 +7,10 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 
-namespace Parser 
+
+namespace Parser
 {
-   
+
     public static class ObservableCollectionExtensions
     {
         public static void Sort<T>(this ObservableCollection<T> collection, Comparison<T> comparison)
@@ -42,30 +43,32 @@ namespace Parser
             }
         }
         public int SortedColumnIndex { get; set; } = -1;
-        public ObservableCollection<Column> Columns { get; set; } = new ObservableCollection<Column>();
+        public ObservableCollection<Column> Columns { get; } = new ObservableCollection<Column>();
         public event PropertyChangedEventHandler PropertyChanged;
         public APICore()
         {
             Columns.CollectionChanged += ColumnsChannge;
-            
-        }  
+        }
         private void OnPropertyChanged([CallerMemberName]string prop = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
-        }  
+        }
         private void ColumnsChannge(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Remove)
             {
-              
+
                     int index = 0;
+
                 foreach (var item in Columns)
                 {
                     item.Index = index;
                     index++;
 
                 }
-               
+                SortDirection = Sort.None;
+                SortedColumnIndex = -1; 
+
             }
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
@@ -109,74 +112,15 @@ namespace Parser
         }
         internal void SortColumns()
         {
-            Columns.Sort((a, b) => { return a.Index.CompareTo(b.Index); });
-
-        }
-      //  public void ChangeColumnsPlaces(int firstColumnIndex, int secondColumnIndex)
-      //  {
-      //      Columns[firstColumnIndex].Index = secondColumnIndex;
-      //      Columns[secondColumnIndex].Index = firstColumnIndex;
-     //       SortColumns();
-    //    }
-        
-        public void DeleteColumn(int columnIndex)
-        {
-            Columns.RemoveAt(columnIndex);
-            for (int i = 0; i < Columns.Count; i++)
-            {
-                Columns[i].Index = i;
-            }
-        }
-
-        /* public void UpdateColumns(ObservableCollection<List<string>> source)
-         {
-             if (Columns.Count == 0)
-             {
-                 for (int i = 0; i < source.First().Count; i++)
-                 {
-                     var columnStrings = source.Select(k => k[i]).ToList<string>();
-                     AddColumn(columnStrings, i);
-
-                 }
-             }
-             else
-             {
-                 for (int i = 0; i < source.First().Count; i++)
-                 {
-                     List<string> ExisitinColumns = Columns.Select(k => k.HeaderText).ToList<string>();
-                     if (ExisitinColumns.IndexOf(source.First()[i])==-1)
-                     {
-                         var columnStrings = source.Select(k => k[i]).ToList<string>();
-                         AddColumn(columnStrings, i);
-
-                     }
-                  }
-                 for (int i = 0; i < Columns.Count; i++)
-                 {
-                     bool toDelete = true;
-                     for (int j = 0; j < source.First().Count; j++)
-                     {
-                         if (Columns[i].HeaderText == source.First()[j])
-                         {
-                             toDelete = false;                           
-                             break;
-                         }
-                     }
-                     if (toDelete)
-                     {
-                         DeleteColumn(i);
-                     }
-                 }
-             }
-         }*/
-
+           Columns.Sort((a, b) => { return a.Index.CompareTo(b.Index); });
+        }   
     }
 
     internal class Column : INotifyPropertyChanged
     {
         string _HeaderText;
-        bool _Visible;        
-        public bool IsSigned { get; set; }
+        bool _Visible;
+        public bool IsSignedToPropertyChange { get; set; }
         public int Index { get; set; }
         public int Width { get; set; }
         public Type Type { get; set; }
@@ -197,7 +141,6 @@ namespace Parser
             get => _HeaderText;
             set
             {
-               
                 _HeaderText = value;
                 Width = (Items.Max(k => k.Length) > HeaderText.Length) ? Items.Max(k => k.Length) : HeaderText.Length;
             }
@@ -223,11 +166,11 @@ namespace Parser
             Items = items;
             _Visible = true;
             Width = (items.Max(k => k.Length) > headerText.Length) ? items.Max(k => k.Length) : headerText.Length;
-        } 
+        }
         private void OnPropertyChanged([CallerMemberName]string prop = "")
-        {       
+        {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
-        }     
+        }
     }
     public enum Sort
     {
@@ -258,5 +201,5 @@ namespace Parser
             return res;
         }
     }
-    
+
 }
