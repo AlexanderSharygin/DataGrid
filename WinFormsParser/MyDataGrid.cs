@@ -11,8 +11,12 @@ using System.ComponentModel;
 
 namespace Parser
 {
+
+
+
     public partial class MyDataGrid : UserControl
     {
+        List<List<string>> _Source = new List<List<string>>();
         List<Row> _Bufer = new List<Row>();
         APICore _API;
         int _RowHeight;
@@ -26,22 +30,38 @@ namespace Parser
         float _TableWidth;
         Brush _Brush;
         Pen _Pen;
-
         internal ObservableCollection<Column> Columns
         {
             get
             {
                 return _API.Columns;
             }
-            set
-            {
-               _API.Columns = value;
-                Invalidate();
-            }
 
         }
+        [DisplayName(@"DataSource"), Description("Используйте таблицу данных в формте String (ColumnsAutoGeneretion должен быть true)")]
+        public List<List<string>> Source
+        {
+            get => _Source;
+            set
+            {
+                if (ColumnsAutoGeneretion)
+                {
+                    _Source = value;
+                    _API.Columns.Clear();
+                    var index = 0;
+                    foreach (var item in Source)
+                    {
+                        _API.Columns.Add(new Column(item.First(), index, typeof(string), item.GetRange(1, item.Count - 1)));
+                    }
+                    UpdateControl();
+
+                }
+            }
+        }
+        [DisplayName(@"ColumnsAutoGeneretion"), Description("Если value=true - колонки генерируются автоматически из коллекции Source"), DefaultValue(false)]
+        public bool ColumnsAutoGeneretion { get; set; } = false;
         public Color LineColor { get; set; }
-        public List<List<string>> ColumnsData { get; set; } = new List<List<string>>();
+        // public List<List<string>> ColumnsData { get; set; } = new List<List<string>>();
         public int RowHeight
         {
             get => _RowHeight;
@@ -50,13 +70,12 @@ namespace Parser
                 _RowHeight = (_RowHeight < Font.Height) ? (Font.Height + 2 * _CellMinMargin + _LineWidth) : (_RowHeight + _LineWidth);
             }
         }
-      
         public MyDataGrid()
         {
-            InitializeComponent();        
+            InitializeComponent();
             _API = new APICore();
             _API.PropertyChanged += APIPropertyChanged;
-           Columns.CollectionChanged +=ColumnsCollectionChanged;
+            Columns.CollectionChanged += ColumnsCollectionChanged;
             ResizeRedraw = true;
             components = new System.ComponentModel.Container();
             VerticalScrollBar.Minimum = 0;
@@ -75,7 +94,6 @@ namespace Parser
             _Brush = new SolidBrush(ForeColor);
             _Pen = new Pen(LineColor, _LineWidth);
         }
-
         private void APIPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "SortDirection")
@@ -88,29 +106,26 @@ namespace Parser
             if (e.PropertyName == "Visible")
             {
                 Invalidate();
-            }      
+            }
         }
         private void ColumnsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
 
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
-                UpdateColumns();
-
+                UpdateControl();
                 foreach (var item in Columns)
                 {
-                    if (!item.IsSigned)
+                    if (!item.IsSignedToPropertyChange)
                     {
                         item.PropertyChanged += ColumnPropertyChanged;
-                        item.IsSigned = true;
+                        item.IsSignedToPropertyChange = true;
                     }
                 }
             }
             if (e.Action == NotifyCollectionChangedAction.Remove)
             {
-              
-                    UpdateColumns();
-               
+                UpdateControl();
             }
         }
         public void ChangeSorting(string columnName, Sort sortDirection)
@@ -122,30 +137,11 @@ namespace Parser
                 _API.SortedColumnIndex = newSortedColumn.Index;
             }
         }
-        private void UpdateColumns()
-        {
-            ColumnsData.Clear();
+        private void UpdateControl()
+        {           
             if (_API.Columns.Count != 0)
-            {
-
-                foreach (var item in _API.Columns)
-                {
-                    if (ColumnsData.Count == 0)
-                    {
-                        ColumnsData.Add(new List<string>());
-                    }
-
-                    ColumnsData.First().Add(item.HeaderText);
-                    for (int i = 0; i < item.Items.Count; i++)
-                    {
-                        if (ColumnsData.Count < i + 2)
-                        {
-                            ColumnsData.Add(new List<string>());
-                        }
-                        ColumnsData[i + 1].Add(item.Items[i]);
-                    }
-                }
-                _Bufer = CreateBuffer(ColumnsData);
+            {               
+                _Bufer = CreateBuffer();
                 _TotalRowsCount = _Bufer.Count;
                 _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;
                 if (_TableWidth > this.Width)
@@ -184,12 +180,12 @@ namespace Parser
             {
                 Invalidate();
             }
-            
-           
+
+
         }
         protected override void OnPaint(PaintEventArgs e)
         {
-          
+
             _Pen.Color = LineColor;
             _TableWidth = 0;
             foreach (var item in _API.Columns)
@@ -202,20 +198,20 @@ namespace Parser
             UpdateHorizontalScroll();
             DrawTable(e);
 
-        }    
-       
-     
+        }
+
+
         private void DrawOutsideFrame(PaintEventArgs e)
         {
             e.Graphics.DrawLine(_Pen, 0, 0, this.Width, 0);
             e.Graphics.DrawLine(_Pen, this.Width, 0, this.Width, this.Height);
-            e.Graphics.DrawLine(_Pen, this.Width, this.Height, 0,  this.Height);
+            e.Graphics.DrawLine(_Pen, this.Width, this.Height, 0, this.Height);
             e.Graphics.DrawLine(_Pen, 0, this.Height, 0, 0);
         }
-       
+
         private void DrawHeader(PaintEventArgs e)
         {
-            
+
             if (_Bufer.Count != 0)
             {
                 if (_ViewPortRowsCount > _Bufer.Count - 1)
@@ -223,33 +219,33 @@ namespace Parser
                     _ViewPortRowsCount = _Bufer.Count - 1;
                 }
                 int xCounterForLine = 0;
-                for (int i = 0; i < _API.Columns.Count; i++)                           
+                for (int i = 0; i < _API.Columns.Count; i++)
                 {
                     if (_API.Columns[i].Visible)
                     {
                         e.Graphics.DrawLine(_Pen, xCounterForLine - HorisontalScrollBar.Value, 0, xCounterForLine - HorisontalScrollBar.Value, RowHeight * (_ViewPortRowsCount + 1));
                         xCounterForLine += _LineWidth + _CellMinMargin + _API.Columns[i].Width * (int)this.Font.Size + _CellMinMargin;
                     }
-                }             
-               e.Graphics.DrawLine(_Pen, _TableWidth- HorisontalScrollBar.Value,0, _TableWidth - HorisontalScrollBar.Value, 0 + RowHeight * (_ViewPortRowsCount + 1));
-              e.Graphics.DrawLine(_Pen, 0 - HorisontalScrollBar.Value, RowHeight, _TableWidth - HorisontalScrollBar.Value, RowHeight);
-                      
+                }
+                e.Graphics.DrawLine(_Pen, _TableWidth - HorisontalScrollBar.Value, 0, _TableWidth - HorisontalScrollBar.Value, 0 + RowHeight * (_ViewPortRowsCount + 1));
+                e.Graphics.DrawLine(_Pen, 0 - HorisontalScrollBar.Value, RowHeight, _TableWidth - HorisontalScrollBar.Value, RowHeight);
+
                 Control HorizontalScroll = Controls[0];
                 Control VerticalScroll = Controls[1];
                 Controls.Clear();
                 Controls.Add(HorizontalScroll);
                 Controls.Add(VerticalScroll);
                 int xCounter = 0;
-          
-                
-                List<HeaderCell> Header = new List<HeaderCell>();               
+
+
+                List<HeaderCell> Header = new List<HeaderCell>();
                 for (int i = 0; i < _API.Columns.Count; i++)
                 {
                     if (_API.Columns[i].Visible)
                     {
                         HeaderCell Cell = new HeaderCell(_API.Columns[i]);
                         Cell.Font = this.Font;
-                       Cell.Width = (int)(_LineWidth * 2 + _CellMinMargin + _API.Columns[i].Width * (int)this.Font.Size + _CellMinMargin);
+                        Cell.Width = (int)(_LineWidth * 2 + _CellMinMargin + _API.Columns[i].Width * (int)this.Font.Size + _CellMinMargin);
                         Cell.Height = _RowHeight;
                         Cell.Location = new Point(xCounter - HorisontalScrollBar.Value, 0);
                         Cell._API = _API;
@@ -260,24 +256,20 @@ namespace Parser
                 }
                 foreach (var headerCell in Header)
                 {
-                    
-                    List<HeaderCell> temp = new List<HeaderCell>();                   
-                    var OtherCells = Header.Select(k => k).Where(k => k!=headerCell).ToList();                   
-                       headerCell.NeighborCells.Clear();
-                        headerCell.NeighborCells.AddRange(OtherCells);
-                  
-                   
+                    List<HeaderCell> temp = new List<HeaderCell>();
+                    var OtherCells = Header.Select(k => k).Where(k => k != headerCell).ToList();
+                    headerCell.NeighborCells.Clear();
+                    headerCell.NeighborCells.AddRange(OtherCells);
                 }
-                
             }
         }
         private void DrawTable(PaintEventArgs e)
         {
             DrawOutsideFrame(e);
-            if (_Bufer.Count != 0 && _Bufer.First().Cells.Count != 0 && Columns.Count>0)
+            if (_Bufer.Count != 0 && _Bufer.First().Cells.Count != 0 && Columns.Count > 0)
             {
                 SortBuferColumns();
-                _API.SortColumns();             
+                _API.SortColumns();
                 List<Row> SortedBufer = new List<Row>();
                 SortedBufer.AddRange(_Bufer);
                 SortedBufer.RemoveAt(0);
@@ -321,18 +313,18 @@ namespace Parser
             foreach (var Cell in _Bufer.First().Cells)
             {
                 Cell.ColumnNumber = _API.Columns.Where(u => Cell.Body == u.HeaderText).Select(u => u.Index).Single();
-            }        
+            }
             for (int i = 1; i < _Bufer.Count; i++)
-            {                              
-                    for (int j = 0; j <_Bufer.First().Cells.Count; j++)
-                    {
-                        var Column = _Bufer.Select(k => k.Cells[j]).ToList();
-                        Column.ForEach(k => k.ColumnNumber = Column.First().ColumnNumber);
-                    }                       
-            }                  
-             _Bufer.ForEach(k => k.Cells = k.Cells.OrderBy(f => f.ColumnNumber).ToList());       
+            {
+                for (int j = 0; j < _Bufer.First().Cells.Count; j++)
+                {
+                    var Column = _Bufer.Select(k => k.Cells[j]).ToList();
+                    Column.ForEach(k => k.ColumnNumber = Column.First().ColumnNumber);
+                }
+            }
+            _Bufer.ForEach(k => k.Cells = k.Cells.OrderBy(f => f.ColumnNumber).ToList());
         }
-        
+
         private void UpdateHorizontalScroll()
         {
             var viewportWidth = this.ClientSize.Width - (VerticalScrollBar.Visible ? VerticalScrollBar.Width : 0);
@@ -347,35 +339,38 @@ namespace Parser
                 HorisontalScrollBar.Maximum = 0;
             }
         }
-        private List<Row> CreateBuffer(List<List<string>> Source)
+        private List<Row> CreateBuffer()
         {
-         
+
             List<Row> tableRows = new List<Row>();
-            for (int i = 0; i < Source.Count; i++)
+            for (int i = 0; i < _API.Columns.First().Items.Count + 1; i++)
             {
                 tableRows.Add(new Row());
             }
-            int rowIndex = 0;
-            int cellIndex = 0;
-            foreach (var Row in tableRows)
+            for (int i = 0; i < tableRows.Count; i++)
             {
-                for (int i = 0; i < Source.First().Count; i++)
-                {                
-                
-                    Row.Cells.Add(new Cell(Source[rowIndex][i]));
-                    cellIndex++;
+                if (i == 0)
+                {
+                    for (int j = 0; j < _API.Columns.Count; j++)
+                    {
+                        tableRows[i].Cells.Add(new Cell(_API.Columns[j].HeaderText));
+                    }
                 }
-             
-                rowIndex++;
-                cellIndex = 0;
-            }         
+                else
+                {
+                    for (int j = 0; j < _API.Columns.Count; j++)
+                    {
+                        tableRows[i].Cells.Add(new Cell(_API.Columns[j].Items[i - 1]));
+                    }
+                }
+            }
             foreach (var item in tableRows)
             {
                 for (int i = 0; i < item.Cells.Count; i++)
                 {
                     item.Cells[i].ColumnNumber = i;
                 }
-            }      
+            }
             var width = 0;
             foreach (var item in _API.Columns)
             {
@@ -384,9 +379,10 @@ namespace Parser
                     width += (_LineWidth + _CellMinMargin + item.Width * (int)this.Font.Size + _CellMinMargin);
                 }
             }
-            _TableWidth = width+ _LineWidth;       
+            _TableWidth = width + _LineWidth;
             return tableRows;
         }
+
         class Cell
         {
             public string Body { get; set; }     
@@ -440,10 +436,8 @@ namespace Parser
                     }
                 }
 
-                int dir = (_Direction)?1:-1;
-              
-               
-               
+                int dir = (_Direction)?1:-1;           
+                              
                 if (xValue != null && xValue is IComparable)
                 {
 

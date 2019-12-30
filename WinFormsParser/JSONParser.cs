@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Parser;
 using Parser.Properties;
@@ -27,68 +22,40 @@ namespace WinFormsParser
         private void Form1_Load(object sender, EventArgs e)
         {
             var inputText = File.ReadAllText("Files\\Data.txt");
-            _JSONObjects = JSONParser.ParseSimpleJSON(inputText);
-           // FillFieldsList();
-           
-
-        }
-        private void FillFieldsList()
-        {
-            List <string> _AggregatedObjectsFields = _JSONObjects.SelectMany(j => j.Keys).Distinct().ToList();
-            LB_FieldsList.Items.Clear();
-            _AggregatedObjectsFields.ForEach(k => LB_FieldsList.Items.Add(k));
-        }
-
-        private void Buttom_Show_Click(object sender, EventArgs e)
-        {
-
-          
-            List<List<string>> b = new List<List<string>>();
-            b = GetTable();
-           
-            DataTable.ColumnsData = b;        
-           
+            _JSONObjects = JSONParser.ParseSimpleJSON(inputText);        
         }
         private List<List <string>> GetTable()
         {
-            List<string> _SelectedMenuItems = LB_FieldsList.SelectedItems.Cast<string>().ToList<string>(); 
-            List<List <string>> Table = new List<List<string>>();
-            int index = 0;
-            int rowsCount = _JSONObjects.Count;
-            List<string> headerRow = new List<string>(_SelectedMenuItems.Count);
-            foreach (var item in _SelectedMenuItems)
+            List<string> _AgregatedFields = _JSONObjects.SelectMany(j => j.Keys).Distinct().ToList();  
+            List<List <string>> Table = new List<List<string>>();           
+            foreach (var item in _AgregatedFields)
             {
-                headerRow.Add(item);
-            }
-            Table.Add(headerRow);
-            while (index < rowsCount)
-            {
-                List<string> Row = new List<string>(_SelectedMenuItems.Count);
-                foreach (var item in _SelectedMenuItems)
+                List<string> temp = new List<string>();
+                temp.Add(item);
+                foreach (var obj in _JSONObjects)
                 {
-                    if (_JSONObjects[index].ContainsKey(item))
+                    if (obj.ContainsKey(item))
                     {
-                        if (_JSONObjects[index][item].Length < item.Length * Convert.ToInt32(Resources.ReductionRatio))
+                        if (obj[item].Length < item.Length * Convert.ToInt32(Resources.ReductionRatio))
                         {
-                            Row.Add(_JSONObjects[index][item]);
+                            temp.Add(obj[item]);
                         }
                         else
                         {
-                            Row.Add(_JSONObjects[index][item].Substring(0, item.Length * Convert.ToInt32(Resources.ReductionRatio)) + Resources.Ellipsis);
+                            temp.Add(obj[item].Substring(0, item.Length * Convert.ToInt32(Resources.ReductionRatio)) + Resources.Ellipsis);
                         }
                     }
                     else
                     {
-                       Row.Add(Resources.UndefinedFieldText);
+                       temp.Add(Resources.UndefinedFieldText);
                     }
+                   
                 }
-                Table.Add(Row);
-                index++;
-            }            
-            return Table;
+                Table.Add(temp);
+            }
+            return Table;          
              
         }
-
         public List<string> GetColumnItems(string FieldName)
         {
             List<string> ColumnItems = new List<string>();
@@ -115,8 +82,7 @@ namespace WinFormsParser
         }
 
         private void LB_FieldsList_MouseClick(object sender, EventArgs e)
-        {
-          
+        {          
             var a = LB_FieldsList.SelectedIndices;
             List<int> Selected = new List<int>();
             string SelectedItem="";
@@ -153,8 +119,7 @@ namespace WinFormsParser
             else
             {
                 SelectedItem = LB_FieldsList.SelectedItem.ToString();
-            }
-            
+            }            
             
             foreach (var item in DataTable.Columns)
             {
@@ -196,8 +161,6 @@ namespace WinFormsParser
             LB_FieldsList.Items.Clear();
              CB_FieldsList1.Items.Clear();
             CB_FieldsList2.Items.Clear();
-
-
             foreach (var item in DataTable.Columns)
             {
                
@@ -211,14 +174,10 @@ namespace WinFormsParser
             }
             CB_FieldsList2.Text = "";
             NU_FieldsIndexes.Maximum = DataTable.Columns.Count-1;
-
-        }
-
-       
+        }     
 
         private void Button2_Click(object sender, EventArgs e)
         {
-
           
             if (CB_SortDirection.SelectedItem.ToString()=="ASC")
             {
@@ -235,15 +194,12 @@ namespace WinFormsParser
 
             }
         }
-
         private void Remove_Click(object sender, EventArgs e)
-        {
+        {           
             DataTable.Columns.RemoveByName(CB_FieldsList2.SelectedItem.ToString(), k => DataTable.Columns.Where(t=>t.HeaderText== CB_FieldsList2.SelectedItem.ToString()).Select(t=>t.Index).Single()) ;
             LB_FieldsList.Items.Remove(CB_FieldsList2.SelectedItem.ToString());
             UpdateUI();
-        }
-
-      
+        }      
         private void Button1_Click_1(object sender, EventArgs e)
         {
             string temp = DataTable.Columns[(int)NU_FieldsIndexes.Value].HeaderText;
@@ -269,6 +225,28 @@ namespace WinFormsParser
             CB_FieldsList2.Text = "";
             NU_FieldsIndexes.Maximum = DataTable.Columns.Count - 1;
         }
-   
+
+        private void Button3_Click(object sender, EventArgs e)
+        {
+            DataTable.ColumnsAutoGeneretion = true;
+            DataTable.Source = GetTable();
+            LB_FieldsList.Items.Clear();
+            foreach (var item in DataTable.Columns)
+            {
+
+                LB_FieldsList.Items.Add(item.HeaderText);
+                if (item.Visible)
+                {
+                    LB_FieldsList.SelectedItems.Add(item.HeaderText);
+                    
+                }
+                CB_FieldsList1.Items.Add(item.HeaderText);
+                CB_FieldsList2.Items.Add(item.HeaderText);
+            }
+            foreach (var item in LB_FieldsList.SelectedIndices)
+            {
+                prev.Add((int)item);
+            }
+        }
     }
 }

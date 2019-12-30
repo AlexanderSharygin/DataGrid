@@ -47,6 +47,7 @@
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.CB_FieldsList2 = new System.Windows.Forms.ComboBox();
+            this.button3 = new System.Windows.Forms.Button();
             this.GB_Fields.SuspendLayout();
             this.GB_Table.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -59,9 +60,9 @@
             this.GB_Fields.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.GB_Fields.Controls.Add(this.LB_FieldsList);
-            this.GB_Fields.Location = new System.Drawing.Point(12, 41);
+            this.GB_Fields.Location = new System.Drawing.Point(12, 70);
             this.GB_Fields.Name = "GB_Fields";
-            this.GB_Fields.Size = new System.Drawing.Size(192, 295);
+            this.GB_Fields.Size = new System.Drawing.Size(192, 266);
             this.GB_Fields.TabIndex = 0;
             this.GB_Fields.TabStop = false;
             this.GB_Fields.Text = "Список полей";
@@ -74,7 +75,7 @@
             this.LB_FieldsList.Location = new System.Drawing.Point(7, 19);
             this.LB_FieldsList.Name = "LB_FieldsList";
             this.LB_FieldsList.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
-            this.LB_FieldsList.Size = new System.Drawing.Size(179, 251);
+            this.LB_FieldsList.Size = new System.Drawing.Size(179, 199);
             this.LB_FieldsList.TabIndex = 0;
             this.LB_FieldsList.MouseClick += new System.Windows.Forms.MouseEventHandler(this.LB_FieldsList_MouseClick);
             // 
@@ -97,7 +98,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.DataTable.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.DataTable.ColumnsData = ((System.Collections.Generic.List<System.Collections.Generic.List<string>>)(resources.GetObject("DataTable.ColumnsData")));
+          //  this.DataTable.ColumnsData = ((System.Collections.Generic.List<System.Collections.Generic.List<string>>)(resources.GetObject("DataTable.ColumnsData")));
             this.DataTable.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.DataTable.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.DataTable.LineColor = System.Drawing.Color.Black;
@@ -106,6 +107,7 @@
             this.DataTable.Name = "DataTable";
             this.DataTable.RowHeight = 18;
             this.DataTable.Size = new System.Drawing.Size(532, 450);
+            this.DataTable.Source = ((System.Collections.Generic.List<System.Collections.Generic.List<string>>)(resources.GetObject("DataTable.Source")));
             this.DataTable.TabIndex = 1;
             // 
             // Add
@@ -168,7 +170,6 @@
             this.label2.Size = new System.Drawing.Size(75, 13);
             this.label2.TabIndex = 9;
             this.label2.Text = "Направление";
-         
             // 
             // CB_SortDirection
             // 
@@ -231,7 +232,6 @@
             this.label4.Size = new System.Drawing.Size(45, 13);
             this.label4.TabIndex = 11;
             this.label4.Text = "Индекс";
-         
             // 
             // label3
             // 
@@ -250,11 +250,22 @@
             this.CB_FieldsList2.Size = new System.Drawing.Size(113, 21);
             this.CB_FieldsList2.TabIndex = 10;
             // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(18, 41);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(179, 23);
+            this.button3.TabIndex = 11;
+            this.button3.Text = "Автогенерация";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.Button3_Click);
+            // 
             // Show_Button
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(781, 510);
+            this.Controls.Add(this.button3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.Add);
@@ -294,6 +305,7 @@
         private System.Windows.Forms.ComboBox CB_FieldsList2;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.NumericUpDown NU_FieldsIndexes;
+        private System.Windows.Forms.Button button3;
     }
 }
 
