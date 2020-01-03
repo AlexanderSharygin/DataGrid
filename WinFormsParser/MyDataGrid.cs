@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace Parser
 {
@@ -30,6 +31,8 @@ namespace Parser
         float _TableWidth;
         Brush _Brush;
         Pen _Pen;
+
+       
         internal ObservableCollection<Column> Columns
         {
             get
@@ -38,22 +41,30 @@ namespace Parser
             }
 
         }
-        [DisplayName(@"DataSource"), Description("Используйте таблицу данных в формте String (ColumnsAutoGeneretion должен быть true)")]
-        public List<List<string>> Source
+        [DisplayName(@"DataSource"), Description("Используйте таблицу данных в формте List<List<string>> (ColumnsAutoGeneretion должен быть true)")]
+        public object Source
         {
             get => _Source;
             set
             {
                 if (ColumnsAutoGeneretion)
                 {
-                    _Source = value;
-                    _API.Columns.Clear();
-                    var index = 0;
-                    foreach (var item in Source)
+                    try
                     {
-                        _API.Columns.Add(new Column(item.First(), index, typeof(string), item.GetRange(1, item.Count - 1)));
+                        _Source = (List<List<string>>)value;
+
+                        _API.Columns.Clear();
+                        var index = 0;
+                        foreach (var item in _Source)
+                        {
+                            _API.Columns.Add(new Column(item.First(), index, typeof(string), item.GetRange(1, item.Count - 1)));
+                        }
+                        UpdateControl();
                     }
-                    UpdateControl();
+                    catch 
+                    {
+                        throw new Exception("Source должен иметь формат List<List<string>>");
+                    }
 
                 }
             }
@@ -61,17 +72,33 @@ namespace Parser
         [DisplayName(@"ColumnsAutoGeneretion"), Description("Если value=true - колонки генерируются автоматически из коллекции Source"), DefaultValue(false)]
         public bool ColumnsAutoGeneretion { get; set; } = false;
         public Color LineColor { get; set; }
-        // public List<List<string>> ColumnsData { get; set; } = new List<List<string>>();
+       
         public int RowHeight
         {
             get => _RowHeight;
             set
             {
-                _RowHeight = (_RowHeight < Font.Height) ? (Font.Height + 2 * _CellMinMargin + _LineWidth) : (_RowHeight + _LineWidth);
+                if (value > Font.Height + 2 * _CellMinMargin + _LineWidth)
+                {
+                    _RowHeight = value;
+                    UpdateControl();
+                }
+            }
+        }
+      
+        public override Font Font
+        {
+            get { return base.Font; }
+            set
+            {
+                base.Font = value;
+                _RowHeight = (_RowHeight < Font.Height + 2 * _CellMinMargin + _LineWidth) ? (Font.Height + 2 * _CellMinMargin + _LineWidth) : _RowHeight;
+                UpdateControl();
             }
         }
         public MyDataGrid()
         {
+            base.AutoScaleMode = AutoScaleMode.None;
             InitializeComponent();
             _API = new APICore();
             _API.PropertyChanged += APIPropertyChanged;
@@ -93,6 +120,7 @@ namespace Parser
             HorisontalScrollBar.Value = 0;
             _Brush = new SolidBrush(ForeColor);
             _Pen = new Pen(LineColor, _LineWidth);
+            
         }
         private void APIPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
@@ -143,21 +171,22 @@ namespace Parser
             {               
                 _Bufer = CreateBuffer();
                 _TotalRowsCount = _Bufer.Count;
-                _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;
+                _ViewPortRowsCount = (this.Height) / (RowHeight)-1;
                 if (_TableWidth > this.Width)
                 {
-                    var hidenRowsCount = _RowHeight / HorisontalScrollBar.Height;
-                    var remainder = _RowHeight % HorisontalScrollBar.Height;
-                    if (remainder != 0)
-                    {
-                        hidenRowsCount++;
-                    }
-                    _ViewPortRowsCount = _ViewPortRowsCount - hidenRowsCount;
+                 
+                     var hidenRowsCount = _RowHeight / HorisontalScrollBar.Height;
+                     var remainder = _RowHeight % HorisontalScrollBar.Height;
+                      if (remainder != 0)
+                     {
+                       _ViewPortRowsCount--;
+                    }                  
                 }
                 if (_TotalRowsCount > _ViewPortRowsCount)
                 {
                     VerticalScrollBar.Visible = true;
                 }
+                VerticalScrollBar.Minimum = 0;
                 VerticalScrollBar.Maximum = ((_TotalRowsCount - _ViewPortRowsCount) * _VerticalScrollValueRatio) - 1;
                 VerticalScrollBar.SmallChange = _VerticalScrollValueRatio;
                 VerticalScrollBar.LargeChange = _VerticalScrollValueRatio;
@@ -466,9 +495,9 @@ namespace Parser
                     var remainder = _RowHeight % HorisontalScrollBar.Height;
                     if (remainder != 0)
                     {
-                        hidenRowsCount++;
+                        _ViewPortRowsCount--;
                     }
-                    _ViewPortRowsCount = _ViewPortRowsCount - hidenRowsCount;
+                  //  _ViewPortRowsCount = _ViewPortRowsCount - hidenRowsCount;
                 }
                 if (_TotalRowsCount > _ViewPortRowsCount + 1)
                 {

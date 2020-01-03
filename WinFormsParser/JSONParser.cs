@@ -202,11 +202,17 @@ namespace WinFormsParser
         }      
         private void Button1_Click_1(object sender, EventArgs e)
         {
-            string temp = DataTable.Columns[(int)NU_FieldsIndexes.Value].HeaderText;
-            DataTable.Columns.RemoveAt(DataTable.Columns[(int)NU_FieldsIndexes.Value].Index);
-            LB_FieldsList.Items.Remove(temp);
+
+
+          //  DataTable.RowHeight = 100;
+    //    DataTable.Font = new System.Drawing.Font(DataTable.Font.FontFamily, 25.5f);
+      
+           string temp = DataTable.Columns[(int)NU_FieldsIndexes.Value].HeaderText;
+           DataTable.Columns.RemoveAt(DataTable.Columns[(int)NU_FieldsIndexes.Value].Index);
+           LB_FieldsList.Items.Remove(temp);
             temp = "";
             UpdateUI();
+
         }
         private void UpdateUI()
         {
@@ -229,7 +235,7 @@ namespace WinFormsParser
         private void Button3_Click(object sender, EventArgs e)
         {
             DataTable.ColumnsAutoGeneretion = true;
-            DataTable.Source = GetTable();
+            DataTable.Source = GetTable();           
             LB_FieldsList.Items.Clear();
             foreach (var item in DataTable.Columns)
             {
