@@ -43,7 +43,7 @@ namespace Parser
             }
         }
         public int SortedColumnIndex { get; set; } = -1;
-        public ObservableCollection<Column> Columns { get; } = new ObservableCollection<Column>();
+        internal ObservableCollection<Column> Columns { get; } = new ObservableCollection<Column>();
         public event PropertyChangedEventHandler PropertyChanged;
         public APICore()
         {

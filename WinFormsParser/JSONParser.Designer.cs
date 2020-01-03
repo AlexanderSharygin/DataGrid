@@ -60,9 +60,9 @@
             this.GB_Fields.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.GB_Fields.Controls.Add(this.LB_FieldsList);
-            this.GB_Fields.Location = new System.Drawing.Point(12, 70);
+            this.GB_Fields.Location = new System.Drawing.Point(12, 42);
             this.GB_Fields.Name = "GB_Fields";
-            this.GB_Fields.Size = new System.Drawing.Size(192, 266);
+            this.GB_Fields.Size = new System.Drawing.Size(192, 241);
             this.GB_Fields.TabIndex = 0;
             this.GB_Fields.TabStop = false;
             this.GB_Fields.Text = "Список полей";
@@ -72,10 +72,11 @@
             this.LB_FieldsList.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.LB_FieldsList.FormattingEnabled = true;
-            this.LB_FieldsList.Location = new System.Drawing.Point(7, 19);
+            this.LB_FieldsList.Location = new System.Drawing.Point(6, 21);
+            this.LB_FieldsList.MinimumSize = new System.Drawing.Size(4, 50);
             this.LB_FieldsList.Name = "LB_FieldsList";
             this.LB_FieldsList.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
-            this.LB_FieldsList.Size = new System.Drawing.Size(179, 199);
+            this.LB_FieldsList.Size = new System.Drawing.Size(179, 212);
             this.LB_FieldsList.TabIndex = 0;
             this.LB_FieldsList.MouseClick += new System.Windows.Forms.MouseEventHandler(this.LB_FieldsList_MouseClick);
             // 
@@ -98,7 +99,6 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.DataTable.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-          //  this.DataTable.ColumnsData = ((System.Collections.Generic.List<System.Collections.Generic.List<string>>)(resources.GetObject("DataTable.ColumnsData")));
             this.DataTable.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.DataTable.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.DataTable.LineColor = System.Drawing.Color.Black;
@@ -107,14 +107,14 @@
             this.DataTable.Name = "DataTable";
             this.DataTable.RowHeight = 18;
             this.DataTable.Size = new System.Drawing.Size(532, 450);
-            this.DataTable.Source = ((System.Collections.Generic.List<System.Collections.Generic.List<string>>)(resources.GetObject("DataTable.Source")));
+            this.DataTable.Source = ((object)(resources.GetObject("DataTable.Source")));
             this.DataTable.TabIndex = 1;
             // 
             // Add
             // 
-            this.Add.Location = new System.Drawing.Point(19, 12);
+            this.Add.Location = new System.Drawing.Point(12, 12);
             this.Add.Name = "Add";
-            this.Add.Size = new System.Drawing.Size(179, 23);
+            this.Add.Size = new System.Drawing.Size(87, 24);
             this.Add.TabIndex = 3;
             this.Add.Text = "Добавить все";
             this.Add.UseVisualStyleBackColor = true;
@@ -122,9 +122,9 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(13, 60);
+            this.button2.Location = new System.Drawing.Point(6, 60);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(173, 23);
+            this.button2.Size = new System.Drawing.Size(180, 23);
             this.button2.TabIndex = 4;
             this.button2.Text = "Sort";
             this.button2.UseVisualStyleBackColor = true;
@@ -143,13 +143,14 @@
             // CB_FieldsList1
             // 
             this.CB_FieldsList1.FormattingEnabled = true;
-            this.CB_FieldsList1.Location = new System.Drawing.Point(13, 33);
+            this.CB_FieldsList1.Location = new System.Drawing.Point(6, 33);
             this.CB_FieldsList1.Name = "CB_FieldsList1";
-            this.CB_FieldsList1.Size = new System.Drawing.Size(94, 21);
+            this.CB_FieldsList1.Size = new System.Drawing.Size(101, 21);
             this.CB_FieldsList1.TabIndex = 6;
             // 
             // groupBox1
             // 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.CB_SortDirection);
             this.groupBox1.Controls.Add(this.button2);
@@ -180,7 +181,7 @@
             "None"});
             this.CB_SortDirection.Location = new System.Drawing.Point(114, 33);
             this.CB_SortDirection.Name = "CB_SortDirection";
-            this.CB_SortDirection.Size = new System.Drawing.Size(72, 21);
+            this.CB_SortDirection.Size = new System.Drawing.Size(71, 21);
             this.CB_SortDirection.TabIndex = 8;
             // 
             // label1
@@ -194,6 +195,7 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.groupBox2.Controls.Add(this.NU_FieldsIndexes);
             this.groupBox2.Controls.Add(this.button1);
             this.groupBox2.Controls.Add(this.label4);
@@ -252,10 +254,10 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(18, 41);
+            this.button3.Location = new System.Drawing.Point(105, 12);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(179, 23);
-            this.button3.TabIndex = 11;
+            this.button3.Size = new System.Drawing.Size(99, 24);
+            this.button3.TabIndex = 4;
             this.button3.Text = "Автогенерация";
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.Button3_Click);
@@ -265,12 +267,12 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(781, 510);
-            this.Controls.Add(this.button3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.Add);
             this.Controls.Add(this.GB_Table);
             this.Controls.Add(this.GB_Fields);
+            this.Controls.Add(this.button3);
             this.Name = "Show_Button";
             this.Text = "JSONParser";
             this.Load += new System.EventHandler(this.Form1_Load);
