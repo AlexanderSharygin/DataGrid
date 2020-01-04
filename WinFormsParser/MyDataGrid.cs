@@ -146,8 +146,9 @@ namespace Parser
             }
             if (e.PropertyName == "Type")
             {
-
+                
                 Invalidate();
+             
             }
         }
         private void ColumnsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -367,7 +368,9 @@ namespace Parser
             DrawOutsideFrame(e);           
             if (_Bufer.Count != 0 && _Bufer.First().Cells.Count != 0 && Columns.Count > 0)
             {
-           
+                SortedBufer.Clear();
+                SortedBufer.AddRange(_Bufer);
+                SortedBufer.RemoveAt(0);
                 if (_API.SortedColumnIndex != -1)
                 {
                     if (_API.SortDirection != Sort.None)

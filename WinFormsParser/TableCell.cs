@@ -43,9 +43,10 @@ namespace Parser
 
         }
 
-    
-
-       
+        private void TableCell_MouseClick(object sender, MouseEventArgs e)
+        {
+            MessageBox.Show("Мой тип: "+ Type.ToString());
+        }
     }
 }
 

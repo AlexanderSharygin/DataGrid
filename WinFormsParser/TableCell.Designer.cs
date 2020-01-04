@@ -37,6 +37,7 @@
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "TableCell";
             this.Size = new System.Drawing.Size(148, 148);
+            this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.TableCell_MouseClick);
             this.ResumeLayout(false);
 
         }
