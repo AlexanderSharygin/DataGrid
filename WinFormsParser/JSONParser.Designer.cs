@@ -79,6 +79,7 @@
             this.LB_FieldsList.Size = new System.Drawing.Size(179, 212);
             this.LB_FieldsList.TabIndex = 0;
             this.LB_FieldsList.MouseClick += new System.Windows.Forms.MouseEventHandler(this.LB_FieldsList_MouseClick);
+            this.LB_FieldsList.SelectedIndexChanged += new System.EventHandler(this.LB_FieldsList_SelectedIndexChanged);
             // 
             // GB_Table
             // 
@@ -273,6 +274,7 @@
             this.Controls.Add(this.GB_Table);
             this.Controls.Add(this.GB_Fields);
             this.Controls.Add(this.button3);
+            this.DoubleBuffered = true;
             this.Name = "Show_Button";
             this.Text = "JSONParser";
             this.Load += new System.EventHandler(this.Form1_Load);

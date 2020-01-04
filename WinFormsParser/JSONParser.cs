@@ -21,6 +21,7 @@ namespace WinFormsParser
 
         private void Form1_Load(object sender, EventArgs e)
         {
+           
             var inputText = File.ReadAllText("Files\\Data.txt");
             _JSONObjects = JSONParser.ParseSimpleJSON(inputText);        
         }
@@ -237,6 +238,7 @@ namespace WinFormsParser
 
         private void Button3_Click(object sender, EventArgs e)
         {
+            
             DataTable.ColumnsAutoGeneretion = true;
             DataTable.Source = GetTable();           
             LB_FieldsList.Items.Clear();
@@ -256,6 +258,11 @@ namespace WinFormsParser
             {
                 prev.Add((int)item);
             }
+        }
+
+        private void LB_FieldsList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

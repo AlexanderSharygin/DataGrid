@@ -106,8 +106,10 @@ namespace Parser
         }
         public MyDataGrid()
         {
-            base.AutoScaleMode = AutoScaleMode.None;
+            //base.AutoScaleMode = AutoScaleMode.None;
+            
             InitializeComponent();
+            components = new System.ComponentModel.Container();
             _API = new APICore();
             _API.PropertyChanged += APIPropertyChanged;
             Columns.CollectionChanged += ColumnsCollectionChanged;
@@ -329,7 +331,7 @@ namespace Parser
                             {
                                 if (viewPortRowIndex < _ViewPortRowsCount + 1)
                                 {
-                                    TableCell TC = new TableCell();                                 
+                                    TableCell TC = new TableCell();
                                     TC.Type = _API.Columns[i].Type;
                                     TC.ColumnIndex = _API.Columns[i].Index;
                                     TC.LineWidth = _LineWidth;

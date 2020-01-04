@@ -34,6 +34,7 @@
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.DoubleBuffered = true;
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "TableCell";
             this.Size = new System.Drawing.Size(148, 148);
