@@ -123,7 +123,16 @@ namespace Parser
         public bool IsSignedToPropertyChange { get; set; }
         public int Index { get; set; }
         public int Width { get; set; }
-        public Type Type { get; set; }
+        public Type _Type;
+        public Type Type
+        {
+            get => _Type;
+            set
+            {
+                _Type = value;
+                OnPropertyChanged();
+            }
+        }
         public bool Visible
         {
             get

@@ -21,6 +21,7 @@ namespace Parser
         public int ColumnIndex { get; set; }
         public int LineWidth { get; set; }
         public Color LineColor { get; set; }
+        public int StartX { get; set; }
        
         public TableCell()
         {
@@ -30,6 +31,7 @@ namespace Parser
            
             _Brush = new SolidBrush(ForeColor);
             _Pen = new Pen(LineColor,LineWidth);
+           
         }
         protected override void OnPaint(PaintEventArgs e)
         {
@@ -43,10 +45,7 @@ namespace Parser
 
     
 
-        private void TableCell_ParentChanged(object sender, EventArgs e)
-        {
-           // this.Font = Parent.Font;
-        }
+       
     }
 }
 

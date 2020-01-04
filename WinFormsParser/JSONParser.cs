@@ -119,10 +119,13 @@ namespace WinFormsParser
             else
             {
                 SelectedItem = LB_FieldsList.SelectedItem.ToString();
-            }            
-            
-            foreach (var item in DataTable.Columns)
+            }
+
+            for (int i = 0; i < DataTable.Columns.Count; i++)
             {
+                var item = DataTable.Columns[i];
+
+
                 if (item.HeaderText == SelectedItem)
                 {
                     if (Selected.Count > prev.Count)
@@ -204,14 +207,14 @@ namespace WinFormsParser
         {
 
 
-          //  DataTable.RowHeight = 100;
-    //    DataTable.Font = new System.Drawing.Font(DataTable.Font.FontFamily, 25.5f);
+        //  DataTable.RowHeight = 20;
+     //  DataTable.Font = new System.Drawing.Font(DataTable.Font.FontFamily, 15f);
       
            string temp = DataTable.Columns[(int)NU_FieldsIndexes.Value].HeaderText;
-           DataTable.Columns.RemoveAt(DataTable.Columns[(int)NU_FieldsIndexes.Value].Index);
+          DataTable.Columns.RemoveAt(DataTable.Columns[(int)NU_FieldsIndexes.Value].Index);
            LB_FieldsList.Items.Remove(temp);
             temp = "";
-            UpdateUI();
+           UpdateUI();
 
         }
         private void UpdateUI()
