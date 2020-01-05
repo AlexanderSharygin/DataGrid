@@ -1,6 +1,6 @@
 ﻿namespace Parser
 {
-    partial class HeaderCell
+    partial class TableCell
     {
         /// <summary> 
         /// Обязательная переменная конструктора.
@@ -30,17 +30,15 @@
         {
             this.SuspendLayout();
             // 
-            // HeaderCell
+            // TableCell
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.DoubleBuffered = true;
-            this.Name = "HeaderCell";
-            this.Size = new System.Drawing.Size(127, 31);
-           
-            this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.HeaderCell_MouseClick);
+            this.Margin = new System.Windows.Forms.Padding(0);
+            this.Name = "TableCell";
+            this.Size = new System.Drawing.Size(148, 148);
+            this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.TableCell_MouseClick);
             this.ResumeLayout(false);
 
         }

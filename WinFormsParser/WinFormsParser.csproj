@@ -97,6 +97,12 @@
     <Compile Include="TypeSelector.Designer.cs">
       <DependentUpon>TypeSelector.cs</DependentUpon>
     </Compile>
+    <Compile Include="TableCell.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="TableCell.Designer.cs">
+      <DependentUpon>TableCell.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="HeaderCell.resx">
       <DependentUpon>HeaderCell.cs</DependentUpon>
     </EmbeddedResource>
@@ -109,6 +115,9 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TableCell.resx">
+      <DependentUpon>TableCell.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="TypeSelector.resx">
       <DependentUpon>TypeSelector.cs</DependentUpon>

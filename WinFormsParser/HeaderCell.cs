@@ -10,11 +10,16 @@ namespace Parser
     public partial class HeaderCell : UserControl
     {
         int _CellMinMargin = 2;
+        public bool IsMoved;
         bool _IsToMoving = false;
         Column _ColumnData;
         internal APICore _API;
         TypeSelector _TypeSelector = new TypeSelector();
-        public string HeaderText { get; set; }       
+
+       
+
+        public string HeaderText { get; set; }
+        public int StartX { get; set; }
         internal List<HeaderCell> NeighborCells { get; set; } = new List<HeaderCell>();    
         public HeaderCell()
         {
@@ -51,7 +56,8 @@ namespace Parser
         }
         protected override void OnPaint(PaintEventArgs e)
         {
-            _ColumnData.Type = _ColumnData.AllTypes.TypesCollection[_TypeSelector.SelectedItem];
+           // _ColumnData.Type = _ColumnData.AllTypes.TypesCollection[_TypeSelector.SelectedItem];
+         
             e.Graphics.DrawString(HeaderText, Font, new SolidBrush(Color.Black), _CellMinMargin, _CellMinMargin);
             if (_API.SortedColumnIndex == _ColumnData.Index)
             {
@@ -134,11 +140,13 @@ namespace Parser
                        _API.SortDirection = Sort.None;
                    }
                   _API.SortedColumnIndex = _ColumnData.Index;
-                  ChangeSortDirection();                 
+                  ChangeSortDirection();
+                  
                 }
                 else
                 {
                     Parent.Invalidate();
+                    IsMoved = true;
                 }
          
             }
@@ -163,6 +171,7 @@ namespace Parser
 
             }
         }
+
      
     }
 
