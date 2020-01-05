@@ -497,7 +497,7 @@ namespace Parser
                     {
                         _ViewPortRowsCount--;
                     }
-                  //  _ViewPortRowsCount = _ViewPortRowsCount - hidenRowsCount;
+                 
                 }
                 if (_TotalRowsCount > _ViewPortRowsCount + 1)
                 {
@@ -539,6 +539,44 @@ namespace Parser
         }
         private void HorisontalScrollBar_Scroll(object sender, ScrollEventArgs e)
         {
+            Invalidate();
+        }
+
+        private void MyDataGrid_Load(object sender, EventArgs e)
+        {
+           
+        }
+
+        private void MyDataGrid_MouseClick(object sender, MouseEventArgs e)
+        {
+            var X = e.Location.X+HorisontalScrollBar.Value;
+            var Y = e.Location.Y;
+            int xend = 0; 
+            int xstart = 0;
+            foreach (var item in _API.Columns)
+            {
+                if (item.Visible)
+                {
+                xend += (int)(item.Width * this.Font.Size + _CellMinMargin * 2 + _LineWidth);
+                if (xstart < X && X < xend)
+                {
+                    int ItemIndex = Y / RowHeight + _FirstPrintedRowIndex - 1;
+                    MessageBox.Show("Name: " + item.HeaderText + "\n" + "Type: " + item.Type + "\n" + "ItemIndex: " + ItemIndex);
+                    if (item.Type == typeof(string))
+                    {
+                        item.Items[ItemIndex] = "Опа";
+                    }
+                    if (item.Type == typeof(int))
+                    {
+                        var a = 007;
+                        item.Items[ItemIndex] = a.ToString();
+                    }
+                }
+            }
+                xstart = xend;
+
+            }
+            UpdateControl();
             Invalidate();
         }
     }
