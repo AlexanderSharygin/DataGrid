@@ -142,7 +142,7 @@ namespace Parser
             set
             {
                 _HeaderText = value;
-                Width = (Items.Max(k => k.Length) > HeaderText.Length) ? Items.Max(k => k.Length) : HeaderText.Length;
+               Width = (Items.Max(k => k.Length) > HeaderText.Length) ? Items.Max(k => k.Length) : HeaderText.Length;
             }
         }
         public Types AllTypes { get; set; }
@@ -163,9 +163,9 @@ namespace Parser
             Index = index;
             Type = type;
             AllTypes = new Types();
-            Items = items;
+           Items = items;
             _Visible = true;
-            Width = (items.Max(k => k.Length) > headerText.Length) ? items.Max(k => k.Length) : headerText.Length;
+           Width = (items.Max(k => k.Length) > headerText.Length) ? items.Max(k => k.Length) : headerText.Length;
         }
         private void OnPropertyChanged([CallerMemberName]string prop = "")
         {

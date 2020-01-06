@@ -254,5 +254,14 @@ namespace WinFormsParser
                 prev.Add((int)item);
             }
         }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            DataTable.Source = GetTable();
+            DataTable.Columns.Add(new Column("ID", 0, 2) { Visible = true }); 
+            DataTable.Columns.Add(new Column("LastName", 0, 10));
+            DataTable.UpdateBufer();
+
+        }
     }
 }

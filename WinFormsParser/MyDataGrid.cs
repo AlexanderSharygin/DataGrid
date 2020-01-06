@@ -47,32 +47,71 @@ namespace Parser
             get => _Source;
             set
             {
-                if (ColumnsAutoGeneretion)
-                {
-                    try
-                    {
-                        _Source = (List<List<string>>)value;
+                _Source = (List<List<string>>)value;
+              //  if (ColumnsAutoGeneretion)
+              // {
+                //    try
+               //     {
+                //        _Source = (List<List<string>>)value;
 
-                        _API.Columns.Clear();
-                        var index = 0;
-                        foreach (var item in _Source)
-                        {
-                            _API.Columns.Add(new Column(item.First(), index, typeof(string), item.GetRange(1, item.Count - 1)));
-                        }
-                        UpdateControl();
-                    }
-                    catch 
-                    {
-                        throw new Exception("Source должен иметь формат List<List<string>>");
-                    }
+                       // _API.Columns.Clear();
+                       // var index = 0;
+                      //  foreach (var item in _Source)
+                      //  {
+                       //     _API.Columns.Add(new Column(item.First(), index, typeof(string), item.GetRange(1, item.Count - 1)));
+                      //  }
+                      //  UpdateControl();
+               //     }
+               //     catch 
+                //    {
+                //        throw new Exception("Source должен иметь формат List<List<string>>");
+                 //   }
 
                 }
-            }
+            
         }
         [DisplayName(@"ColumnsAutoGeneretion"), Description("Если value=true - колонки генерируются автоматически из коллекции Source"), DefaultValue(false)]
         public bool ColumnsAutoGeneretion { get; set; } = false;
         public Color LineColor { get; set; }
-       
+
+        public void UpdateBufer()
+        {
+            _Bufer.Clear();
+            int rowCounts = _Source.First().Count();
+            for (int j = 0; j < rowCounts; j++)
+            {
+                _Bufer.Add(new Row());
+            }
+            for (int i = 0; i <_API.Columns.Count; i++)
+            {
+                if (_API.Columns[i].Visible)
+                {
+                    var a = _Source.Select(k => k).Where(k => k.First() == _API.Columns[i].HeaderText).Single();
+
+                    for (int k = 0; k < a.Count; k++)
+                    {
+                        Cell temp = new Cell(a[k]);
+                        temp.ColumnNumber = i;
+                        int xSource = 0;
+                        foreach (var item in _Source)
+                        {
+                            if (item.First() == _API.Columns[i].HeaderText)
+                            {
+                                temp.SourceXIndex = xSource;
+                                break;
+                            }
+                            xSource++;
+                        }
+                        temp.SourceYIndex = k;
+
+                        _Bufer[k].Cells.Add(temp);
+                    }
+                } 
+               
+
+            }
+           
+        }
         public int RowHeight
         {
             get => _RowHeight;
@@ -141,6 +180,7 @@ namespace Parser
 
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
+               
                 UpdateControl();
                 foreach (var item in Columns)
                 {
@@ -417,6 +457,8 @@ namespace Parser
             public string Body { get; set; }     
           
             public int ColumnNumber { get; set; }
+            public int SourceXIndex { get; set; }
+            public int SourceYIndex { get; set; }
             public Cell(string Body) 
             {
                 this.Body = Body;        
