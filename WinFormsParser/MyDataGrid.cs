@@ -381,8 +381,7 @@ namespace Parser
                     if (bufferRowIndex < _Bufer.Count)
                     {
                         int xCounterForText = _LineWidth + _CellMinMargin;
-                        int index = 0;
-                        
+                                             
                         for (int j = 0; j < _Bufer[bufferRowIndex].Cells.Count; j++)
                         {
                             if (_API.Columns[j].Visible)
@@ -390,7 +389,7 @@ namespace Parser
                                 Cell Cell = _Bufer[bufferRowIndex].Cells[j];
                                 e.Graphics.DrawString(Cell.Body, this.Font, _Brush, xCounterForText - HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex) + (RowHeight - FontHeight) / 2);
                                 xCounterForText += _API.Columns[j].Width * (int)Font.Size + _CellMinMargin + _LineWidth + _CellMinMargin;
-                                index++;
+                               
                             }
                         }
                         e.Graphics.DrawLine(_Pen, -HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex + 1), _TableWidth - HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex + 1));
@@ -593,7 +592,7 @@ namespace Parser
                     }
                     if (item.Type == typeof(int))
                     {
-                        var a = 007;
+                      //  var a = 007;
                        // item.Items[ItemIndex] = a.ToString();
                     }
                 }
