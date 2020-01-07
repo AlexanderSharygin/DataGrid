@@ -152,7 +152,7 @@ namespace WinFormsParser
             foreach (var item in AggregatedObjectsFields)
             {
                 List<string> temp = GetColumnItems(item);
-                DataTable.Columns.Add(new Column(temp.First(), index, typeof(string), temp.GetRange(1, temp.Count - 1)));
+            //    DataTable.Columns.Add(new Column(temp.First(), index, typeof(string), temp.GetRange(1, temp.Count - 1)));
 
                 DataTable.Columns.Last().Visible = false;
 
@@ -258,8 +258,8 @@ namespace WinFormsParser
         private void button4_Click(object sender, EventArgs e)
         {
             DataTable.Source = GetTable();
-            DataTable.Columns.Add(new Column("ID", 0, 2) { Visible = true }); 
-            DataTable.Columns.Add(new Column("LastName", 0, 10));
+            DataTable.Columns.Add(new Column("ID",  typeof(int)) { Visible = true }); 
+            DataTable.Columns.Add(new Column("LastName",  typeof(string)) { Visible = true });
             DataTable.UpdateBufer();
 
         }

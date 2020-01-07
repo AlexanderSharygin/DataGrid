@@ -14,7 +14,7 @@ namespace Parser
     {
         List<string> _Items = new List<string>();
         string _SelectedItem;
-        internal Column ColumnData { get; set; } = new Column("", 0, 0);
+        internal Column ColumnData { get; set; } = new Column("", typeof(String));
         public TypeSelector()
         {
             InitializeComponent();           

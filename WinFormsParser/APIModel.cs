@@ -96,18 +96,7 @@ namespace Parser
                         }
                     }
                 }
-                int MaxColumnsItemsCount = Columns.Max(k => k.Items.Count);
-                foreach (var item in Columns)
-                {
-                    if (item.Items.Count < MaxColumnsItemsCount)
-                    {
-                        int a = MaxColumnsItemsCount - item.Items.Count;
-                        for (int i = 0; i < a; i++)
-                        {
-                            item.Items.Add("");
-                        }
-                    }
-                }
+                
             }
         }
         internal void SortColumns()
@@ -142,31 +131,21 @@ namespace Parser
             set
             {
                 _HeaderText = value;
-               Width = (Items.Max(k => k.Length) > HeaderText.Length) ? Items.Max(k => k.Length) : HeaderText.Length;
+               Width = (Width > HeaderText.Length) ? Width : HeaderText.Length;
             }
         }
         public Types AllTypes { get; set; }
-        public List<string> Items { get; set; } = new List<string>();
+     
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public Column(string headerText, int index, int width)
+        public Column(string headerText, Type type)
         {
             _HeaderText = headerText;
-            Index = index;
-            Width = width;
+            Index =0;
+            Width = 1;
             AllTypes = new Types();
-            Type = typeof(String);
-        }
-        public Column(string headerText, int index, Type type, List<string> items)
-        {
-            _HeaderText = headerText;
-            Index = index;
-            Type = type;
-            AllTypes = new Types();
-           Items = items;
-            _Visible = true;
-           Width = (items.Max(k => k.Length) > headerText.Length) ? items.Max(k => k.Length) : headerText.Length;
-        }
+            Type =type;
+        }     
         private void OnPropertyChanged([CallerMemberName]string prop = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));

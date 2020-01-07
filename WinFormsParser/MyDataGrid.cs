@@ -73,6 +73,32 @@ namespace Parser
         [DisplayName(@"ColumnsAutoGeneretion"), Description("Если value=true - колонки генерируются автоматически из коллекции Source"), DefaultValue(false)]
         public bool ColumnsAutoGeneretion { get; set; } = false;
         public Color LineColor { get; set; }
+        public int RowHeight
+        {
+            get => _RowHeight;
+            set
+            {
+                if (value > Font.Height + 2 * _CellMinMargin + _LineWidth)
+                {
+                    _RowHeight = value;
+                    UpdateControl();
+                }
+            }
+        }
+
+        public override Font Font
+        {
+            get { return base.Font; }
+            set
+            {
+                base.Font = value;
+                _RowHeight = (_RowHeight < Font.Height + 2 * _CellMinMargin + _LineWidth) ? (Font.Height + 2 * _CellMinMargin + _LineWidth) : _RowHeight;
+                UpdateControl();
+            }
+        }
+
+
+
 
         public void UpdateBufer()
         {
@@ -84,14 +110,13 @@ namespace Parser
             }
             for (int i = 0; i <_API.Columns.Count; i++)
             {
-                if (_API.Columns[i].Visible)
-                {
+               
                     var a = _Source.Select(k => k).Where(k => k.First() == _API.Columns[i].HeaderText).Single();
 
                     for (int k = 0; k < a.Count; k++)
                     {
                         Cell temp = new Cell(a[k]);
-                        temp.ColumnNumber = i;
+                        temp.ColumnNumber = _API.Columns[i].Index;
                         int xSource = 0;
                         foreach (var item in _Source)
                         {
@@ -106,35 +131,59 @@ namespace Parser
 
                         _Bufer[k].Cells.Add(temp);
                     }
-                } 
-               
-
-            }
-           
+                }                              
         }
-        public int RowHeight
+        private void UpdateControl()
         {
-            get => _RowHeight;
-            set
+            if (_API.Columns.Count != 0)
             {
-                if (value > Font.Height + 2 * _CellMinMargin + _LineWidth)
+                UpdateBufer();
+                _TotalRowsCount = _Bufer.Count;
+                _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;
+                if (_TableWidth > this.Width)
+                {                   
+                    var remainder = _RowHeight % HorisontalScrollBar.Height;
+                    if (remainder != 0)
+                    {
+                        _ViewPortRowsCount--;
+                    }
+                }
+                if (_TotalRowsCount > _ViewPortRowsCount)
                 {
-                    _RowHeight = value;
-                    UpdateControl();
+                    VerticalScrollBar.Visible = true;
+                }
+                VerticalScrollBar.Minimum = 0;
+                VerticalScrollBar.Maximum = ((_TotalRowsCount - _ViewPortRowsCount) * _VerticalScrollValueRatio) - 1;
+                VerticalScrollBar.SmallChange = _VerticalScrollValueRatio;
+                VerticalScrollBar.LargeChange = _VerticalScrollValueRatio;
+                UpdateHorizontalScroll();
+                HorisontalScrollBar.Value = 0;
+                HorisontalScrollBar.SmallChange = _HorisontalScrollValueRatio;
+                HorisontalScrollBar.LargeChange = _HorisontalScrollValueRatio;
+                Invalidate();
+                for (int i = 0; i < Controls.Count; i++)
+                {
+                    Type Type = Controls[i].GetType();
+
+                    if (Type == typeof(TypeSelector))
+                    {
+                        Controls[i].Visible = false;
+                    }
                 }
             }
-        }
-      
-        public override Font Font
-        {
-            get { return base.Font; }
-            set
+            else
             {
-                base.Font = value;
-                _RowHeight = (_RowHeight < Font.Height + 2 * _CellMinMargin + _LineWidth) ? (Font.Height + 2 * _CellMinMargin + _LineWidth) : _RowHeight;
-                UpdateControl();
+                Invalidate();
             }
         }
+
+
+
+
+
+
+
+       
         public MyDataGrid()
         {
             base.AutoScaleMode = AutoScaleMode.None;
@@ -205,64 +254,33 @@ namespace Parser
                 _API.SortedColumnIndex = newSortedColumn.Index;
             }
         }
-        private void UpdateControl()
-        {           
-            if (_API.Columns.Count != 0)
-            {               
-                _Bufer = CreateBuffer();
-                _TotalRowsCount = _Bufer.Count;
-                _ViewPortRowsCount = (this.Height) / (RowHeight)-1;
-                if (_TableWidth > this.Width)
-                {
-                 
-                     var hidenRowsCount = _RowHeight / HorisontalScrollBar.Height;
-                     var remainder = _RowHeight % HorisontalScrollBar.Height;
-                      if (remainder != 0)
-                     {
-                       _ViewPortRowsCount--;
-                    }                  
-                }
-                if (_TotalRowsCount > _ViewPortRowsCount)
-                {
-                    VerticalScrollBar.Visible = true;
-                }
-                VerticalScrollBar.Minimum = 0;
-                VerticalScrollBar.Maximum = ((_TotalRowsCount - _ViewPortRowsCount) * _VerticalScrollValueRatio) - 1;
-                VerticalScrollBar.SmallChange = _VerticalScrollValueRatio;
-                VerticalScrollBar.LargeChange = _VerticalScrollValueRatio;
-                UpdateHorizontalScroll();
-                HorisontalScrollBar.Value = 0;
-                HorisontalScrollBar.SmallChange = _HorisontalScrollValueRatio;
-                HorisontalScrollBar.LargeChange = _HorisontalScrollValueRatio;
-                Invalidate();
-                for (int i = 0; i < Controls.Count; i++)
-                {
-                    Type Type = Controls[i].GetType();
-
-                    if (Type == typeof(TypeSelector))
-                    {
-                        Controls[i].Visible = false;
-                    }
-                }
-            }
-            else
-            {
-                Invalidate();
-            }
-
-
-        }
+       
         protected override void OnPaint(PaintEventArgs e)
         {
 
             _Pen.Color = LineColor;
             _TableWidth = 0;
+            foreach (var APIColumn in _API.Columns)
+            {
+
+                foreach (var item in _Bufer.First().Cells)
+                {
+                    if (item.Body == APIColumn.HeaderText)
+                    {
+                        int columnNumber = item.ColumnNumber;
+                        var columnItems = _Bufer.Select(k => k.Cells[columnNumber].Body).ToList();
+                        int columnWidth = (columnItems.Max(k => k.Length)>APIColumn.HeaderText.Length)? columnItems.Max(k => k.Length): APIColumn.HeaderText.Length;
+                        APIColumn.Width = columnWidth;
+                    }
+                }
+                if (APIColumn.Visible)
+                {
+                    _TableWidth += (_LineWidth + _CellMinMargin + APIColumn.Width * (int)this.Font.Size + _CellMinMargin);
+                }
+            }
             foreach (var item in _API.Columns)
             {
-                if (item.Visible)
-                {
-                    _TableWidth += (_LineWidth + _CellMinMargin + item.Width * (int)this.Font.Size + _CellMinMargin);
-                }
+               
             }
             UpdateHorizontalScroll();
             DrawTable(e);
@@ -292,11 +310,11 @@ namespace Parser
                 {
                     if (_API.Columns[i].Visible)
                     {
-                        e.Graphics.DrawLine(_Pen, xCounterForLine - HorisontalScrollBar.Value, 0, xCounterForLine - HorisontalScrollBar.Value, RowHeight * (_ViewPortRowsCount + 1));
+                        e.Graphics.DrawLine(_Pen, xCounterForLine - HorisontalScrollBar.Value, 0, xCounterForLine - HorisontalScrollBar.Value, RowHeight * (_ViewPortRowsCount+1));
                         xCounterForLine += _LineWidth + _CellMinMargin + _API.Columns[i].Width * (int)this.Font.Size + _CellMinMargin;
                     }
                 }
-                e.Graphics.DrawLine(_Pen, _TableWidth - HorisontalScrollBar.Value, 0, _TableWidth - HorisontalScrollBar.Value, 0 + RowHeight * (_ViewPortRowsCount + 1));
+                e.Graphics.DrawLine(_Pen, _TableWidth - HorisontalScrollBar.Value, 0, _TableWidth - HorisontalScrollBar.Value, 0 + RowHeight * (_ViewPortRowsCount+1));
                 e.Graphics.DrawLine(_Pen, 0 - HorisontalScrollBar.Value, RowHeight, _TableWidth - HorisontalScrollBar.Value, RowHeight);
 
                 Control HorizontalScroll = Controls[0];
@@ -338,31 +356,38 @@ namespace Parser
             if (_Bufer.Count != 0 && _Bufer.First().Cells.Count != 0 && Columns.Count > 0)
             {
                 SortBuferColumns();
-                _API.SortColumns();
-                List<Row> SortedBufer = new List<Row>();
-                SortedBufer.AddRange(_Bufer);
-                SortedBufer.RemoveAt(0);
-                if (_API.SortedColumnIndex != -1)
-                {
+              _API.SortColumns();
+              Row firstRowBufer = new Row();
+              firstRowBufer = _Bufer.First();               
+              _Bufer.RemoveAt(0);
+                
                     if (_API.SortDirection != Sort.None)
                     {
                         RowComparer u = (_API.SortDirection == Sort.ASC) ? new RowComparer(true, _API.SortedColumnIndex, _API.Columns[_API.SortedColumnIndex].Type) : new RowComparer(false, _API.SortedColumnIndex, _API.Columns[_API.SortedColumnIndex].Type);
-                        SortedBufer.Sort(u);
+                        _Bufer.Sort(u);
                     }
-                }
-                int bufferRowIndex = _FirstPrintedRowIndex;
+                    else if(_API.SortDirection == Sort.None)
+                    {
+                        _Bufer.Sort((a,b)=>a.Cells.First().SourceYIndex.CompareTo(b.Cells.First().SourceYIndex));
+                    }
+               
+                _Bufer.Insert(0, firstRowBufer);
+                int bufferRowIndex = _FirstPrintedRowIndex+1;
                 int viewPortRowIndex = 1;
+
+               
                 for (int i = 0; i < _ViewPortRowsCount; i++)
                 {
-                    if (bufferRowIndex < SortedBufer.Count)
+                    if (bufferRowIndex < _Bufer.Count)
                     {
                         int xCounterForText = _LineWidth + _CellMinMargin;
                         int index = 0;
-                        for (int j = 0; j < SortedBufer[bufferRowIndex].Cells.Count; j++)
+                        
+                        for (int j = 0; j < _Bufer[bufferRowIndex].Cells.Count; j++)
                         {
                             if (_API.Columns[j].Visible)
                             {
-                                Cell Cell = SortedBufer[bufferRowIndex].Cells[j];
+                                Cell Cell = _Bufer[bufferRowIndex].Cells[j];
                                 e.Graphics.DrawString(Cell.Body, this.Font, _Brush, xCounterForText - HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex) + (RowHeight - FontHeight) / 2);
                                 xCounterForText += _API.Columns[j].Width * (int)Font.Size + _CellMinMargin + _LineWidth + _CellMinMargin;
                                 index++;
@@ -393,7 +418,7 @@ namespace Parser
             }
             _Bufer.ForEach(k => k.Cells = k.Cells.OrderBy(f => f.ColumnNumber).ToList());
         }
-
+        
         private void UpdateHorizontalScroll()
         {
             var viewportWidth = this.ClientSize.Width - (VerticalScrollBar.Visible ? VerticalScrollBar.Width : 0);
@@ -407,50 +432,8 @@ namespace Parser
                 HorisontalScrollBar.Visible = false;
                 HorisontalScrollBar.Maximum = 0;
             }
-        }
-        private List<Row> CreateBuffer()
-        {
-
-            List<Row> tableRows = new List<Row>();
-            for (int i = 0; i < _API.Columns.First().Items.Count + 1; i++)
-            {
-                tableRows.Add(new Row());
-            }
-            for (int i = 0; i < tableRows.Count; i++)
-            {
-                if (i == 0)
-                {
-                    for (int j = 0; j < _API.Columns.Count; j++)
-                    {
-                        tableRows[i].Cells.Add(new Cell(_API.Columns[j].HeaderText));
-                    }
-                }
-                else
-                {
-                    for (int j = 0; j < _API.Columns.Count; j++)
-                    {
-                        tableRows[i].Cells.Add(new Cell(_API.Columns[j].Items[i - 1]));
-                    }
-                }
-            }
-            foreach (var item in tableRows)
-            {
-                for (int i = 0; i < item.Cells.Count; i++)
-                {
-                    item.Cells[i].ColumnNumber = i;
-                }
-            }
-            var width = 0;
-            foreach (var item in _API.Columns)
-            {
-                if (item.Visible)
-                {
-                    width += (_LineWidth + _CellMinMargin + item.Width * (int)this.Font.Size + _CellMinMargin);
-                }
-            }
-            _TableWidth = width + _LineWidth;
-            return tableRows;
-        }
+       }
+     
 
         class Cell
         {
@@ -602,16 +585,16 @@ namespace Parser
                 xend += (int)(item.Width * this.Font.Size + _CellMinMargin * 2 + _LineWidth);
                 if (xstart < X && X < xend)
                 {
-                    int ItemIndex = Y / RowHeight + _FirstPrintedRowIndex - 1;
+                    int ItemIndex = Y / RowHeight + _FirstPrintedRowIndex;
                     MessageBox.Show("Name: " + item.HeaderText + "\n" + "Type: " + item.Type + "\n" + "ItemIndex: " + ItemIndex);
                     if (item.Type == typeof(string))
                     {
-                        item.Items[ItemIndex] = "Опа";
+                       // item.Items[ItemIndex] = "Опа";
                     }
                     if (item.Type == typeof(int))
                     {
                         var a = 007;
-                        item.Items[ItemIndex] = a.ToString();
+                       // item.Items[ItemIndex] = a.ToString();
                     }
                 }
             }
