@@ -8,7 +8,6 @@ using System.Windows.Forms;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
 
 namespace Parser
 {
@@ -17,10 +16,9 @@ namespace Parser
 
     public partial class MyDataGrid : UserControl
     {
-        //!why are you initializing them here?
-        List<List<string>> _Source = new List<List<string>>();
-        List<Row> _Bufer = new List<Row>();
-        //
+      
+        List<List<string>> _Source;
+        List<Row> _Bufer;       
         APICore _API;
         int _RowHeight;
         int _LineWidth = 1;
@@ -33,8 +31,36 @@ namespace Parser
         float _TableWidth;
         Brush _Brush;
         Pen _Pen;
+        public MyDataGrid()
+        {
+            AutoScaleMode = AutoScaleMode.None;
+            InitializeComponent();
+            components = new System.ComponentModel.Container();
+            _Source = new List<List<string>>();
+            _Bufer = new List<Row>();           
+            _API = new APICore();
+            _API.PropertyChanged += APIPropertyChanged;
+            Columns.CollectionChanged += ColumnsCollectionChanged;
+            ResizeRedraw = true;         
+            VerticalScrollBar.Minimum = 0;
+            VerticalScrollBar.Value = 0;
+            if (VerticalScrollBar.Visible)
+            {
+                HorisontalScrollBar.Width = this.ClientSize.Width - VerticalScrollBar.Width;
+            }
+            else
+            {
+                HorisontalScrollBar.Width = this.Width;
+            }
+            HorisontalScrollBar.Maximum = 0;
+            HorisontalScrollBar.Minimum = 0;
+            HorisontalScrollBar.Value = 0;
+            _Brush = new SolidBrush(ForeColor);
+            _Pen = new Pen(LineColor, _LineWidth);
 
-       //!why internal?
+        }
+
+        //!why internal?
         internal ObservableCollection<Column> Columns
         {
             get
@@ -42,35 +68,16 @@ namespace Parser
                 return _API.Columns;
             }
 
-        }
-        //!why do you need attributes here? Why display name differs from the class name?
-        [DisplayName(@"DataSource"), Description("Используйте таблицу данных в формте List<List<string>> (ColumnsAutoGeneretion должен быть true)")]
+        }      
+        [DisplayName(@"Source")]
         public object Source
         {
             get => _Source;
             set
             {
                 _Source = (List<List<string>>)value;
-              //  if (ColumnsAutoGeneretion)
-              // {
-                //    try
-               //     {
-                //        _Source = (List<List<string>>)value;
 
-                       // _API.Columns.Clear();
-                       // var index = 0;
-                      //  foreach (var item in _Source)
-                      //  {
-                       //     _API.Columns.Add(new Column(item.First(), index, typeof(string), item.GetRange(1, item.Count - 1)));
-                      //  }
-                      //  UpdateControl();
-               //     }
-               //     catch 
-                //    {
-                //        throw new Exception("Source должен иметь формат List<List<string>>");
-                 //   }
-
-                }
+            }
             
         }
         [DisplayName(@"ColumnsAutoGeneretion"), Description("Если value=true - колонки генерируются автоматически из коллекции Source"), DefaultValue(false)]
@@ -112,38 +119,31 @@ namespace Parser
             for (int j = 0; j < rowCounts; j++)
             {
                 _Bufer.Add(new Row());
-            }
-            //!rewrite this
-            for (int i = 0; i <_API.Columns.Count; i++)
-            {
-                    //!simplify this
-                    var a = _Source.Select(k => k).Where(k => k.First() == _API.Columns[i].HeaderText).Single();
-                    //
-
-                    for (int k = 0; k < a.Count; k++)
+            }      
+            for (int i = 0; i < _API.Columns.Count; i++)
+            {             
+                int index = 0;
+                for (int j = 0; j < _Source.Count; j++)
+                {
+                    if (_API.Columns[i].HeaderText == _Source[j].First())
                     {
-                        Cell temp = new Cell(a[k]);
-                        temp.ColumnNumber = _API.Columns[i].Index;
-                        int xSource = 0;
-                        foreach (var item in _Source)
-                        {
-                            if (item.First() == _API.Columns[i].HeaderText)
-                            {
-                                temp.SourceXIndex = xSource;
-                                break;
-                            }
-                            xSource++;
-                        }
-                        temp.SourceYIndex = k;
-
-                        _Bufer[k].Cells.Add(temp);
+                        index = j;
                     }
-                }                              
+                }        
+                for (int k = 0; k < _Source[index].Count; k++)
+                {
+                    Cell temp = new Cell();
+                    temp.Body = _Source[index][k];                  
+                    temp.SourceXIndex = index;                        
+                    temp.SourceYIndex = k;
+                    _Bufer[k].Cells.Add(temp);
+                }
+            }                                 
         }
         private void UpdateControl()
         {
-            //!why not Counnt > 0 ?
-            if (_API.Columns.Count != 0)
+           
+            if (_API.Columns.Count > 0)
             {
                 UpdateBufer();
                 _TotalRowsCount = _Bufer.Count;
@@ -184,42 +184,8 @@ namespace Parser
                 //!why?
                 Invalidate();
             }
-        }
-
-
-
-
-
-
-
-       
-        public MyDataGrid()
-        {
-            //!why base?
-            base.AutoScaleMode = AutoScaleMode.None;
-            InitializeComponent();
-            _API = new APICore();
-            _API.PropertyChanged += APIPropertyChanged;
-            Columns.CollectionChanged += ColumnsCollectionChanged;
-            ResizeRedraw = true;
-            components = new System.ComponentModel.Container();
-            VerticalScrollBar.Minimum = 0;
-            VerticalScrollBar.Value = 0;
-            if (VerticalScrollBar.Visible)
-            {
-                HorisontalScrollBar.Width = this.ClientSize.Width - VerticalScrollBar.Width;
-            }
-            else
-            {
-                HorisontalScrollBar.Width = this.Width;
-            }
-            HorisontalScrollBar.Maximum = 0;
-            HorisontalScrollBar.Minimum = 0;
-            HorisontalScrollBar.Value = 0;
-            _Brush = new SolidBrush(ForeColor);
-            _Pen = new Pen(LineColor, _LineWidth);
-            
-        }
+        }     
+        
         private void APIPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "SortDirection")
@@ -268,22 +234,21 @@ namespace Parser
        
         protected override void OnPaint(PaintEventArgs e)
         {
-
             _Pen.Color = LineColor;
             _TableWidth = 0;
             foreach (var APIColumn in _API.Columns)
             {
-
-                foreach (var item in _Bufer.First().Cells)
+                int index = 0;
+                for (int i = 0; i < _Bufer.First().Cells.Count; i++)
                 {
-                    if (item.Body == APIColumn.HeaderText)
+                    if (APIColumn.HeaderText == _Bufer.First().Cells[i].Body)
                     {
-                        int columnNumber = item.ColumnNumber;
-                        var columnItems = _Bufer.Select(k => k.Cells[columnNumber].Body).ToList();
-                        int columnWidth = (columnItems.Max(k => k.Length)>APIColumn.HeaderText.Length)? columnItems.Max(k => k.Length): APIColumn.HeaderText.Length;
-                        APIColumn.Width = columnWidth;
+                        index = i;
                     }
-                }
+                }              
+                var columnItems = _Bufer.Select(k => k.Cells[index].Body).ToList();
+                int columnWidth = (columnItems.Max(k => k.Length) > APIColumn.HeaderText.Length) ? columnItems.Max(k => k.Length) : APIColumn.HeaderText.Length;
+                APIColumn.Width = columnWidth;
                 if (APIColumn.Visible)
                 {
                     _TableWidth += (_LineWidth + _CellMinMargin + APIColumn.Width * (int)this.Font.Size + _CellMinMargin);
@@ -307,38 +272,57 @@ namespace Parser
             e.Graphics.DrawLine(_Pen, 0, this.Height, 0, 0);
         }
 
-        private void DrawHeader(PaintEventArgs e)
+        private void DrawTable(PaintEventArgs e)
         {
-
-            if (_Bufer.Count != 0)
+            DrawOutsideFrame(e);
+            if (_Bufer.Count != 0 && _Bufer.First().Cells.Count != 0 && Columns.Count > 0)
             {
+                _API.SortColumns();
+                Row firstRowBufer = new Row();
+                firstRowBufer = _Bufer.First();
+                int sortedIndex = 0;
+                if (_API.SortedColumnIndex != -1)
+                {
+                    for (int k = 0; k < _Bufer.First().Cells.Count; k++)
+                    {
+
+                        if (_API.Columns[_API.SortedColumnIndex].HeaderText == _Bufer.First().Cells[k].Body)
+                        {
+                            sortedIndex = k;
+                        }
+                    }
+                }
+                _Bufer.RemoveAt(0);               
+                if (_API.SortDirection != Sort.None)
+                {
+                    RowComparer u = (_API.SortDirection == Sort.ASC) ? new RowComparer(true, sortedIndex, _API.Columns[_API.SortedColumnIndex].Type) : new RowComparer(false, sortedIndex, _API.Columns[_API.SortedColumnIndex].Type);
+                   _Bufer.Sort(u);
+                }
+                else if (_API.SortDirection == Sort.None)
+                {                   
+                    //!why are you using lambda instead of a seaprate row comparer here? or, why do you use the row comparer in the code above?
+                    _Bufer.Sort((a, b) => a.Cells.First().SourceYIndex.CompareTo(b.Cells.First().SourceYIndex));
+                }
+                _Bufer.Insert(0, firstRowBufer);         
+
                 if (_ViewPortRowsCount > _Bufer.Count - 1)
                 {
                     _ViewPortRowsCount = _Bufer.Count - 1;
                 }
-                int xCounterForLine = 0;
-                for (int i = 0; i < _API.Columns.Count; i++)
-                {
-                    if (_API.Columns[i].Visible)
-                    {
-                        e.Graphics.DrawLine(_Pen, xCounterForLine - HorisontalScrollBar.Value, 0, xCounterForLine - HorisontalScrollBar.Value, RowHeight * (_ViewPortRowsCount+1));
-                        xCounterForLine += _LineWidth + _CellMinMargin + _API.Columns[i].Width * (int)this.Font.Size + _CellMinMargin;
-                    }
-                }
-                e.Graphics.DrawLine(_Pen, _TableWidth - HorisontalScrollBar.Value, 0, _TableWidth - HorisontalScrollBar.Value, 0 + RowHeight * (_ViewPortRowsCount+1));
-                e.Graphics.DrawLine(_Pen, 0 - HorisontalScrollBar.Value, RowHeight, _TableWidth - HorisontalScrollBar.Value, RowHeight);
-
+                int xCounterForLine = 0;           
+ 
                 Control HorizontalScroll = Controls[0];
                 Control VerticalScroll = Controls[1];
                 Controls.Clear();
                 Controls.Add(HorizontalScroll);
                 Controls.Add(VerticalScroll);
                 int xCounter = 0;
-
-
+                int xCounterForText = _LineWidth + _CellMinMargin;
                 List<HeaderCell> Header = new List<HeaderCell>();
                 for (int i = 0; i < _API.Columns.Count; i++)
                 {
+                    int bufferRowIndex = _FirstPrintedRowIndex + 1;
+                    int viewPortRowIndex = 1;
                     if (_API.Columns[i].Visible)
                     {
                         HeaderCell Cell = new HeaderCell(_API.Columns[i]);
@@ -350,93 +334,44 @@ namespace Parser
                         xCounter += _LineWidth + _CellMinMargin + _API.Columns[i].Width * (int)this.Font.Size + _CellMinMargin;
                         Header.Add(Cell);
                         Controls.Add(Cell);
-                    }
-                }
-                foreach (var headerCell in Header)
-                {
-                    List<HeaderCell> temp = new List<HeaderCell>();
-                    var OtherCells = Header.Select(k => k).Where(k => k != headerCell).ToList();
-                    headerCell.NeighborCells.Clear();
-                    headerCell.NeighborCells.AddRange(OtherCells);
-                }
-            }
-        }
-        private void DrawTable(PaintEventArgs e)
-        {
-            DrawOutsideFrame(e);
-            if (_Bufer.Count != 0 && _Bufer.First().Cells.Count != 0 && Columns.Count > 0)
-            {
-                //!why are you sorting all the stuff again on every paint?
-                SortBuferColumns();
-              _API.SortColumns();
-                //
-              Row firstRowBufer = new Row();
-              firstRowBufer = _Bufer.First();               
-              _Bufer.RemoveAt(0);
-                
-                    if (_API.SortDirection != Sort.None)
-                    {
-                        RowComparer u = (_API.SortDirection == Sort.ASC) ? new RowComparer(true, _API.SortedColumnIndex, _API.Columns[_API.SortedColumnIndex].Type) : new RowComparer(false, _API.SortedColumnIndex, _API.Columns[_API.SortedColumnIndex].Type);
-                    //!you already performed similar sorting above.
-                    _Bufer.Sort(u);
-                    }
-                    else if(_API.SortDirection == Sort.None)
-                    {
-                    //!you already performed similar sorting above.
-                    //!why are you using lambda instead of a seaprate row comparer here? or, why do you use the row comparer in the code above?
-                    _Bufer.Sort((a,b)=>a.Cells.First().SourceYIndex.CompareTo(b.Cells.First().SourceYIndex));
-                    }
-               
-                _Bufer.Insert(0, firstRowBufer);
-                int bufferRowIndex = _FirstPrintedRowIndex+1;
-                int viewPortRowIndex = 1;
-
-               
-                for (int i = 0; i < _ViewPortRowsCount; i++)
-                {
-                    if (bufferRowIndex < _Bufer.Count)
-                    {
-                        int xCounterForText = _LineWidth + _CellMinMargin;
-                                             
-                        for (int j = 0; j < _Bufer[bufferRowIndex].Cells.Count; j++)
+                        for (int j = 0; j < _ViewPortRowsCount; j++)
                         {
-                            if (_API.Columns[j].Visible)
+                            if (bufferRowIndex < _Bufer.Count)
                             {
-                                Cell Cell = _Bufer[bufferRowIndex].Cells[j];
-                                e.Graphics.DrawString(Cell.Body, this.Font, _Brush, xCounterForText - HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex) + (RowHeight - FontHeight) / 2);
-                                xCounterForText += _API.Columns[j].Width * (int)Font.Size + _CellMinMargin + _LineWidth + _CellMinMargin;
-                               
+                                int index = 0;
+                                for (int k = 0; k < _Bufer.First().Cells.Count; k++)
+                                {
+                                    if (_API.Columns[i].HeaderText == _Bufer.First().Cells[k].Body)
+                                    {
+                                        index = k;
+                                    }
+                                }                                
+                                Cell TCell = _Bufer[bufferRowIndex].Cells[index];
+                                e.Graphics.DrawString(TCell.Body, this.Font, _Brush, xCounterForText - HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex) + (RowHeight - FontHeight) / 2);       
+                                e.Graphics.DrawLine(_Pen, -HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex + 1), _TableWidth - HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex + 1));
+                                viewPortRowIndex++;
+                                bufferRowIndex++;
                             }
                         }
-                        e.Graphics.DrawLine(_Pen, -HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex + 1), _TableWidth - HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex + 1));
-                        viewPortRowIndex++;
-                        bufferRowIndex++;
+                        e.Graphics.DrawLine(_Pen, xCounterForLine - HorisontalScrollBar.Value, 0, xCounterForLine - HorisontalScrollBar.Value, RowHeight * (_ViewPortRowsCount + 1));
+                        xCounterForLine += _LineWidth + _CellMinMargin + _API.Columns[i].Width * (int)this.Font.Size + _CellMinMargin;
+                    }
+                    xCounterForText += _API.Columns[i].Width * (int)Font.Size + _CellMinMargin + _LineWidth + _CellMinMargin;
+                    foreach (var headerCell in Header)
+                    {
+                        List<HeaderCell> temp = new List<HeaderCell>();
+                        var OtherCells = Header.Select(k => k).Where(k => k != headerCell).ToList();
+                        headerCell.NeighborCells.Clear();
+                        headerCell.NeighborCells.AddRange(OtherCells);
                     }
                 }
+                e.Graphics.DrawLine(_Pen, _TableWidth - HorisontalScrollBar.Value, 0, _TableWidth - HorisontalScrollBar.Value, 0 + RowHeight * (_ViewPortRowsCount + 1));
+                e.Graphics.DrawLine(_Pen, 0 - HorisontalScrollBar.Value, RowHeight, _TableWidth - HorisontalScrollBar.Value, RowHeight);
             }
-            DrawHeader(e);
-
         }
-        //!rewrite this logic. don't mix up linq with loops
-        private void SortBuferColumns()
-        {
-            foreach (var Cell in _Bufer.First().Cells)
-            {
-                //!simplify this linq
-                Cell.ColumnNumber = _API.Columns.Where(u => Cell.Body == u.HeaderText).Select(u => u.Index).Single();
-            }
-            for (int i = 1; i < _Bufer.Count; i++)
-            {
-                for (int j = 0; j < _Bufer.First().Cells.Count; j++)
-                {
-                    //!simplify this
-                    var Column = _Bufer.Select(k => k.Cells[j]).ToList();
-                    Column.ForEach(k => k.ColumnNumber = Column.First().ColumnNumber);
-                    //
-                }
-            }
-            _Bufer.ForEach(k => k.Cells = k.Cells.OrderBy(f => f.ColumnNumber).ToList());
-        }
+          
+       
+       
         
         private void UpdateHorizontalScroll()
         {
@@ -456,16 +391,10 @@ namespace Parser
 
         class Cell
         {
-            public string Body { get; set; }     
-          
-            public int ColumnNumber { get; set; }
+            public string Body { get; set; }          
             public int SourceXIndex { get; set; }
             public int SourceYIndex { get; set; }
-            //!why constructor?
-            public Cell(string Body) 
-            {
-                this.Body = Body;        
-            }
+           
         }
         class Row
         {

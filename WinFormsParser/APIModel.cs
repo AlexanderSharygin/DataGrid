@@ -43,7 +43,7 @@ namespace Parser
             }
         }
         public int SortedColumnIndex { get; set; } = -1;
-        internal ObservableCollection<Column> Columns { get; } = new ObservableCollection<Column>();
+        public ObservableCollection<Column> Columns { get; } = new ObservableCollection<Column>();
         public event PropertyChangedEventHandler PropertyChanged;
         public APICore()
         {
@@ -57,9 +57,7 @@ namespace Parser
         {
             if (e.Action == NotifyCollectionChangedAction.Remove)
             {
-
-                    int index = 0;
-
+                int index = 0;
                 foreach (var item in Columns)
                 {
                     item.Index = index;
