@@ -17,8 +17,10 @@ namespace Parser
 
     public partial class MyDataGrid : UserControl
     {
+        //!why are you initializing them here?
         List<List<string>> _Source = new List<List<string>>();
         List<Row> _Bufer = new List<Row>();
+        //
         APICore _API;
         int _RowHeight;
         int _LineWidth = 1;
@@ -32,7 +34,7 @@ namespace Parser
         Brush _Brush;
         Pen _Pen;
 
-       
+       //!why internal?
         internal ObservableCollection<Column> Columns
         {
             get
@@ -41,6 +43,7 @@ namespace Parser
             }
 
         }
+        //!why do you need attributes here? Why display name differs from the class name?
         [DisplayName(@"DataSource"), Description("Используйте таблицу данных в формте List<List<string>> (ColumnsAutoGeneretion должен быть true)")]
         public object Source
         {
@@ -81,6 +84,7 @@ namespace Parser
                 if (value > Font.Height + 2 * _CellMinMargin + _LineWidth)
                 {
                     _RowHeight = value;
+                    //!why are you recreating the buffer on changing the property?
                     UpdateControl();
                 }
             }
@@ -93,6 +97,7 @@ namespace Parser
             {
                 base.Font = value;
                 _RowHeight = (_RowHeight < Font.Height + 2 * _CellMinMargin + _LineWidth) ? (Font.Height + 2 * _CellMinMargin + _LineWidth) : _RowHeight;
+                //!why are you recreating the buffer on changing the property?
                 UpdateControl();
             }
         }
@@ -108,10 +113,12 @@ namespace Parser
             {
                 _Bufer.Add(new Row());
             }
+            //!rewrite this
             for (int i = 0; i <_API.Columns.Count; i++)
             {
-               
+                    //!simplify this
                     var a = _Source.Select(k => k).Where(k => k.First() == _API.Columns[i].HeaderText).Single();
+                    //
 
                     for (int k = 0; k < a.Count; k++)
                     {
@@ -135,6 +142,7 @@ namespace Parser
         }
         private void UpdateControl()
         {
+            //!why not Counnt > 0 ?
             if (_API.Columns.Count != 0)
             {
                 UpdateBufer();
@@ -173,6 +181,7 @@ namespace Parser
             }
             else
             {
+                //!why?
                 Invalidate();
             }
         }
@@ -186,6 +195,7 @@ namespace Parser
        
         public MyDataGrid()
         {
+            //!why base?
             base.AutoScaleMode = AutoScaleMode.None;
             InitializeComponent();
             _API = new APICore();
@@ -242,6 +252,7 @@ namespace Parser
             }
             if (e.Action == NotifyCollectionChangedAction.Remove)
             {
+                //!why are you performing such a major refresh on hiding just a column?
                 UpdateControl();
             }
         }
@@ -355,8 +366,10 @@ namespace Parser
             DrawOutsideFrame(e);
             if (_Bufer.Count != 0 && _Bufer.First().Cells.Count != 0 && Columns.Count > 0)
             {
+                //!why are you sorting all the stuff again on every paint?
                 SortBuferColumns();
               _API.SortColumns();
+                //
               Row firstRowBufer = new Row();
               firstRowBufer = _Bufer.First();               
               _Bufer.RemoveAt(0);
@@ -364,11 +377,14 @@ namespace Parser
                     if (_API.SortDirection != Sort.None)
                     {
                         RowComparer u = (_API.SortDirection == Sort.ASC) ? new RowComparer(true, _API.SortedColumnIndex, _API.Columns[_API.SortedColumnIndex].Type) : new RowComparer(false, _API.SortedColumnIndex, _API.Columns[_API.SortedColumnIndex].Type);
-                        _Bufer.Sort(u);
+                    //!you already performed similar sorting above.
+                    _Bufer.Sort(u);
                     }
                     else if(_API.SortDirection == Sort.None)
                     {
-                        _Bufer.Sort((a,b)=>a.Cells.First().SourceYIndex.CompareTo(b.Cells.First().SourceYIndex));
+                    //!you already performed similar sorting above.
+                    //!why are you using lambda instead of a seaprate row comparer here? or, why do you use the row comparer in the code above?
+                    _Bufer.Sort((a,b)=>a.Cells.First().SourceYIndex.CompareTo(b.Cells.First().SourceYIndex));
                     }
                
                 _Bufer.Insert(0, firstRowBufer);
@@ -401,18 +417,22 @@ namespace Parser
             DrawHeader(e);
 
         }
+        //!rewrite this logic. don't mix up linq with loops
         private void SortBuferColumns()
         {
             foreach (var Cell in _Bufer.First().Cells)
             {
+                //!simplify this linq
                 Cell.ColumnNumber = _API.Columns.Where(u => Cell.Body == u.HeaderText).Select(u => u.Index).Single();
             }
             for (int i = 1; i < _Bufer.Count; i++)
             {
                 for (int j = 0; j < _Bufer.First().Cells.Count; j++)
                 {
+                    //!simplify this
                     var Column = _Bufer.Select(k => k.Cells[j]).ToList();
                     Column.ForEach(k => k.ColumnNumber = Column.First().ColumnNumber);
+                    //
                 }
             }
             _Bufer.ForEach(k => k.Cells = k.Cells.OrderBy(f => f.ColumnNumber).ToList());
@@ -441,6 +461,7 @@ namespace Parser
             public int ColumnNumber { get; set; }
             public int SourceXIndex { get; set; }
             public int SourceYIndex { get; set; }
+            //!why constructor?
             public Cell(string Body) 
             {
                 this.Body = Body;        
