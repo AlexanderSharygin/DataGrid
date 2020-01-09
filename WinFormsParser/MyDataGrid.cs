@@ -90,8 +90,7 @@ namespace Parser
             {
                 if (value > Font.Height + 2 * _CellMinMargin + _LineWidth)
                 {
-                    _RowHeight = value;
-                    //!why are you recreating the buffer on changing the property?
+                    _RowHeight = value;                   
                     UpdateControl();
                 }
             }
@@ -104,12 +103,79 @@ namespace Parser
             {
                 base.Font = value;
                 _RowHeight = (_RowHeight < Font.Height + 2 * _CellMinMargin + _LineWidth) ? (Font.Height + 2 * _CellMinMargin + _LineWidth) : _RowHeight;
-                //!why are you recreating the buffer on changing the property?
+              
                 UpdateControl();
             }
         }
+        public void RemoveFrmBufer()
+        {
+            string deletedHeaderText = "";
+            var temp = _Bufer.First().Cells;
+            foreach (var item in temp)
+            {
+                var columnExistedHeaders = _API.Columns.Select(k => k.HeaderText).ToList();
+                if (columnExistedHeaders.IndexOf(item.Body) < 0)
+                {
+                    deletedHeaderText = item.Body;
+                    break;
+                }
+               
+            }
+            int index = 0;
+            for (int i = 0; i < _Bufer.First().Cells.Count; i++)
+            {
+                if (_Bufer.First().Cells[i].Body == deletedHeaderText)
+                {
+                    index = i;
+                }
+            }
+            for (int i = 0; i < _Bufer.Count; i++)
+            {
+                _Bufer[i].Cells.RemoveAt(index);
+            }
 
 
+        }
+        public void AddToBufer(string headerText)
+        {
+            int max = _Source.Max(k => k.Count);
+            if (_Bufer.Count == 0)
+            {
+                for (int j = 0; j < max; j++)
+                {
+                    _Bufer.Add(new Row());
+                }
+
+            }
+            else
+            {
+                if (_Bufer.Count < max)
+                {
+                    for (int i = 0; i < max - _Bufer.Count; i++)
+                    {
+                        _Bufer.Add(new Row());
+                    }
+                }
+            }
+
+            int index = 0;
+            for (int j = 0; j < _Source.Count; j++)
+            {
+                if (headerText == _Source[j].First())
+                {
+                    index = j;
+                }
+            }
+            for (int k = 0; k < _Source[index].Count; k++)
+            {
+                Cell temp = new Cell();
+                temp.Body = _Source[index][k];
+                temp.SourceXIndex = index;
+                temp.SourceYIndex = k;
+                _Bufer[k].Cells.Add(temp);
+            }
+
+        }
 
 
         public void UpdateBufer()
@@ -145,7 +211,7 @@ namespace Parser
            
             if (_API.Columns.Count > 0)
             {
-                UpdateBufer();
+          
                 _TotalRowsCount = _Bufer.Count;
                 _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;
                 if (_TableWidth > this.Width)
@@ -179,11 +245,7 @@ namespace Parser
                     }
                 }
             }
-            else
-            {
-                //!why?
-                Invalidate();
-            }
+          
         }     
         
         private void APIPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -205,7 +267,8 @@ namespace Parser
 
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
-               
+                
+                AddToBufer(Columns.Last().HeaderText);
                 UpdateControl();
                 foreach (var item in Columns)
                 {
@@ -218,8 +281,8 @@ namespace Parser
             }
             if (e.Action == NotifyCollectionChangedAction.Remove)
             {
-                //!why are you performing such a major refresh on hiding just a column?
-                UpdateControl();
+              
+                RemoveFrmBufer();
             }
         }
         public void ChangeSorting(string columnName, Sort sortDirection)

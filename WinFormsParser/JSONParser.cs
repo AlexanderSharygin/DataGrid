@@ -196,7 +196,7 @@ namespace WinFormsParser
         }
         private void Remove_Click(object sender, EventArgs e)
         {           
-            DataTable.Columns.RemoveByName(CB_FieldsList2.SelectedItem.ToString(), k => DataTable.Columns.Where(t=>t.HeaderText== CB_FieldsList2.SelectedItem.ToString()).Select(t=>t.Index).Single()) ;
+           // DataTable.Columns.RemoveByName(CB_FieldsList2.SelectedItem.ToString(), k => DataTable.Columns.Where(t=>t.HeaderText== CB_FieldsList2.SelectedItem.ToString()).Select(t=>t.Index).Single()) ;
             LB_FieldsList.Items.Remove(CB_FieldsList2.SelectedItem.ToString());
             UpdateUI();
         }      
@@ -260,8 +260,23 @@ namespace WinFormsParser
             DataTable.Source = GetTable();
             DataTable.Columns.Add(new Column("ID",  typeof(int)) { Visible = true }); 
             DataTable.Columns.Add(new Column("LastName",  typeof(string)) { Visible = true });
-            DataTable.UpdateBufer();
+         
 
+        }
+
+        private void Button5_Click(object sender, EventArgs e)
+        {
+            DataTable.Columns.Add(new Column("Notes", typeof(string)) { Visible = true });
+        }
+
+        private void Button6_Click(object sender, EventArgs e)
+        {
+            DataTable.Columns.RemoveAt(0);
+        }
+
+        private void Button7_Click(object sender, EventArgs e)
+        {
+            DataTable.Columns.RemoveByName("LastName", k => DataTable.Columns.Where(t => t.HeaderText == "LastName").Select(t => t.Index).Single());
         }
     }
 }

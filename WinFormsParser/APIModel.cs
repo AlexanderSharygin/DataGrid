@@ -90,7 +90,8 @@ namespace Parser
                     {
                         if (Columns[i].HeaderText == Columns[j].HeaderText)
                         {
-                            Columns[j].HeaderText = Columns[j].HeaderText + "_Copy";
+                             Columns[j].HeaderText = Columns[j].HeaderText + "_Copy";
+                          
                         }
                     }
                 }
