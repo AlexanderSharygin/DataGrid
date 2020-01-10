@@ -22,14 +22,8 @@ namespace Parser
                 collection.Move(collection.IndexOf(sortableList[i]), i);
             }
         }
-        public static void RemoveByName<T>(this ObservableCollection<T> collection, string columnName, IndexCalculation<T> indexCalculator)
-        {
-            int index = indexCalculator(columnName);
-            collection.RemoveAt(index);
-
-        }
     }
-    public delegate int IndexCalculation<TItem>(string name);
+       
     class APICore : INotifyPropertyChanged
     {
         public Sort _SortDirection = Sort.None;
@@ -49,11 +43,12 @@ namespace Parser
         {
             Columns.CollectionChanged += ColumnsChannge;
         }
+
         private void OnPropertyChanged([CallerMemberName]string prop = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
         }
-        private void ColumnsChannge(object sender, NotifyCollectionChangedEventArgs e)
+               private void ColumnsChannge(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Remove)
             {
@@ -84,7 +79,7 @@ namespace Parser
                     int maxColumnsIndex = Columns.Max(k => k.Index);
                     Columns[newIndex].Index = maxColumnsIndex + 1;
                 }
-                for (int i = 0; i < Columns.Count; i++)
+            /*    for (int i = 0; i < Columns.Count; i++)
                 {
                     for (int j = i + 1; j < Columns.Count; j++)
                     {
@@ -94,7 +89,7 @@ namespace Parser
                           
                         }
                     }
-                }
+                }*/
                 
             }
         }

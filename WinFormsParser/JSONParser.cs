@@ -151,8 +151,7 @@ namespace WinFormsParser
             
             foreach (var item in AggregatedObjectsFields)
             {
-                List<string> temp = GetColumnItems(item);
-            //    DataTable.Columns.Add(new Column(temp.First(), index, typeof(string), temp.GetRange(1, temp.Count - 1)));
+                List<string> temp = GetColumnItems(item);    
 
                 DataTable.Columns.Last().Visible = false;
 
@@ -276,7 +275,7 @@ namespace WinFormsParser
 
         private void Button7_Click(object sender, EventArgs e)
         {
-            DataTable.Columns.RemoveByName("LastName", k => DataTable.Columns.Where(t => t.HeaderText == "LastName").Select(t => t.Index).Single());
+            DataTable.RemoveColumnByName("LastName");
         }
     }
 }

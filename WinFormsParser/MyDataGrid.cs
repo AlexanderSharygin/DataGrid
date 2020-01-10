@@ -177,7 +177,17 @@ namespace Parser
 
         }
 
-
+        public void RemoveColumnByName(string columnName)
+        {
+            for (int i = 0; i < _API.Columns.Count; i++)
+            {
+                if (_API.Columns[i].HeaderText == columnName)
+                {
+                    _API.Columns.RemoveAt(i);
+                    break;
+                }
+            }
+        }
         public void UpdateBufer()
         {
             _Bufer.Clear();
@@ -281,10 +291,13 @@ namespace Parser
             }
             if (e.Action == NotifyCollectionChangedAction.Remove)
             {
-              
-                RemoveFrmBufer();
+               
+                    RemoveFrmBufer();
+               
             }
         }
+       
+       
         public void ChangeSorting(string columnName, Sort sortDirection)
         {
             var newSortedColumn = Columns.Select(k => k).Where(u => u.HeaderText == columnName).Single();
@@ -338,7 +351,7 @@ namespace Parser
         private void DrawTable(PaintEventArgs e)
         {
             DrawOutsideFrame(e);
-            if (_Bufer.Count != 0 && _Bufer.First().Cells.Count != 0 && Columns.Count > 0)
+            if (_Bufer.Count > 0)
             {
                 _API.SortColumns();
                 Row firstRowBufer = new Row();
@@ -362,9 +375,12 @@ namespace Parser
                    _Bufer.Sort(u);
                 }
                 else if (_API.SortDirection == Sort.None)
-                {                   
+                {
                     //!why are you using lambda instead of a seaprate row comparer here? or, why do you use the row comparer in the code above?
-                    _Bufer.Sort((a, b) => a.Cells.First().SourceYIndex.CompareTo(b.Cells.First().SourceYIndex));
+                    if (_Bufer.First().Cells.Count > 0)
+                    {
+                        _Bufer.Sort((a, b) => a.Cells.First().SourceYIndex.CompareTo(b.Cells.First().SourceYIndex));
+                    }
                 }
                 _Bufer.Insert(0, firstRowBufer);         
 
