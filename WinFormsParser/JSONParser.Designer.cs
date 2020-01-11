@@ -48,10 +48,6 @@
             this.label3 = new System.Windows.Forms.Label();
             this.CB_FieldsList2 = new System.Windows.Forms.ComboBox();
             this.button3 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
-            this.button5 = new System.Windows.Forms.Button();
-            this.button6 = new System.Windows.Forms.Button();
-            this.button7 = new System.Windows.Forms.Button();
             this.GB_Fields.SuspendLayout();
             this.GB_Table.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -64,7 +60,7 @@
             this.GB_Fields.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.GB_Fields.Controls.Add(this.LB_FieldsList);
-            this.GB_Fields.Location = new System.Drawing.Point(12, 42);
+            this.GB_Fields.Location = new System.Drawing.Point(12, 108);
             this.GB_Fields.Name = "GB_Fields";
             this.GB_Fields.Size = new System.Drawing.Size(192, 286);
             this.GB_Fields.TabIndex = 0;
@@ -113,12 +109,13 @@
             this.DataTable.Size = new System.Drawing.Size(532, 556);
             this.DataTable.Source = ((object)(resources.GetObject("DataTable.Source")));
             this.DataTable.TabIndex = 1;
+            this.DataTable.MouseClick += new System.Windows.Forms.MouseEventHandler(this.DataTable_MouseClick);
             // 
             // Add
             // 
             this.Add.Location = new System.Drawing.Point(12, 12);
             this.Add.Name = "Add";
-            this.Add.Size = new System.Drawing.Size(87, 24);
+            this.Add.Size = new System.Drawing.Size(192, 24);
             this.Add.TabIndex = 3;
             this.Add.Text = "Добавить все";
             this.Add.UseVisualStyleBackColor = true;
@@ -160,7 +157,7 @@
             this.groupBox1.Controls.Add(this.button2);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.CB_FieldsList1);
-            this.groupBox1.Location = new System.Drawing.Point(12, 395);
+            this.groupBox1.Location = new System.Drawing.Point(12, 400);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(192, 94);
             this.groupBox1.TabIndex = 7;
@@ -206,9 +203,9 @@
             this.groupBox2.Controls.Add(this.label3);
             this.groupBox2.Controls.Add(this.Remove);
             this.groupBox2.Controls.Add(this.CB_FieldsList2);
-            this.groupBox2.Location = new System.Drawing.Point(12, 495);
+            this.groupBox2.Location = new System.Drawing.Point(12, 500);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(192, 109);
+            this.groupBox2.Size = new System.Drawing.Size(192, 104);
             this.groupBox2.TabIndex = 10;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Удаление";
@@ -258,69 +255,25 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(105, 12);
+            this.button3.Location = new System.Drawing.Point(12, 43);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(99, 24);
-            this.button3.TabIndex = 4;
-            this.button3.Text = "Автогенерация";
+            this.button3.Size = new System.Drawing.Size(192, 23);
+            this.button3.TabIndex = 11;
+            this.button3.Text = "button3";
             this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.Button3_Click);
-            // 
-            // button4
-            // 
-            this.button4.Location = new System.Drawing.Point(12, 334);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(55, 23);
-            this.button4.TabIndex = 11;
-            this.button4.Text = "button4";
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
-            // 
-            // button5
-            // 
-            this.button5.Location = new System.Drawing.Point(73, 334);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(55, 23);
-            this.button5.TabIndex = 12;
-            this.button5.Text = "button5";
-            this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.Button5_Click);
-            // 
-            // button6
-            // 
-            this.button6.Location = new System.Drawing.Point(134, 334);
-            this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(63, 23);
-            this.button6.TabIndex = 13;
-            this.button6.Text = "button6";
-            this.button6.UseVisualStyleBackColor = true;
-            this.button6.Click += new System.EventHandler(this.Button6_Click);
-            // 
-            // button7
-            // 
-            this.button7.Location = new System.Drawing.Point(12, 364);
-            this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(75, 23);
-            this.button7.TabIndex = 14;
-            this.button7.Text = "button7";
-            this.button7.UseVisualStyleBackColor = true;
-            this.button7.Click += new System.EventHandler(this.Button7_Click);
+            this.button3.Click += new System.EventHandler(this.Button3_Click_1);
             // 
             // Show_Button
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(781, 616);
-            this.Controls.Add(this.button7);
-            this.Controls.Add(this.button6);
-            this.Controls.Add(this.button5);
-            this.Controls.Add(this.button4);
+            this.Controls.Add(this.button3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.Add);
             this.Controls.Add(this.GB_Table);
             this.Controls.Add(this.GB_Fields);
-            this.Controls.Add(this.button3);
             this.Name = "Show_Button";
             this.Text = "JSONParser";
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -356,10 +309,6 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.NumericUpDown NU_FieldsIndexes;
         private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.Button button6;
-        private System.Windows.Forms.Button button7;
     }
 }
 

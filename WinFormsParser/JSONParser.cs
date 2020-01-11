@@ -56,114 +56,70 @@ namespace WinFormsParser
             return Table;          
              
         }
-        public List<string> GetColumnItems(string FieldName)
-        {
-            List<string> ColumnItems = new List<string>();
-            ColumnItems.Add(FieldName);
-            foreach (var item in _JSONObjects)
-            {
-                if (item.ContainsKey(FieldName))
-                {
-                    if (item[FieldName].Length < FieldName.Length * Convert.ToInt32(Resources.ReductionRatio))
-                    {
-                        ColumnItems.Add(item[FieldName]);
-                    }
-                    else
-                    {
-                        ColumnItems.Add(item[FieldName].Substring(0, FieldName.Length * Convert.ToInt32(Resources.ReductionRatio)) + Resources.Ellipsis);
-                    }
-                }
-                else
-                {
-                    ColumnItems.Add(Resources.UndefinedFieldText);
-                }
-            }
-            return ColumnItems;
-        }
+      
 
         private void LB_FieldsList_MouseClick(object sender, EventArgs e)
         {          
-            var a = LB_FieldsList.SelectedIndices;
-            List<int> Selected = new List<int>();
-            string SelectedItem="";
+            var a = LB_FieldsList.SelectedItems;
+            List<string> SelectedItems = new List<string>();
             foreach (var item in a)
             {
-                Selected.Add((int)item);
+                SelectedItems.Add(item.ToString());
             }
-            if (prev.Count > 0)
+             var b = LB_FieldsList.Items;
+            List<string> AllItems = new List<string>();
+            foreach (var item in b)
             {
-                if (Selected.Count > prev.Count)
+                AllItems.Add(item.ToString());
+            }
+            foreach (var item in AllItems)
+            {
+                if (SelectedItems.IndexOf(item) >= 0)
                 {
-                    foreach (var item in Selected)
+                    var Columns = DataTable.Columns.Select(k => k).Where(k => k.HeaderText == item).ToList();
+                    foreach (var column in Columns)
                     {
-                        var ind = prev.IndexOf(item);
-                        if (ind == -1)
-                        {
-                            SelectedItem = LB_FieldsList.Items[item].ToString();
-                        }
+                        column.Visible = true;
                     }
 
                 }
-                else if (Selected.Count < prev.Count)
+                else
                 {
-                    foreach (var item in prev)
+                    var Columns = DataTable.Columns.Select(k => k).Where(k => k.HeaderText == item).ToList();
+                    foreach (var column in Columns)
                     {
-                        var ind = Selected.IndexOf(item);
-                        if (ind == -1)
-                        {
-                            SelectedItem = LB_FieldsList.Items[item].ToString();
-                        }
+                        column.Visible = false;
                     }
                 }
-            }
-            else
-            {
-                SelectedItem = LB_FieldsList.SelectedItem.ToString();
-            }            
-            
-            foreach (var item in DataTable.Columns)
-            {
-                if (item.HeaderText == SelectedItem)
-                {
-                    if (Selected.Count > prev.Count)
-                    {
-                        item.Visible = true;            
-                    }
-                    if (Selected.Count < prev.Count)
-                    {
-                        item.Visible = false;           
-                    }
-                }
-            }
-            prev = Selected;     
-
+            }        
 
         }
 
-
-
         private void Button1_Click(object sender, EventArgs e)
         {
-          
-            List<string> AggregatedObjectsFields = _JSONObjects.SelectMany(j => j.Keys).Distinct().ToList();
-           int index = 0;
-            List<string> selectedItems = new List<string>();
-            
+            var table = GetTable();
+            DataTable.ColumnsAutoGeneretion = false;           
+            DataTable.Source = table;
+            List<string> AggregatedObjectsFields = table.Select(k => k.First()).ToList();              
+
+            List<string> selectedItems = new List<string>();            
             foreach (var item in AggregatedObjectsFields)
-            {
-                List<string> temp = GetColumnItems(item);    
-
-                DataTable.Columns.Last().Visible = false;
-
-                index++;
-            }
+          {
+              
+             DataTable.Columns.Add(new Column(item, typeof(string)) { Visible = false });
+              
+           }
+          //  DataTable.Columns.Add(new Column("gygy", typeof(string)) { Visible = false });
             LB_FieldsList.Items.Clear();
              CB_FieldsList1.Items.Clear();
             CB_FieldsList2.Items.Clear();
             foreach (var item in DataTable.Columns)
             {
-               
-                LB_FieldsList.Items.Add(item.HeaderText);
+
+                if (LB_FieldsList.Items.IndexOf(item.HeaderText) == -1)
+                {
+                    LB_FieldsList.Items.Add(item.HeaderText);
+                }
                 if (item.Visible)
                 {
                     LB_FieldsList.SelectedItems.Add(item.HeaderText);
@@ -195,14 +151,12 @@ namespace WinFormsParser
         }
         private void Remove_Click(object sender, EventArgs e)
         {           
-           // DataTable.Columns.RemoveByName(CB_FieldsList2.SelectedItem.ToString(), k => DataTable.Columns.Where(t=>t.HeaderText== CB_FieldsList2.SelectedItem.ToString()).Select(t=>t.Index).Single()) ;
+           DataTable.RemoveColumnByName(CB_FieldsList2.SelectedItem.ToString()) ;
             LB_FieldsList.Items.Remove(CB_FieldsList2.SelectedItem.ToString());
             UpdateUI();
         }      
         private void Button1_Click_1(object sender, EventArgs e)
         {
-
-
           //  DataTable.RowHeight = 100;
     //    DataTable.Font = new System.Drawing.Font(DataTable.Font.FontFamily, 25.5f);
       
@@ -254,28 +208,34 @@ namespace WinFormsParser
             }
         }
 
-        private void button4_Click(object sender, EventArgs e)
+        private void Button3_Click_1(object sender, EventArgs e)
         {
+            DataTable.ColumnsAutoGeneretion = true;
             DataTable.Source = GetTable();
-            DataTable.Columns.Add(new Column("ID",  typeof(int)) { Visible = true }); 
-            DataTable.Columns.Add(new Column("LastName",  typeof(string)) { Visible = true });
-         
+            LB_FieldsList.Items.Clear();
+            CB_FieldsList1.Items.Clear();
+            CB_FieldsList2.Items.Clear();
+            foreach (var item in DataTable.Columns)
+            {
 
+                if (LB_FieldsList.Items.IndexOf(item.HeaderText) == -1)
+                {
+                    LB_FieldsList.Items.Add(item.HeaderText);
+                }
+                if (item.Visible)
+                {
+                    LB_FieldsList.SelectedItems.Add(item.HeaderText);
+                }
+                CB_FieldsList1.Items.Add(item.HeaderText);
+                CB_FieldsList2.Items.Add(item.HeaderText);
+            }
+            CB_FieldsList2.Text = "";
+            NU_FieldsIndexes.Maximum = DataTable.Columns.Count - 1;
         }
 
-        private void Button5_Click(object sender, EventArgs e)
+        private void DataTable_MouseClick(object sender, MouseEventArgs e)
         {
-            DataTable.Columns.Add(new Column("Notes", typeof(string)) { Visible = true });
-        }
 
-        private void Button6_Click(object sender, EventArgs e)
-        {
-            DataTable.Columns.RemoveAt(0);
-        }
-
-        private void Button7_Click(object sender, EventArgs e)
-        {
-            DataTable.RemoveColumnByName("LastName");
         }
     }
 }

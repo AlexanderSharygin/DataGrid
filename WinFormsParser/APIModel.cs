@@ -78,18 +78,7 @@ namespace Parser
                 {
                     int maxColumnsIndex = Columns.Max(k => k.Index);
                     Columns[newIndex].Index = maxColumnsIndex + 1;
-                }
-            /*    for (int i = 0; i < Columns.Count; i++)
-                {
-                    for (int j = i + 1; j < Columns.Count; j++)
-                    {
-                        if (Columns[i].HeaderText == Columns[j].HeaderText)
-                        {
-                             Columns[j].HeaderText = Columns[j].HeaderText + "_Copy";
-                          
-                        }
-                    }
-                }*/
+                }        
                 
             }
         }
@@ -107,6 +96,8 @@ namespace Parser
         public int Index { get; set; }
         public int Width { get; set; }
         public Type Type { get; set; }
+        public int XStartPosition { get; set; }
+        public int XEndPosition { get; set; }
         public bool Visible
         {
             get

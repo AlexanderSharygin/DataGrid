@@ -134,7 +134,8 @@ namespace Parser
                        _API.SortDirection = Sort.None;
                    }
                   _API.SortedColumnIndex = _ColumnData.Index;
-                  ChangeSortDirection();                 
+                  ChangeSortDirection();
+                   
                 }
                 else
                 {
