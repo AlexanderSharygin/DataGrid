@@ -91,6 +91,12 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
+    <Compile Include="TableEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="TableEditor.Designer.cs">
+      <DependentUpon>TableEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="TypeSelector.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -109,6 +115,9 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TableEditor.resx">
+      <DependentUpon>TableEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="TypeSelector.resx">
       <DependentUpon>TypeSelector.cs</DependentUpon>

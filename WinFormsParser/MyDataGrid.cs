@@ -11,7 +11,7 @@ using System.ComponentModel;
 
 namespace Parser
 {
-
+  
 
 
     public partial class MyDataGrid : UserControl
@@ -518,13 +518,7 @@ namespace Parser
        }
      
 
-        class Cell
-        {
-            public string Body { get; set; }          
-            public int SourceXIndex { get; set; }
-            public int SourceYIndex { get; set; }
-           
-        }
+       
         class Row
         {
             public List<Cell> Cells { get; set; } = new List<Cell>();
@@ -673,11 +667,19 @@ namespace Parser
                                 XIndex = i;
                             }
                         }
-                        MessageBox.Show("Name: " + item.HeaderText + "\n" + "Type: " + item.Type + "\n" + "ItemIndex: " + YIndex);
+                      //  MessageBox.Show("Name: " + item.HeaderText + "\n" + "Type: " + item.Type + "\n" + "ItemIndex: " + YIndex);
 
                         if (item.Type == typeof(string))
                         {
-                            _Bufer[YIndex].Cells[XIndex].Body = "Опа";
+                            TableEditor te = new TableEditor();
+                            te.Value = _Bufer[YIndex].Cells[XIndex].Body;
+                            te.Tablecell = _Bufer[YIndex].Cells[XIndex];
+                            te.Location = new Point(xstart,e.Y);
+                            Controls.Add(te);
+                            te.Visible = true;
+                            te.Show();
+
+                           // _Bufer[YIndex].Cells[XIndex].Body = "Опа";
                         }
                         if (item.Type == typeof(int))
                         {
@@ -691,15 +693,21 @@ namespace Parser
 
             }
           //  UpdateControl();
-            Invalidate();
+         //   Invalidate();
         }
     }
- 
-     
-   
+    class Cell
+    {
+        public string Body { get; set; }
+        public int SourceXIndex { get; set; }
+        public int SourceYIndex { get; set; }
+
+    }
 
 
 
-    
+
+
+
 }
 
