@@ -12,49 +12,88 @@ namespace Parser
 {
     public partial class TableEditor : UserControl
     {
-        string _Value;
-        internal Cell Tablecell { get; set; }
+    
+        
         public TableEditor()
         {
             InitializeComponent();
             components = new System.ComponentModel.Container();
             
-            this.KeyPress += TableEditor_KeyPress;
+           
         }
-        public string Value { get => _Value;
+        public TableEditor(Type t)
+        {
+            InitializeComponent();
+            components = new System.ComponentModel.Container();
+            _ColumnType = t;
+            
+
+        }
+       
+        Cell _TableCell;
+        Type _ColumnType;
+        
+      
+        internal Cell TableCell
+        {
+            get => _TableCell;
             set
             {
-               
-                _Value = value;
-                textBox1.Text = _Value;
-
-
+                _TableCell = value;
+                GenerateForm();
             }
-            
-                 }
-
-        private void TableEditor_KeyPress(object sender, KeyPressEventArgs e)
+        }
+        public void GenerateForm()
         {
-            if (e.KeyChar == (char)Keys.Enter)
+            if (_ColumnType == typeof(string))
             {
-                Tablecell.Body = textBox1.Text;
+                TextBox ValueField = new TextBox();
+                ValueField.Location = new Point(0, 0);
+                ValueField.Width = this.Width;
+                ValueField.Height = this.Height;
+                ValueField.Text = _TableCell.Body;
+                ValueField.KeyUp += new KeyEventHandler(ValueField_KeyUp);
+                Controls.Add(ValueField);
+           }
+        }
+
+        private void ValueField_KeyUp(object sender, KeyEventArgs e)
+        {
+
+             if (e.KeyCode == Keys.Enter)
+             {
+                for (int i = 0; i < Controls.Count; i++)
+                {
+                    if (Controls[i].GetType() == typeof(TextBox))
+                    {
+                        _TableCell.Body = Controls[i].Text;
+                    }
+                }
+                Visible = false;
                 Parent.Invalidate();
+
             }
+        }      
+
+        private void TableEditor_Resize(object sender, EventArgs e)
+        {
+            for (int i = 0; i < Controls.Count; i++)
+            {
+                if (Controls[i].GetType() == typeof(TextBox))
+                {
+                   Controls[i].Width = this.Width;
+                   Controls[i].Height = this.Height;
+                  
+                }
+
+            }
+           
         }
 
-        private void TableEditor_KeyDown(object sender, KeyEventArgs e)
+        private void TableEditor_Load(object sender, EventArgs e)
         {
-
-        }
-
-        private void TableEditor_MouseClick(object sender, MouseEventArgs e)
-        {
-
-        }
-
-        private void TableEditor_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
-        {
-
+           
+            
         }
     }
 }

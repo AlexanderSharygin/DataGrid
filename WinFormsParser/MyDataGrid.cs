@@ -11,14 +11,14 @@ using System.ComponentModel;
 
 namespace Parser
 {
-  
+
 
 
     public partial class MyDataGrid : UserControl
     {
-      
+
         List<List<string>> _Source;
-        List<Row> _Bufer;       
+        List<Row> _Bufer;
         APICore _API;
         int _RowHeight;
         int _LineWidth = 1;
@@ -37,11 +37,11 @@ namespace Parser
             InitializeComponent();
             components = new System.ComponentModel.Container();
             _Source = new List<List<string>>();
-            _Bufer = new List<Row>();           
+            _Bufer = new List<Row>();
             _API = new APICore();
             _API.PropertyChanged += APIPropertyChanged;
             Columns.CollectionChanged += ColumnsCollectionChanged;
-            ResizeRedraw = true;         
+            ResizeRedraw = true;
             VerticalScrollBar.Minimum = 0;
             VerticalScrollBar.Value = 0;
             if (VerticalScrollBar.Visible)
@@ -57,7 +57,7 @@ namespace Parser
             HorisontalScrollBar.Value = 0;
             _Brush = new SolidBrush(ForeColor);
             _Pen = new Pen(LineColor, _LineWidth);
-            
+
 
         }
 
@@ -69,7 +69,7 @@ namespace Parser
                 return _API.Columns;
             }
 
-        }      
+        }
         [DisplayName(@"Source")]
         public object Source
         {
@@ -86,13 +86,13 @@ namespace Parser
                     foreach (var item in AggregatedObjectsFields)
                     {
 
-                       Columns.Add(new Column(item, typeof(string)) { Visible = true });
+                        Columns.Add(new Column(item, typeof(string)) { Visible = true });
 
                     }
                 }
 
             }
-            
+
         }
         [DisplayName(@"ColumnsAutoGeneretion"), Description("Если value=true - колонки генерируются автоматически из коллекции Source"), DefaultValue(false)]
         public bool ColumnsAutoGeneretion { get; set; } = false;
@@ -104,7 +104,7 @@ namespace Parser
             {
                 if (value > Font.Height + 2 * _CellMinMargin + _LineWidth)
                 {
-                    _RowHeight = value;                   
+                    _RowHeight = value;
                     UpdateControl();
                 }
             }
@@ -117,7 +117,7 @@ namespace Parser
             {
                 base.Font = value;
                 _RowHeight = (_RowHeight < Font.Height + 2 * _CellMinMargin + _LineWidth) ? (Font.Height + 2 * _CellMinMargin + _LineWidth) : _RowHeight;
-              
+
                 UpdateControl();
             }
         }
@@ -133,7 +133,7 @@ namespace Parser
                     deletedHeaderText = item.Body;
                     break;
                 }
-               
+
             }
             int index = -1;
             for (int i = 0; i < _Bufer.First().Cells.Count; i++)
@@ -208,44 +208,17 @@ namespace Parser
                 }
             }
         }
-        public void UpdateBufer()
-        {
-            _Bufer.Clear();
-            int rowCounts = _Source.First().Count();
-            for (int j = 0; j < rowCounts; j++)
-            {
-                _Bufer.Add(new Row());
-            }      
-            for (int i = 0; i < _API.Columns.Count; i++)
-            {             
-                int index = 0;
-                for (int j = 0; j < _Source.Count; j++)
-                {
-                    if (_API.Columns[i].HeaderText == _Source[j].First())
-                    {
-                        index = j;
-                    }
-                }        
-                for (int k = 0; k < _Source[index].Count; k++)
-                {
-                    Cell temp = new Cell();
-                    temp.Body = _Source[index][k];                  
-                    temp.SourceXIndex = index;                        
-                    temp.SourceYIndex = k;
-                    _Bufer[k].Cells.Add(temp);
-                }
-            }                                 
-        }
+
         private void UpdateControl()
         {
-           
+
             if (_API.Columns.Count > 0)
             {
-          
+
                 _TotalRowsCount = _Bufer.Count;
                 _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;
                 if (_TableWidth > this.Width)
-                {                   
+                {
                     var remainder = _RowHeight % HorisontalScrollBar.Height;
                     if (remainder != 0)
                     {
@@ -275,9 +248,9 @@ namespace Parser
                     }
                 }
             }
-          
-        }     
-        
+
+        }
+
         private void APIPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "SortDirection")
@@ -297,14 +270,14 @@ namespace Parser
 
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
-                
+
                 AddToBufer(Columns.Last().HeaderText);
                 for (int i = 0; i < _API.Columns.Count; i++)
                 {
                     var a = _Bufer.First().Cells.Select(k => k.Body).ToList();
                     if (a.IndexOf(_API.Columns[i].HeaderText) == -1)
                     {
-                        
+
                         throw new Exception("Невозможно добавить колонкe отсутствую в источнике данных source");
 
                     }
@@ -318,22 +291,22 @@ namespace Parser
                         item.IsSignedToPropertyChange = true;
                     }
                 }
-                
+
             }
             if (e.Action == NotifyCollectionChangedAction.Remove)
             {
-               
-                    RemoveFromBufer();
-               
+
+                RemoveFromBufer();
+
             }
         }
-       
-       
+
+
         public void ChangeSorting(string columnName, Sort sortDirection)
         {
             var newSortedColumn = Columns.Select(k => k).Where(u => u.HeaderText == columnName).ToList();
             foreach (var item in newSortedColumn)
-            {                
+            {
                 if (item.Visible)
                 {
                     _API.SortDirection = sortDirection;
@@ -342,14 +315,14 @@ namespace Parser
                 }
             }
         }
-       
+
         protected override void OnPaint(PaintEventArgs e)
         {
             _Pen.Color = LineColor;
             _TableWidth = 0;
             foreach (var APIColumn in _API.Columns)
             {
-               
+
                 int index = -1;
                 for (int i = 0; i < _Bufer.First().Cells.Count; i++)
                 {
@@ -370,10 +343,10 @@ namespace Parser
 
                     }
                 }
-            }            
+            }
             UpdateHorizontalScroll();
             DrawTable(e);
-           
+
         }
 
 
@@ -405,11 +378,11 @@ namespace Parser
                         }
                     }
                 }
-                _Bufer.RemoveAt(0);               
+                _Bufer.RemoveAt(0);
                 if (_API.SortDirection != Sort.None)
                 {
                     RowComparer u = (_API.SortDirection == Sort.ASC) ? new RowComparer(true, sortedIndex, _API.Columns[_API.SortedColumnIndex].Type) : new RowComparer(false, sortedIndex, _API.Columns[_API.SortedColumnIndex].Type);
-                   _Bufer.Sort(u);
+                    _Bufer.Sort(u);
                 }
                 else if (_API.SortDirection == Sort.None)
                 {
@@ -419,19 +392,48 @@ namespace Parser
                         _Bufer.Sort((a, b) => a.Cells.First().SourceYIndex.CompareTo(b.Cells.First().SourceYIndex));
                     }
                 }
-                _Bufer.Insert(0, firstRowBufer);         
+                _Bufer.Insert(0, firstRowBufer);
 
                 if (_ViewPortRowsCount > _Bufer.Count - 1)
                 {
                     _ViewPortRowsCount = _Bufer.Count - 1;
                 }
-                int xCounterForLine = 0;           
- 
-                Control HorizontalScroll = Controls[0];
-                Control VerticalScroll = Controls[1];
+                int xCounterForLine = 0;
+                Control tempControl = null;
+                foreach (Control item in Controls)
+                {
+                    if (item.GetType() == typeof(TableEditor))
+                    {
+
+                        tempControl = item;
+
+
+                    }
+                }
+
+
+                Control HorizontalScroll = null;
+                Control VerticalScroll = null;
+                foreach (var item in Controls)
+                {
+                    if (item.GetType() == typeof(HScrollBar))
+                    {
+                        HorizontalScroll = (Control)item;
+                    }
+                    if (item.GetType() == typeof(VScrollBar))
+                    {
+                        VerticalScroll = (Control)item;
+                    }
+                }
+
                 Controls.Clear();
                 Controls.Add(HorizontalScroll);
                 Controls.Add(VerticalScroll);
+                if (tempControl != null)
+                {
+                    Controls.Add(tempControl);
+                }
+               
                 int xCounter = 0;
                 int xCounterForText = _LineWidth + _CellMinMargin;
                 List<HeaderCell> Header = new List<HeaderCell>();
@@ -450,11 +452,12 @@ namespace Parser
                             Cell.Height = _RowHeight;
                             Cell.Location = new Point(xCounter - HorisontalScrollBar.Value, 0);
                             Cell._API = _API;
-                            _API.Columns[i].XStartPosition = xCounter-HorisontalScrollBar.Value;
+                            _API.Columns[i].XStartPosition = xCounter - HorisontalScrollBar.Value;
                             xCounter += _LineWidth + _CellMinMargin + _API.Columns[i].Width * (int)this.Font.Size + _CellMinMargin;
-                            _API.Columns[i].XEndPosition = xCounter - HorisontalScrollBar.Value-1; 
-                            Header.Add(Cell);
+                            _API.Columns[i].XEndPosition = xCounter - HorisontalScrollBar.Value - 1;
+                             Header.Add(Cell);
                             Controls.Add(Cell);
+                            
                             for (int j = 0; j < _ViewPortRowsCount; j++)
                             {
                                 if (bufferRowIndex < _Bufer.Count)
@@ -477,9 +480,9 @@ namespace Parser
                                 }
                             }
                             e.Graphics.DrawLine(_Pen, xCounterForLine - HorisontalScrollBar.Value, 0, xCounterForLine - HorisontalScrollBar.Value, RowHeight * (_ViewPortRowsCount + 1));
-                           
+
                             xCounterForLine += _LineWidth + _CellMinMargin + _API.Columns[i].Width * (int)this.Font.Size + _CellMinMargin;
-                           
+
                             xCounterForText += _API.Columns[i].Width * (int)Font.Size + _CellMinMargin + _LineWidth + _CellMinMargin;
 
                         }
@@ -492,16 +495,17 @@ namespace Parser
                             headerCell.NeighborCells.AddRange(OtherCells);
                         }
                     }
-                    
+
                 }
+               
                 e.Graphics.DrawLine(_Pen, _TableWidth - HorisontalScrollBar.Value, 0, _TableWidth - HorisontalScrollBar.Value, 0 + RowHeight * (_ViewPortRowsCount + 1));
                 e.Graphics.DrawLine(_Pen, 0 - HorisontalScrollBar.Value, RowHeight, _TableWidth - HorisontalScrollBar.Value, RowHeight);
             }
         }
-          
-       
-       
-        
+
+
+
+
         private void UpdateHorizontalScroll()
         {
             var viewportWidth = this.ClientSize.Width - (VerticalScrollBar.Visible ? VerticalScrollBar.Width : 0);
@@ -515,10 +519,10 @@ namespace Parser
                 HorisontalScrollBar.Visible = false;
                 HorisontalScrollBar.Maximum = 0;
             }
-       }
-     
+        }
 
-       
+
+
         class Row
         {
             public List<Cell> Cells { get; set; } = new List<Cell>();
@@ -537,19 +541,19 @@ namespace Parser
             }
             public int Compare(Row x, Row y)
             {
-                object xValue=null;
-                object yValue=null;
+                object xValue = null;
+                object yValue = null;
                 if (x.Cells[_ColumnIndex].Body != Resources.UndefinedFieldText)
-               {
+                {
                     try
                     {
                         xValue = Convert.ChangeType(x.Cells[_ColumnIndex].Body, _Type);
                     }
                     catch
                     {
-                        xValue = null; 
+                        xValue = null;
                     }
-               }
+                }
                 if (y.Cells[_ColumnIndex].Body != Resources.UndefinedFieldText)
                 {
                     try
@@ -562,8 +566,8 @@ namespace Parser
                     }
                 }
 
-                int dir = (_Direction)?1:-1;           
-                              
+                int dir = (_Direction) ? 1 : -1;
+
                 if (xValue != null && xValue is IComparable)
                 {
 
@@ -576,17 +580,17 @@ namespace Parser
                 else
                 {
                     return (x.Cells[_ColumnIndex].Body as string).CompareTo(y.Cells[_ColumnIndex].Body as string) * ((_Direction) ? 1 : -1);
-                }        
+                }
 
             }
-        }        
-        
+        }
+
         private void MyDataGrid_Resize(object sender, EventArgs e)
         {
             if (_Bufer.Count != 0)
             {
                 _ViewPortRowsCount = this.Height / (RowHeight) - 1;
-                if (_TableWidth > this.Width-VerticalScrollBar.Width)
+                if (_TableWidth > this.Width - VerticalScrollBar.Width)
                 {
                     var hidenRowsCount = _RowHeight / HorisontalScrollBar.Height;
                     var remainder = _RowHeight % HorisontalScrollBar.Height;
@@ -594,7 +598,7 @@ namespace Parser
                     {
                         _ViewPortRowsCount--;
                     }
-                 
+
                 }
                 if (_TotalRowsCount > _ViewPortRowsCount + 1)
                 {
@@ -610,7 +614,7 @@ namespace Parser
                     VerticalScrollBar.Value = 0;
                 }
                 VerticalScrollBar.Maximum = ((_TotalRowsCount - _ViewPortRowsCount) * _VerticalScrollValueRatio - 1);
-            }          
+            }
             UpdateHorizontalScroll();
             Invalidate();
         }
@@ -622,7 +626,7 @@ namespace Parser
                 _FirstPrintedRowIndex = 0;
             }
             Invalidate();
-        }    
+        }
         private void VerticalScrollBar_VisibleChanged(object sender, EventArgs e)
         {
             if (!VerticalScrollBar.Visible)
@@ -641,14 +645,15 @@ namespace Parser
 
         private void MyDataGrid_Load(object sender, EventArgs e)
         {
-           
+
         }
 
         private void MyDataGrid_MouseClick(object sender, MouseEventArgs e)
         {
+
             var X = e.Location.X;
             var Y = e.Location.Y;
-            int xend = 0; 
+            int xend = 0;
             int xstart = 0;
             foreach (var item in _API.Columns)
             {
@@ -667,23 +672,31 @@ namespace Parser
                                 XIndex = i;
                             }
                         }
-                      //  MessageBox.Show("Name: " + item.HeaderText + "\n" + "Type: " + item.Type + "\n" + "ItemIndex: " + YIndex);
+                      
 
+                        for (int i = 0; i < Controls.Count; i++)
+                        {
+                            if (Controls[i].GetType() == typeof(TableEditor))
+                            {
+                                TableEditor a = (TableEditor)Controls[i];
+                                Controls.RemoveAt(i);
+                                break;
+                            }
+                        }
                         if (item.Type == typeof(string))
                         {
-                            TableEditor te = new TableEditor();
-                            te.Value = _Bufer[YIndex].Cells[XIndex].Body;
-                            te.Tablecell = _Bufer[YIndex].Cells[XIndex];
-                            te.Location = new Point(xstart,e.Y);
+                            TableEditor te = new TableEditor(item.Type);
+                            te.Width = item.XEndPosition - item.XStartPosition + _LineWidth;
+                            te.Height = RowHeight;
+                            te.BorderStyle = BorderStyle.FixedSingle;
+                            te.TableCell = _Bufer[YIndex].Cells[XIndex];
+                            te.Location = new Point(xstart, _RowHeight * YIndex);                          
                             Controls.Add(te);
-                            te.Visible = true;
-                            te.Show();
-
-                           // _Bufer[YIndex].Cells[XIndex].Body = "Опа";
+                           
                         }
                         if (item.Type == typeof(int))
                         {
-                              var a = 007;
+                            var a = 007;
                             _Bufer[YIndex].Cells[XIndex].Body = a.ToString();
                         }
                         break;
@@ -692,8 +705,8 @@ namespace Parser
                 xstart = xend;
 
             }
-          //  UpdateControl();
-         //   Invalidate();
+            //  UpdateControl();
+            Invalidate();
         }
     }
     class Cell
@@ -703,11 +716,12 @@ namespace Parser
         public int SourceYIndex { get; set; }
 
     }
-
-
-
-
-
-
 }
+
+
+
+
+
+
+
 

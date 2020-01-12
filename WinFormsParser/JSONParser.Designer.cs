@@ -109,7 +109,7 @@
             this.DataTable.Size = new System.Drawing.Size(532, 556);
             this.DataTable.Source = ((object)(resources.GetObject("DataTable.Source")));
             this.DataTable.TabIndex = 1;
-            this.DataTable.MouseClick += new System.Windows.Forms.MouseEventHandler(this.DataTable_MouseClick);
+           
             // 
             // Add
             // 

@@ -233,9 +233,6 @@ namespace WinFormsParser
             NU_FieldsIndexes.Maximum = DataTable.Columns.Count - 1;
         }
 
-        private void DataTable_MouseClick(object sender, MouseEventArgs e)
-        {
-
-        }
+        
     }
 }
