@@ -36,8 +36,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Name = "TableEditor";
             this.Size = new System.Drawing.Size(150, 48);
-            this.Load += new System.EventHandler(this.TableEditor_Load);
-          
+        
+            this.Leave += new System.EventHandler(this.TableEditor_Leave);
             this.Resize += new System.EventHandler(this.TableEditor_Resize);
             this.ResumeLayout(false);
 

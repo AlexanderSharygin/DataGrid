@@ -52,10 +52,16 @@ namespace Parser
                 ValueField.Width = this.Width;
                 ValueField.Height = this.Height;
                 ValueField.Text = _TableCell.Body;
+                ValueField.TabIndex = 1;
+                ValueField.Select();
+                ValueField.Focus();
                 ValueField.KeyUp += new KeyEventHandler(ValueField_KeyUp);
+              
                 Controls.Add(ValueField);
            }
         }
+
+       
 
         private void ValueField_KeyUp(object sender, KeyEventArgs e)
         {
@@ -90,10 +96,21 @@ namespace Parser
            
         }
 
-        private void TableEditor_Load(object sender, EventArgs e)
+       
+
+        private void TableEditor_Leave(object sender, EventArgs e)
         {
-           
-            
+            for (int i = 0; i < Controls.Count; i++)
+            {
+                if (Controls[i].GetType() == typeof(TextBox))
+                {
+                    _TableCell.Body = Controls[i].Text;
+                }
+            }
+            Visible = false;
         }
+
+      
+       
     }
 }

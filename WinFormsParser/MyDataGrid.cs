@@ -584,7 +584,38 @@ namespace Parser
 
             }
         }
+        public void updateColumnsPosition()
+        {
+           
+            int xCounter = 0;
+            int xCounterForText = _LineWidth + _CellMinMargin;
+            for (int i = 0; i < _API.Columns.Count; i++)
+            {
+                var a = _Bufer.First().Cells.Select(k => k.Body).ToList();
+                if (a.IndexOf(_API.Columns[i].HeaderText) != -1)
+                {
+                    int index = -1;
+                    for (int j = 0; j < _Bufer.First().Cells.Count; j++)
+                    {
+                        if (_API.Columns[i].HeaderText == _Bufer.First().Cells[j].Body)
+                        {
+                            index = j;
+                        }
+                    }
+                    if (_API.Columns[i].Visible)
+                    {
 
+                        _API.Columns[i].XStartPosition = xCounter - HorisontalScrollBar.Value;
+                        var columnItems = _Bufer.Select(k => k.Cells[index].Body).ToList();
+                        int columnWidth = (columnItems.Max(k => k.Length) > _API.Columns[i].HeaderText.Length) ? columnItems.Max(k => k.Length) : _API.Columns[i].HeaderText.Length;
+                        _API.Columns[i].Width = columnWidth;
+                        xCounter += _LineWidth + _CellMinMargin + _API.Columns[i].Width * (int)this.Font.Size + _CellMinMargin;
+                        _API.Columns[i].XEndPosition = xCounter - HorisontalScrollBar.Value - 1;
+                    }
+                }
+
+            }
+        }
         private void MyDataGrid_Resize(object sender, EventArgs e)
         {
             if (_Bufer.Count != 0)
@@ -640,6 +671,7 @@ namespace Parser
         }
         private void HorisontalScrollBar_Scroll(object sender, ScrollEventArgs e)
         {
+           
             Invalidate();
         }
 
@@ -651,6 +683,7 @@ namespace Parser
         private void MyDataGrid_MouseClick(object sender, MouseEventArgs e)
         {
 
+          
             var X = e.Location.X;
             var Y = e.Location.Y;
             int xend = 0;
@@ -679,18 +712,24 @@ namespace Parser
                             if (Controls[i].GetType() == typeof(TableEditor))
                             {
                                 TableEditor a = (TableEditor)Controls[i];
-                                Controls.RemoveAt(i);
+                                a.Visible = false;
+                                 Controls.RemoveAt(i);
+                                updateColumnsPosition();
                                 break;
                             }
                         }
                         if (item.Type == typeof(string))
                         {
                             TableEditor te = new TableEditor(item.Type);
+                            xstart = item.XStartPosition;
+                            xend = item.XEndPosition;
                             te.Width = item.XEndPosition - item.XStartPosition + _LineWidth;
                             te.Height = RowHeight;
                             te.BorderStyle = BorderStyle.FixedSingle;
                             te.TableCell = _Bufer[YIndex].Cells[XIndex];
-                            te.Location = new Point(xstart, _RowHeight * YIndex);                          
+                           
+                            te.Location = new Point(xstart, _RowHeight * YIndex);
+                           
                             Controls.Add(te);
                            
                         }
