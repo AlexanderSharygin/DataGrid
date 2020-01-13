@@ -727,7 +727,9 @@ namespace Parser
                             te.Height = RowHeight;
                             te.BorderStyle = BorderStyle.FixedSingle;
                             te.TableCell = _Bufer[YIndex].Cells[XIndex];
-                           
+                            // my favorite test for your properties
+                            te.TableCell = te.TableCell;
+                            //
                             te.Location = new Point(xstart, _RowHeight * YIndex);
                            
                             Controls.Add(te);
