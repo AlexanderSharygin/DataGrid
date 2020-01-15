@@ -10,41 +10,24 @@ using System.Windows.Forms;
 
 namespace Parser
 {
-    public partial class TableEditor : UserControl
+    partial class TableEditor : UserControl
     {
-    
-        
-        public TableEditor()
-        {
-            InitializeComponent();
-            components = new System.ComponentModel.Container();
-            
-           
-        }
-        public TableEditor(Type t)
+
+       
+        Type _ColumnType;
+        Cell _TableCell;
+        internal TableEditor(Type t)
         {
             InitializeComponent();
             components = new System.ComponentModel.Container();
             _ColumnType = t;
-            
-
-        }
-       
-        Cell _TableCell;
-        Type _ColumnType;
-        
+          
+        }           
       
-        internal Cell TableCell
+        
+        public void AddSelector(Cell t)
         {
-            get => _TableCell;
-            set
-            {
-                _TableCell = value;
-                GenerateForm();
-            }
-        }
-        public void GenerateForm()
-        {
+             _TableCell=t;
             if (_ColumnType == typeof(string))
             {
                 TextBox ValueField = new TextBox();

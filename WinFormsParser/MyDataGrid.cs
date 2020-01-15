@@ -686,68 +686,82 @@ namespace Parser
           
             var X = e.Location.X;
             var Y = e.Location.Y;
-            int xend = 0;
-            int xstart = 0;
-            foreach (var item in _API.Columns)
+            if (Y / RowHeight < _Bufer.Count)
             {
-                if (item.Visible)
+                int xend = 0;
+                foreach (var item in _API.Columns)
                 {
-                    xstart = item.XStartPosition;
-                    xend = item.XEndPosition;
-                    if (xstart < X && X < xend)
+                    int xstart;
+                    if (item.Visible)
                     {
-                        int YIndex = Y / RowHeight + _FirstPrintedRowIndex;
-                        int XIndex = -1;
-                        for (int i = 0; i < _Bufer.First().Cells.Count; i++)
+                        xstart = item.XStartPosition;
+                        xend = item.XEndPosition;
+                        if (xstart < X && X < xend)
                         {
-                            if (_Bufer.First().Cells[i].Body == item.HeaderText)
+                            int YIndex = Y / RowHeight + _FirstPrintedRowIndex;
+                            int XIndex = -1;
+                            for (int i = 0; i < _Bufer.First().Cells.Count; i++)
                             {
-                                XIndex = i;
+                                if (_Bufer.First().Cells[i].Body == item.HeaderText)
+                                {
+                                    XIndex = i;
+                                }
                             }
-                        }
-                      
 
-                        for (int i = 0; i < Controls.Count; i++)
-                        {
-                            if (Controls[i].GetType() == typeof(TableEditor))
+
+                            for (int i = 0; i < Controls.Count; i++)
                             {
-                                TableEditor a = (TableEditor)Controls[i];
-                                a.Visible = false;
-                                 Controls.RemoveAt(i);
-                                updateColumnsPosition();
-                                break;
+                                if (Controls[i].GetType() == typeof(TableEditor))
+                                {
+                                    TableEditor a = (TableEditor)Controls[i];
+                                    a.Visible = false;
+                                    Controls.RemoveAt(i);
+                                    updateColumnsPosition();
+                                    break;
+                                }
                             }
-                        }
-                        if (item.Type == typeof(string))
-                        {
+
                             TableEditor te = new TableEditor(item.Type);
+                            te.AddSelector(_Bufer[YIndex].Cells[XIndex]);
                             xstart = item.XStartPosition;
                             xend = item.XEndPosition;
                             te.Width = item.XEndPosition - item.XStartPosition + _LineWidth;
                             te.Height = RowHeight;
                             te.BorderStyle = BorderStyle.FixedSingle;
-                            te.TableCell = _Bufer[YIndex].Cells[XIndex];
+                            // te.TableCell = ;
                             // my favorite test for your properties
-                            te.TableCell = te.TableCell;
+                            //  te.TableCell = te.TableCell;
                             //
                             te.Location = new Point(xstart, _RowHeight * YIndex);
-                           
+
                             Controls.Add(te);
-                           
+                            // te.GenerateForm();
+
+
+                            break;
                         }
-                        if (item.Type == typeof(int))
-                        {
-                            var a = 007;
-                            _Bufer[YIndex].Cells[XIndex].Body = a.ToString();
-                        }
+                    }
+                    xstart = xend;
+
+                }
+
+                Invalidate();
+            }
+            else
+            {
+                for (int i = 0; i < Controls.Count; i++)
+                {
+                    if (Controls[i].GetType() == typeof(TableEditor))
+                    {
+                        TableEditor a = (TableEditor)Controls[i];
+                        a.Visible = false;
+                        Controls.RemoveAt(i);
+                        updateColumnsPosition();
+                        Invalidate();
                         break;
                     }
                 }
-                xstart = xend;
-
             }
-            //  UpdateControl();
-            Invalidate();
         }
     }
     class Cell
