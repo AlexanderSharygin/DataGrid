@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace Parser
 {
-    public partial class HeaderCell : UserControl
+    public partial class HeaderCell : Control
     {
         int _CellMinMargin = 2;
         bool _IsToMoving = false;
@@ -15,12 +15,10 @@ namespace Parser
         internal APICore _API;
         TypeSelector _TypeSelector = new TypeSelector();
         public string HeaderText { get; set; }       
-        internal List<HeaderCell> NeighborCells { get; set; } = new List<HeaderCell>();    
-        public HeaderCell()
-        {
-            InitializeComponent();
-            this.Height = Font.Height + _CellMinMargin * 2;
-        }
+        internal List<HeaderCell> NeighborCells { get; set; } = new List<HeaderCell>();
+        private System.ComponentModel.IContainer components = null;
+       
+      
         internal HeaderCell(Column ColumnData)
         {
             InitializeComponent();
@@ -33,7 +31,29 @@ namespace Parser
             _TypeSelector.Font = this.Font;
             Controls.Add(_TypeSelector);
             _TypeSelector.ColumnData = ColumnData;                
-        }   
+        }
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+
+            this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+
+            this.DoubleBuffered = true;
+            this.Name = "HeaderCell";
+            this.Size = new System.Drawing.Size(127, 31);
+
+            this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.HeaderCell_MouseClick);
+            this.ResumeLayout(false);
+
+        }
         public void ChangeSortDirection()
         {      
                 if (_API.SortDirection == Sort.DESC)
@@ -51,6 +71,11 @@ namespace Parser
         }
         protected override void OnPaint(PaintEventArgs e)
         {
+            Pen _Pen = new Pen(Color.Black); 
+            e.Graphics.DrawLine(_Pen, 0, 0, this.Width, 0);
+            e.Graphics.DrawLine(_Pen, this.Width-1, 1, this.Width-1, this.Height);
+            e.Graphics.DrawLine(_Pen, this.Width-1, this.Height, 1, this.Height);
+            e.Graphics.DrawLine(_Pen, 0, this.Height, 0, 0);
             _ColumnData.Type = _ColumnData.AllTypes.TypesCollection[_TypeSelector.SelectedItem];
             e.Graphics.DrawString(HeaderText, Font, new SolidBrush(Color.Black), _CellMinMargin, _CellMinMargin);
             if (_API.SortedColumnIndex == _ColumnData.Index)

@@ -127,8 +127,8 @@ namespace Parser
             var temp = _Bufer.First().Cells;
             foreach (var item in temp)
             {
-                var columnExistedHeaders = _API.Columns.Select(k => k.HeaderText).ToList();
-                if (columnExistedHeaders.IndexOf(item.Body) < 0)
+                var columnExistedHeaders = _API.Columns.Where(k=>k.HeaderText==item.Body).Select(K=>K.HeaderText).ToList();        
+                if (columnExistedHeaders.Count < 0)
                 {
                     deletedHeaderText = item.Body;
                     break;
@@ -156,24 +156,15 @@ namespace Parser
         public void AddToBufer(string headerText)
         {
             int max = _Source.Max(k => k.Count);
-            if (_Bufer.Count == 0)
+          
+            int count = _Bufer.Count;
+            if (_Bufer.Count < max)
             {
-                for (int j = 0; j < max; j++)
+                for (int i = 0; i < max - count; i++)
                 {
                     _Bufer.Add(new Row());
                 }
-
-            }
-            else
-            {
-                if (_Bufer.Count < max)
-                {
-                    for (int i = 0; i < max - _Bufer.Count; i++)
-                    {
-                        _Bufer.Add(new Row());
-                    }
-                }
-            }
+            }     
 
             int index = -1;
             for (int j = 0; j < _Source.Count; j++)
@@ -433,10 +424,11 @@ namespace Parser
                 {
                     Controls.Add(tempControl);
                 }
-               
+                
                 int xCounter = 0;
                 int xCounterForText = _LineWidth + _CellMinMargin;
                 List<HeaderCell> Header = new List<HeaderCell>();
+               
                 for (int i = 0; i < _API.Columns.Count; i++)
                 {
                     var a = _Bufer.First().Cells.Select(k => k.Body).ToList();
@@ -584,7 +576,7 @@ namespace Parser
 
             }
         }
-        public void updateColumnsPosition()
+        public void UpdateColumnsPosition()
         {
            
             int xCounter = 0;
@@ -716,28 +708,22 @@ namespace Parser
                                     TableEditor a = (TableEditor)Controls[i];
                                     a.Visible = false;
                                     Controls.RemoveAt(i);
-                                    updateColumnsPosition();
+                                    UpdateColumnsPosition();
                                     break;
                                 }
                             }
 
                             TableEditor te = new TableEditor(item.Type);
-                            te.AddSelector(_Bufer[YIndex].Cells[XIndex]);
+                            te.AddEditor(_Bufer[YIndex].Cells[XIndex]);
                             xstart = item.XStartPosition;
                             xend = item.XEndPosition;
                             te.Width = item.XEndPosition - item.XStartPosition + _LineWidth;
                             te.Height = RowHeight;
-                            te.BorderStyle = BorderStyle.FixedSingle;
-                            // te.TableCell = ;
-                            // my favorite test for your properties
-                            //  te.TableCell = te.TableCell;
-                            //
+                          
                             te.Location = new Point(xstart, _RowHeight * YIndex);
 
                             Controls.Add(te);
-                            // te.GenerateForm();
-
-
+                           
                             break;
                         }
                     }
@@ -756,7 +742,7 @@ namespace Parser
                         TableEditor a = (TableEditor)Controls[i];
                         a.Visible = false;
                         Controls.RemoveAt(i);
-                        updateColumnsPosition();
+                        UpdateColumnsPosition();
                         Invalidate();
                         break;
                     }

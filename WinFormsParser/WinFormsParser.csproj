@@ -67,10 +67,7 @@
   <ItemGroup>
     <Compile Include="APIModel.cs" />
     <Compile Include="HeaderCell.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="HeaderCell.Designer.cs">
-      <DependentUpon>HeaderCell.cs</DependentUpon>
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="JSONParser.cs">
       <SubType>Form</SubType>
@@ -93,9 +90,6 @@
     </Compile>
     <Compile Include="TableEditor.cs">
       <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="TableEditor.Designer.cs">
-      <DependentUpon>TableEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="TypeSelector.cs">
       <SubType>UserControl</SubType>

@@ -11,8 +11,7 @@ namespace Parser
         internal Column ColumnData { get; set; } = new Column("", typeof(String));
         public TypeSelector()
         {
-            InitializeComponent();           
-            
+            InitializeComponent();
         }
         public string SelectedItem
         {
@@ -30,14 +29,11 @@ namespace Parser
             {
                 _Items = value; comboBox1.DataSource = _Items;
             }
-        }
-
-        
-
+        }     
         private void ComboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             _SelectedItem = comboBox1.SelectedItem.ToString();
-            ColumnData.Type = ColumnData.AllTypes.TypesCollection[_SelectedItem];        
+            ColumnData.Type = ColumnData.AllTypes.TypesCollection[_SelectedItem];       
           
             if (Parent != null)
             {
