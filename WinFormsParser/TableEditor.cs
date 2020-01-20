@@ -6,6 +6,7 @@ using System.Windows.Forms;
 
 namespace Parser
 {
+    [System.ComponentModel.DesignerCategory("Code")]
     partial class TableEditor : Control
     {
 

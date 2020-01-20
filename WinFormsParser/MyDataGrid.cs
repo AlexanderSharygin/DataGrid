@@ -13,6 +13,7 @@ namespace Parser
 {
 
 
+    [System.ComponentModel.DesignerCategory("Code")]
 
     public partial class MyDataGrid : UserControl
     {

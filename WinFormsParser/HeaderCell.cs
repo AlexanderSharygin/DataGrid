@@ -7,6 +7,8 @@ using System.Windows.Forms;
 
 namespace Parser
 {
+    [System.ComponentModel.DesignerCategory("Code")]
+
     public partial class HeaderCell : Control
     {
         int _CellMinMargin = 2;
