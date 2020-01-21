@@ -75,6 +75,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConsoleRender.cs" />
+    <None Include="Trash\TableEditor.cs" />
     <None Include="Trash\ScrollShize.cs" />
     <Compile Include="Trash\Config.cs" />
     <None Include="Trash\ObjectFields.cs" />
@@ -100,6 +101,9 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Trash\TableEditor.resx">
+      <DependentUpon>TableEditor.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

@@ -68,6 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="APIModel.cs" />
+    <Compile Include="EditorSelector.cs" />
     <Compile Include="HeaderCell.cs" />
     <Compile Include="JSONParser.cs">
       <SubType>Form</SubType>
@@ -86,7 +87,6 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
-    <Compile Include="TableEditor.cs" />
     <Compile Include="TypeSelector.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -105,9 +105,6 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="TableEditor.resx">
-      <DependentUpon>TableEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="TypeSelector.resx">
       <DependentUpon>TypeSelector.cs</DependentUpon>

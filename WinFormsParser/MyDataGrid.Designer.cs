@@ -65,7 +65,7 @@
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "MyDataGrid";
             this.Size = new System.Drawing.Size(188, 185);
-            this.Load += new System.EventHandler(this.MyDataGrid_Load);
+        
             this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.MyDataGrid_MouseClick);
             this.Resize += new System.EventHandler(this.MyDataGrid_Resize);
             this.ResumeLayout(false);

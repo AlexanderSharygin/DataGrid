@@ -21,6 +21,7 @@ namespace Parser
         List<List<string>> _Source;
         List<Row> _Bufer;
         APICore _API;
+        EditorSelector _Editor;
         int _RowHeight;
         int _LineWidth = 1;
         int _FirstPrintedRowIndex = 0;
@@ -34,6 +35,7 @@ namespace Parser
         Pen _Pen;
         public MyDataGrid()
         {
+           
             AutoScaleMode = AutoScaleMode.None;
             InitializeComponent();
             components = new System.ComponentModel.Container();
@@ -378,7 +380,6 @@ namespace Parser
                 }
                 else if (_API.SortDirection == Sort.None)
                 {
-                    //!why are you using lambda instead of a seaprate row comparer here? or, why do you use the row comparer in the code above?
                     if (_Bufer.First().Cells.Count > 0)
                     {
                         _Bufer.Sort((a, b) => a.Cells.First().SourceYIndex.CompareTo(b.Cells.First().SourceYIndex));
@@ -390,20 +391,7 @@ namespace Parser
                 {
                     _ViewPortRowsCount = _Bufer.Count - 1;
                 }
-                int xCounterForLine = 0;
-                Control tempControl = null;
-                foreach (Control item in Controls)
-                {
-                    if (item.GetType() == typeof(TableEditor))
-                    {
-
-                        tempControl = item;
-
-
-                    }
-                }
-
-
+                int xCounterForLine = 0;               
                 Control HorizontalScroll = null;
                 Control VerticalScroll = null;
                 foreach (var item in Controls)
@@ -421,11 +409,11 @@ namespace Parser
                 Controls.Clear();
                 Controls.Add(HorizontalScroll);
                 Controls.Add(VerticalScroll);
-                if (tempControl != null)
+                if (_Editor != null)
                 {
-                    Controls.Add(tempControl);
-                }
-                
+                    Controls.Add(_Editor.Editor);
+                 _Editor.Editor.Focus();
+                }               
                 int xCounter = 0;
                 int xCounterForText = _LineWidth + _CellMinMargin;
                 List<HeaderCell> Header = new List<HeaderCell>();
@@ -493,6 +481,7 @@ namespace Parser
                
                 e.Graphics.DrawLine(_Pen, _TableWidth - HorisontalScrollBar.Value, 0, _TableWidth - HorisontalScrollBar.Value, 0 + RowHeight * (_ViewPortRowsCount + 1));
                 e.Graphics.DrawLine(_Pen, 0 - HorisontalScrollBar.Value, RowHeight, _TableWidth - HorisontalScrollBar.Value, RowHeight);
+               
             }
         }
 
@@ -668,11 +657,7 @@ namespace Parser
             Invalidate();
         }
 
-        private void MyDataGrid_Load(object sender, EventArgs e)
-        {
-
-        }
-
+     
         private void MyDataGrid_MouseClick(object sender, MouseEventArgs e)
         {
 
@@ -700,31 +685,20 @@ namespace Parser
                                     XIndex = i;
                                 }
                             }
-
-
-                            for (int i = 0; i < Controls.Count; i++)
+                            if (_Editor!=null)
                             {
-                                if (Controls[i].GetType() == typeof(TableEditor))
-                                {
-                                    TableEditor a = (TableEditor)Controls[i];
-                                    a.Visible = false;
-                                    Controls.RemoveAt(i);
-                                    UpdateColumnsPosition();
-                                    break;
-                                }
-                            }
-
-                            TableEditor te = new TableEditor(item.Type);
-                            te.AddEditor(_Bufer[YIndex].Cells[XIndex]);
+                                Controls.Remove(_Editor.Editor);
+                                UpdateColumnsPosition();
+                            }                           
+                            EditorSelector es = new EditorSelector(_Bufer[YIndex].Cells[XIndex], item.Type);
+                            es.Font = this.Font;
+                            es.Height = RowHeight-_LineWidth;                         
                             xstart = item.XStartPosition;
                             xend = item.XEndPosition;
-                            te.Width = item.XEndPosition - item.XStartPosition + _LineWidth;
-                            te.Height = RowHeight;
-                          
-                            te.Location = new Point(xstart, _RowHeight * YIndex);
-
-                            Controls.Add(te);
-                           
+                            es.Width= item.XEndPosition - item.XStartPosition;                                               
+                         es.Position = new Point(xstart+_LineWidth, _RowHeight * YIndex+_LineWidth);
+                            es.CreateEditor();                        
+                            _Editor = es;
                             break;
                         }
                     }
@@ -734,21 +708,7 @@ namespace Parser
 
                 Invalidate();
             }
-            else
-            {
-                for (int i = 0; i < Controls.Count; i++)
-                {
-                    if (Controls[i].GetType() == typeof(TableEditor))
-                    {
-                        TableEditor a = (TableEditor)Controls[i];
-                        a.Visible = false;
-                        Controls.RemoveAt(i);
-                        UpdateColumnsPosition();
-                        Invalidate();
-                        break;
-                    }
-                }
-            }
+           
         }
     }
     class Cell
