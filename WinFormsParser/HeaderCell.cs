@@ -14,6 +14,7 @@ namespace Parser
         int _CellMinMargin = 2;
         bool _IsToMoving = false;
         Column _ColumnData;
+        internal Column ColumnData { get => _ColumnData; }
         internal APICore _API;
         TypeSelector _TypeSelector = new TypeSelector();
         public string HeaderText { get; set; }       
@@ -166,6 +167,7 @@ namespace Parser
                 }
                 else
                 {
+                    _API.SortColumns();
                     Parent.Invalidate();
                 }
          

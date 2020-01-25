@@ -49,7 +49,7 @@ namespace Parser
             if (e.KeyCode == Keys.Enter)
             {
 
-                Editor.Parent.Invalidate();
+               // Editor.Parent.Invalidate();
                 Editor.Visible = false;
                
             }
