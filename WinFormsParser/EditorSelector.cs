@@ -16,8 +16,7 @@ namespace Parser
         public int Width { get; set; }
        public int Height { get; set; }
        public Point Position { get; set; }
-         Control _Editor;
-        public Control Editor { get=>_Editor; }
+        public Control Editor { get; private set; }
         public EditorSelector(Cell cell, Type type)
         {
             BuferCell = cell;
@@ -31,34 +30,26 @@ namespace Parser
                 TextBox StringEditor = new TextBox();                     
                 StringEditor.Font = Font;
                 StringEditor.AutoSize = false;
-                StringEditor.Size = new Size(Width, Height);
-               
+                StringEditor.Size = new Size(Width, Height);               
                 StringEditor.Location = Position;
                 StringEditor.Text = BuferCell.Body;
                 StringEditor.TabIndex = 1;
                 StringEditor.Enabled = true;
-                StringEditor.Select(StringEditor.Text.Length, 0);
-                StringEditor.Leave += new System.EventHandler(Editor_Leave);
+                StringEditor.Select(StringEditor.Text.Length, 0);              
                 StringEditor.KeyUp += new KeyEventHandler(ValueField_KeyUp);
-                _Editor = StringEditor;
+                Editor = StringEditor;
             }
         }
 
         private void ValueField_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
-            {
-
-               // Editor.Parent.Invalidate();
-                Editor.Visible = false;
-               
+            {             
+                Editor.Visible = false;               
             }
         }
 
-        private void Editor_Leave(object sender, EventArgs e)
-        {
-            BuferCell.Body = Editor.Text;
-        }
+      
 
     }
 }

@@ -319,8 +319,9 @@ namespace Parser
         {
             if (_Editor != null)
            {
-                Controls.Add(_Editor.Editor);
-               _Editor.Editor.Visible = false;
+               
+                // Controls.Add(_Editor.Editor);
+                _Editor.Editor.Visible = false;
               
            }
             _TableWidth = 0;           
@@ -405,7 +406,7 @@ namespace Parser
                         Cell.Location = new Point(0, 0);
                         Cell._API = _API;                       
                         Header.Add(Cell);
-                         Controls.Add(Cell);
+                        Controls.Add(Cell);
 
 
                     }
@@ -426,8 +427,63 @@ namespace Parser
                 Controls.Add(_Editor.Editor);
                 _Editor.Editor.Visible = true;
                 _Editor.Editor.Focus();
+                _Editor.Editor.Leave += Editor_LostFocus;
             }
             Invalidate();
+        }
+
+        private void Editor_LostFocus(object sender, EventArgs e)
+        {
+
+
+            
+            _Editor.BuferCell.Body = _Editor.Editor.Text;
+         
+            UpdateColumnsPosition();
+
+            for (int i = 0; i < _API.Columns.Count; i++)
+            {
+
+                if (_API.Columns[i].Visible)
+                {
+                    var List = Header.Select(k => k).Where(k => k.ColumnData.Equals(_API.Columns[i])).ToList();
+                    foreach (var item in List)
+                    {
+                        item.Width = (int)(_LineWidth * 2 + _CellMinMargin + _API.Columns[i].Width * (int)this.Font.Size + _CellMinMargin);
+                    }
+
+
+
+                }
+
+
+
+
+            }
+            _TableWidth = 0;
+            foreach (var APIColumn in _API.Columns)
+            {
+                int index = -1;
+                for (int i = 0; i < _Bufer.First().Cells.Count; i++)
+                {
+                    if (APIColumn.HeaderText == _Bufer.First().Cells[i].Body)
+                    {
+                        index = i;
+                    }
+                }
+                if (index != -1)
+                {
+                    var columnItems = _Bufer.Select(k => k.Cells[index].Body).ToList();
+                    int columnWidth = (columnItems.Max(k => k.Length) > APIColumn.HeaderText.Length) ? columnItems.Max(k => k.Length) : APIColumn.HeaderText.Length;
+                    APIColumn.Width = columnWidth;
+                    if (APIColumn.Visible)
+                    {
+                        _TableWidth += (_LineWidth + _CellMinMargin + APIColumn.Width * (int)this.Font.Size + _CellMinMargin);
+                    }
+                }
+            }
+            Invalidate();
+           // ForcedInvalidate();
         }
 
         protected override void OnPaint(PaintEventArgs e)
