@@ -138,14 +138,7 @@ namespace Parser
                 }
 
             }
-            int index = -1;
-            for (int i = 0; i < _Bufer.First().Cells.Count; i++)
-            {
-                if (_Bufer.First().Cells[i].Body == deletedHeaderText)
-                {
-                    index = i;
-                }
-            }
+            int index = GetXIndexInBufer(deletedHeaderText);          
             if (index != -1)
             {
                 for (int i = 0; i < _Bufer.Count; i++)
@@ -231,7 +224,7 @@ namespace Parser
                 HorisontalScrollBar.Value = 0;
                 HorisontalScrollBar.SmallChange = _HorisontalScrollValueRatio;
                 HorisontalScrollBar.LargeChange = _HorisontalScrollValueRatio;
-                ForcedInvalidate();
+                CustomInvalidate();
                         
                 for (int i = 0; i < Controls.Count; i++)
                 {
@@ -250,18 +243,14 @@ namespace Parser
         {
             if (e.PropertyName == "SortDirection")
             {
-                ForcedInvalidate();
-
-                //Invalidate();
+                CustomInvalidate();
             }
         }
         private void ColumnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "Visible")
             {
-                ForcedInvalidate();
-
-                //Invalidate();
+                CustomInvalidate();
             }
         }
         private void ColumnsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -294,9 +283,7 @@ namespace Parser
             }
             if (e.Action == NotifyCollectionChangedAction.Remove)
             {
-
                 RemoveFromBufer();
-
             }
         }
 
@@ -315,26 +302,12 @@ namespace Parser
             }
         }
         List<HeaderCell> Header;
-        public void ForcedInvalidate()
+        private void CalculateTotalTableWidth()
         {
-            if (_Editor != null)
-           {
-               
-                // Controls.Add(_Editor.Editor);
-                _Editor.Editor.Visible = false;
-              
-           }
-            _TableWidth = 0;           
+            _TableWidth = 0;
             foreach (var APIColumn in _API.Columns)
             {
-                int index = -1;
-                for (int i = 0; i < _Bufer.First().Cells.Count; i++)
-                {
-                    if (APIColumn.HeaderText == _Bufer.First().Cells[i].Body)
-                    {
-                        index = i;
-                    }
-                }
+                int index = GetXIndexInBufer(APIColumn.HeaderText);              
                 if (index != -1)
                 {
                     var columnItems = _Bufer.Select(k => k.Cells[index].Body).ToList();
@@ -346,22 +319,24 @@ namespace Parser
                     }
                 }
             }
+        }
+
+        private void CustomInvalidate()
+        {
+            if (_Editor != null)
+            {
+                _Editor.Editor.Visible = false;
+            }
+            CalculateTotalTableWidth();            
             if (_Bufer.Count > 0)
             {
-
                 Row firstRowBufer = new Row();
                 firstRowBufer = _Bufer.First();
-                int sortedIndex = 0;
+                int sortedIndex = -1;
                 if (_API.SortedColumnIndex != -1)
                 {
-                    for (int k = 0; k < _Bufer.First().Cells.Count; k++)
-                    {
+                    sortedIndex = GetXIndexInBufer(_API.Columns[_API.SortedColumnIndex].HeaderText);
 
-                        if (_API.Columns[_API.SortedColumnIndex].HeaderText == _Bufer.First().Cells[k].Body)
-                        {
-                            sortedIndex = k;
-                        }
-                    }
                 }
                 _Bufer.RemoveAt(0);
                 if (_API.SortDirection != Sort.None)
@@ -382,21 +357,18 @@ namespace Parser
             Header = new List<HeaderCell>();
             for (int i = 0; i < Controls.Count; i++)
             {
-
                 Control item = Controls[i];
                 if (item.GetType() == typeof(HeaderCell))
                 {
                     Controls.Remove((Control)item);
                     i--;
                 }
-
             }
             for (int i = 0; i < _API.Columns.Count; i++)
             {
                 var a = _Bufer.First().Cells.Select(k => k.Body).ToList();
                 if (a.IndexOf(_API.Columns[i].HeaderText) != -1)
-                {
-                   
+                {                   
                     if (_API.Columns[i].Visible)
                     {
                         HeaderCell Cell = new HeaderCell(_API.Columns[i]);
@@ -407,11 +379,7 @@ namespace Parser
                         Cell._API = _API;                       
                         Header.Add(Cell);
                         Controls.Add(Cell);
-
-
-                    }
-
-                   
+                    }                   
 
                 }
             }
@@ -433,14 +401,15 @@ namespace Parser
         }
 
         private void Editor_LostFocus(object sender, EventArgs e)
-        {
-
-
-            
-            _Editor.BuferCell.Body = _Editor.Editor.Text;
-         
+        {            
+            _Editor.BuferCell.Body = _Editor.Editor.Text;         
             UpdateColumnsPosition();
-
+            UpdateHeaderWidth();          
+            CalculateTotalTableWidth();
+            Invalidate();           
+        }
+        private void UpdateHeaderWidth()
+        {
             for (int i = 0; i < _API.Columns.Count; i++)
             {
 
@@ -451,70 +420,11 @@ namespace Parser
                     {
                         item.Width = (int)(_LineWidth * 2 + _CellMinMargin + _API.Columns[i].Width * (int)this.Font.Size + _CellMinMargin);
                     }
-
-
-
-                }
-
-
-
-
-            }
-            _TableWidth = 0;
-            foreach (var APIColumn in _API.Columns)
-            {
-                int index = -1;
-                for (int i = 0; i < _Bufer.First().Cells.Count; i++)
-                {
-                    if (APIColumn.HeaderText == _Bufer.First().Cells[i].Body)
-                    {
-                        index = i;
-                    }
-                }
-                if (index != -1)
-                {
-                    var columnItems = _Bufer.Select(k => k.Cells[index].Body).ToList();
-                    int columnWidth = (columnItems.Max(k => k.Length) > APIColumn.HeaderText.Length) ? columnItems.Max(k => k.Length) : APIColumn.HeaderText.Length;
-                    APIColumn.Width = columnWidth;
-                    if (APIColumn.Visible)
-                    {
-                        _TableWidth += (_LineWidth + _CellMinMargin + APIColumn.Width * (int)this.Font.Size + _CellMinMargin);
-                    }
                 }
             }
-            Invalidate();
-           // ForcedInvalidate();
         }
-
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            _Pen.Color = LineColor;
-           
-            UpdateHorizontalScroll();
-            DrawTable(e);
-
-        }     
-
-        private void DrawTable(PaintEventArgs e)
-        {
-
-            e.Graphics.DrawLine(_Pen, 0, 0, this.Width, 0);
-            e.Graphics.DrawLine(_Pen, this.Width, 0, this.Width, this.Height);
-            e.Graphics.DrawLine(_Pen, this.Width, this.Height, 0, this.Height);
-            e.Graphics.DrawLine(_Pen, 0, this.Height, 0, 0);
-            if (_Bufer.Count > 0)
+        /*    private void RemoveExtraChildControls()
             {
-             
-                
-                    
-                int xCounterForLine = 0;
-             
-                if (_ViewPortRowsCount > _Bufer.Count - 1)
-                {
-                    _ViewPortRowsCount = _Bufer.Count - 1;
-                }
-
-              
                 for (int i = 0; i < Controls.Count; i++)
                 {
                     Control item = Controls[i];
@@ -541,63 +451,73 @@ namespace Parser
                     }
 
                 }
-             
-               // if (_Editor != null)
-             //  {
-              //     Controls.Add(_Editor.Editor);
-               //     _Editor.Editor.Visible = true;
-
-              // }
+            }*/
+        private int GetXIndexInBufer(string item)
+        {
+            int index = -1;
+            for (int i = 0; i < _Bufer.First().Cells.Count; i++)
+            {
+                if (item == _Bufer.First().Cells[i].Body)
+                {
+                    index = i;                  
+                }
+            }
+            return index;
+        }
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            _Pen.Color = LineColor;           
+            UpdateHorizontalScroll();         
+            e.Graphics.DrawLine(_Pen, 0, 0, this.Width, 0);
+            e.Graphics.DrawLine(_Pen, this.Width, 0, this.Width, this.Height);
+            e.Graphics.DrawLine(_Pen, this.Width, this.Height, 0, this.Height);
+            e.Graphics.DrawLine(_Pen, 0, this.Height, 0, 0);
+            if (_Bufer.Count > 0)
+            {
+              //  RemoveExtraChildControls();                    
+                int xCounterForLine = 0;             
+                if (_ViewPortRowsCount > _Bufer.Count - 1)
+                {
+                    _ViewPortRowsCount = _Bufer.Count - 1;
+                }                                    
                 int xCounter = 0;
-                int xCounterForText = _LineWidth + _CellMinMargin;           
-               
+                int xCounterForText = _LineWidth + _CellMinMargin;
                 for (int i = 0; i < _API.Columns.Count; i++)
                 {
-                    var a = _Bufer.First().Cells.Select(k => k.Body).ToList();
-                    if (a.IndexOf(_API.Columns[i].HeaderText) != -1)
+                   // var ColumnItems = _Bufer.First().Cells.Select(k => k.Body).ToList();
+                    //    if (ColumnItems.IndexOf(_API.Columns[i].HeaderText) != -1)
+                    //  {
+                    int bufferRowIndex = _FirstPrintedRowIndex + 1;
+                    int viewPortRowIndex = 1;
+                    if (_API.Columns[i].Visible)
                     {
-                        int bufferRowIndex = _FirstPrintedRowIndex + 1;
-                        int viewPortRowIndex = 1;
-                        if (_API.Columns[i].Visible)
+                        var ColumnItems = _Bufer.First().Cells.Select(k => k.Body).ToList();
+                        var HeaderCell = Header.Select(k => k).Where(u => u.ColumnData.Equals(_API.Columns[i])).Single();
+                        HeaderCell.Location = new Point(xCounter - HorisontalScrollBar.Value, 0);
+                        _API.Columns[i].XStartPosition = xCounter - HorisontalScrollBar.Value;
+                        xCounter += _LineWidth + _CellMinMargin + _API.Columns[i].Width * (int)this.Font.Size + _CellMinMargin;
+                        _API.Columns[i].XEndPosition = xCounter - HorisontalScrollBar.Value - 1;
+
+                        for (int j = 0; j < _ViewPortRowsCount; j++)
                         {
-                            var HC = Header.Select(k => k).Where(u => u.ColumnData.Equals(_API.Columns[i])).Single();
-                            HC.Location = new Point(xCounter - HorisontalScrollBar.Value, 0);
-                            _API.Columns[i].XStartPosition = xCounter - HorisontalScrollBar.Value;
-                            xCounter += _LineWidth + _CellMinMargin + _API.Columns[i].Width * (int)this.Font.Size + _CellMinMargin;
-                            _API.Columns[i].XEndPosition = xCounter - HorisontalScrollBar.Value - 1;
-                            
-                            for (int j = 0; j < _ViewPortRowsCount; j++)
+                            if (bufferRowIndex < _Bufer.Count)
                             {
-                                if (bufferRowIndex < _Bufer.Count)
-                                {
-                                    int index = 0;
-                                    for (int k = 0; k < _Bufer.First().Cells.Count; k++)
-                                    {
-                                        if (_API.Columns[i].HeaderText == _Bufer.First().Cells[k].Body)
-                                        {
-                                            index = k;
-                                        }
-                                    }
+                               
+                                int index = GetXIndexInBufer(_API.Columns[i].HeaderText);                             
+                                Cell TempCell = _Bufer[bufferRowIndex].Cells[index];
+                                e.Graphics.DrawString(TempCell.Body, this.Font, _Brush, xCounterForText - HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex) + (RowHeight - FontHeight) / 2);
+                                e.Graphics.DrawLine(_Pen, -HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex + 1), _TableWidth - HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex + 1));
+                                viewPortRowIndex++;
+                                bufferRowIndex++;
 
-                                    Cell TCell = _Bufer[bufferRowIndex].Cells[index];
-                                    e.Graphics.DrawString(TCell.Body, this.Font, _Brush, xCounterForText - HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex) + (RowHeight - FontHeight) / 2);
-                                    e.Graphics.DrawLine(_Pen, -HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex + 1), _TableWidth - HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex + 1));
-                                    viewPortRowIndex++;
-                                    bufferRowIndex++;
-
-                                }
                             }
-                            e.Graphics.DrawLine(_Pen, xCounterForLine - HorisontalScrollBar.Value, 0, xCounterForLine - HorisontalScrollBar.Value, RowHeight * (_ViewPortRowsCount + 1));
-                            xCounterForLine += _LineWidth + _CellMinMargin + _API.Columns[i].Width * (int)this.Font.Size + _CellMinMargin;
-                            xCounterForText += _API.Columns[i].Width * (int)Font.Size + _CellMinMargin + _LineWidth + _CellMinMargin;
-
                         }
-
-                       
+                        e.Graphics.DrawLine(_Pen, xCounterForLine - HorisontalScrollBar.Value, 0, xCounterForLine - HorisontalScrollBar.Value, RowHeight * (_ViewPortRowsCount + 1));
+                        xCounterForLine += _LineWidth + _CellMinMargin + _API.Columns[i].Width * (int)this.Font.Size + _CellMinMargin;
+                        xCounterForText += _API.Columns[i].Width * (int)Font.Size + _CellMinMargin + _LineWidth + _CellMinMargin;
                     }
-
                 }
-               
+               // }               
                 e.Graphics.DrawLine(_Pen, _TableWidth - HorisontalScrollBar.Value, 0, _TableWidth - HorisontalScrollBar.Value, 0 + RowHeight * (_ViewPortRowsCount + 1));
                 e.Graphics.DrawLine(_Pen, 0 - HorisontalScrollBar.Value, RowHeight, _TableWidth - HorisontalScrollBar.Value, RowHeight);
                
@@ -685,7 +605,7 @@ namespace Parser
 
             }
         }
-        public void UpdateColumnsPosition()
+        private void UpdateColumnsPosition()
         {
            
             int xCounter = 0;
@@ -695,17 +615,9 @@ namespace Parser
                 var a = _Bufer.First().Cells.Select(k => k.Body).ToList();
                 if (a.IndexOf(_API.Columns[i].HeaderText) != -1)
                 {
-                    int index = -1;
-                    for (int j = 0; j < _Bufer.First().Cells.Count; j++)
-                    {
-                        if (_API.Columns[i].HeaderText == _Bufer.First().Cells[j].Body)
-                        {
-                            index = j;
-                        }
-                    }
+                    int index = GetXIndexInBufer(_API.Columns[i].HeaderText);                   
                     if (_API.Columns[i].Visible)
                     {
-
                         _API.Columns[i].XStartPosition = xCounter - HorisontalScrollBar.Value;
                         var columnItems = _Bufer.Select(k => k.Cells[index].Body).ToList();
                         int columnWidth = (columnItems.Max(k => k.Length) > _API.Columns[i].HeaderText.Length) ? columnItems.Max(k => k.Length) : _API.Columns[i].HeaderText.Length;
@@ -796,27 +708,20 @@ namespace Parser
                         if (xstart < X && X < xend)
                         {
                             int YIndex = Y / RowHeight + _FirstPrintedRowIndex;
-                            int XIndex = -1;
-                            for (int i = 0; i < _Bufer.First().Cells.Count; i++)
-                            {
-                                if (_Bufer.First().Cells[i].Body == item.HeaderText)
-                                {
-                                    XIndex = i;
-                                }
-                            }
-                            if (_Editor!=null)
+                            int XIndex = GetXIndexInBufer(item.HeaderText);                          
+                            if (_Editor != null)
                             {
                                 Controls.Remove(_Editor.Editor);
                                 UpdateColumnsPosition();
-                            }                           
+                            }
                             EditorSelector es = new EditorSelector(_Bufer[YIndex].Cells[XIndex], item.Type);
                             es.Font = this.Font;
-                            es.Height = RowHeight-_LineWidth;                         
+                            es.Height = RowHeight - _LineWidth;
                             xstart = item.XStartPosition;
                             xend = item.XEndPosition;
-                            es.Width= item.XEndPosition - item.XStartPosition;                                               
-                         es.Position = new Point(xstart+_LineWidth, _RowHeight * YIndex+_LineWidth);
-                            es.CreateEditor();                        
+                            es.Width = item.XEndPosition - item.XStartPosition;
+                            es.Position = new Point(xstart + _LineWidth, _RowHeight * YIndex + _LineWidth);
+                            es.CreateEditor();
                             _Editor = es;
                             break;
                         }
@@ -824,10 +729,7 @@ namespace Parser
                     xstart = xend;
 
                 }
-                ForcedInvalidate();
-
-
-               // Invalidate();
+                CustomInvalidate();
             }
 
         }
