@@ -11,11 +11,12 @@ namespace Parser
     class EditorSelector
     {
         public Font Font { get; set; }
+        public int ColumnIndex { get; set; }
         public Type Type { get; }
         public Cell BuferCell { get; }
-        public int Width { get; set; }
-       public int Height { get; set; }
-       public Point Position { get; set; }
+      //  public int Width { get; set; }
+      // public int Height { get; set; }
+      
         public Control Editor { get; private set; }
         public EditorSelector(Cell cell, Type type)
         {
@@ -30,8 +31,8 @@ namespace Parser
                 TextBox StringEditor = new TextBox();                     
                 StringEditor.Font = Font;
                 StringEditor.AutoSize = false;
-                StringEditor.Size = new Size(Width, Height);               
-                StringEditor.Location = Position;
+              //  StringEditor.Size = new Size(Width, Height);            
+              
                 StringEditor.Text = BuferCell.Body;
                 StringEditor.TabIndex = 1;
                 StringEditor.Enabled = true;

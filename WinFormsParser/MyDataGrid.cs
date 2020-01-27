@@ -33,6 +33,7 @@ namespace Parser
         float _TableWidth;
         Brush _Brush;
         Pen _Pen;
+        private int _EditorX;
         public MyDataGrid()
         {
 
@@ -395,6 +396,7 @@ namespace Parser
                 Controls.Add(_Editor.Editor);
                 _Editor.Editor.Visible = true;
                 _Editor.Editor.Focus();
+               
                 _Editor.Editor.Leave += Editor_LostFocus;
             }
             Invalidate();
@@ -474,8 +476,14 @@ namespace Parser
             e.Graphics.DrawLine(_Pen, 0, this.Height, 0, 0);
             if (_Bufer.Count > 0)
             {
-              //  RemoveExtraChildControls();                    
-                int xCounterForLine = 0;             
+                //  RemoveExtraChildControls();                    
+                if (_Editor != null)
+                {
+                  //  _Editor.Editor.Invalidate();
+                }
+                int xCounterForLine = 0;
+                
+                
                 if (_ViewPortRowsCount > _Bufer.Count - 1)
                 {
                     _ViewPortRowsCount = _Bufer.Count - 1;
@@ -684,7 +692,17 @@ namespace Parser
         }
         private void HorisontalScrollBar_Scroll(object sender, ScrollEventArgs e)
         {
-           
+            
+            var item = _API.Columns.Select(k => k).Where(k => k.Index == _Editor.ColumnIndex).Single();
+            if (_Editor != null)
+            {
+               int xstart = item.XStartPosition;
+               int xend = item.XEndPosition;
+                _Editor.Editor.Location = new Point(xstart + _LineWidth, _Editor.Editor.Location.Y);
+                _Editor.Editor.Width = item.XEndPosition - item.XStartPosition;
+                _Editor.Editor.Focus();
+               
+            }
             Invalidate();
         }
 
@@ -692,7 +710,7 @@ namespace Parser
         private void MyDataGrid_MouseClick(object sender, MouseEventArgs e)
         {
 
-          
+           
             var X = e.Location.X;
             var Y = e.Location.Y;
             if (Y / RowHeight < _Bufer.Count)
@@ -714,15 +732,17 @@ namespace Parser
                                 Controls.Remove(_Editor.Editor);
                                 UpdateColumnsPosition();
                             }
-                            EditorSelector es = new EditorSelector(_Bufer[YIndex].Cells[XIndex], item.Type);
-                            es.Font = this.Font;
-                            es.Height = RowHeight - _LineWidth;
+                            EditorSelector es = new EditorSelector(_Bufer[YIndex].Cells[XIndex], item.Type);                                                     
                             xstart = item.XStartPosition;
-                            xend = item.XEndPosition;
-                            es.Width = item.XEndPosition - item.XStartPosition;
-                            es.Position = new Point(xstart + _LineWidth, _RowHeight * YIndex + _LineWidth);
+                            xend = item.XEndPosition;                        
                             es.CreateEditor();
+                            es.Font = this.Font;
+                            es.Editor.Width = item.XEndPosition - item.XStartPosition;
+                            es.Editor.Location= new Point(xstart + _LineWidth, _RowHeight * YIndex + _LineWidth);
+                            es.Editor.Height = RowHeight - _LineWidth;
+                            es.ColumnIndex = item.Index;
                             _Editor = es;
+                            _EditorX = _Editor.Editor.Location.X;
                             break;
                         }
                     }
