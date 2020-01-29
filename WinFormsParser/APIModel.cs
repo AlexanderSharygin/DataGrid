@@ -37,6 +37,11 @@ namespace Parser
             }
         }
         public int SortedColumnIndex { get; set; } = -1;
+        public bool isEditorOpened { get; set; } 
+        public Type EditorComponentType { get; set; }
+     
+        public bool IsEditorNedded  { get; set; }
+        public bool isTypeSelectorOpened { get; set; } 
         public ObservableCollection<Column> Columns { get; } = new ObservableCollection<Column>();
         public event PropertyChangedEventHandler PropertyChanged;
         public APICore()

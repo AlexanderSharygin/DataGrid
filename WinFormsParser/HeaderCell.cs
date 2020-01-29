@@ -103,95 +103,137 @@ namespace Parser
                     e.Graphics.FillPolygon(new SolidBrush(Color.Black), p);
                 }
             }           
-        }  
+        }
         private void HeaderCell_MouseClick(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Middle)
-            {
-
-                for (int i = 0; i < Parent.Controls.Count; i++)
-                {
-                    Type Type = Parent.Controls[i].GetType();
-
-                    if (Type == typeof(TypeSelector))
-                    {
-                        Parent.Controls.RemoveAt(i);
-                    }
-                }
-                if (_TypeSelector.Visible)
-                {
-                    _TypeSelector.Visible = false;
-                    Parent.Invalidate();
-                }
-                else
-                {
-                    _TypeSelector.Width = 80;
-                    _TypeSelector.Height = 20;
-                    _TypeSelector.Location = new Point(this.Location.X + 5, this.Location.Y + 5);
-                    _TypeSelector.Visible = true;
-                    _TypeSelector.Parent = this.Parent;
-                    _TypeSelector.BringToFront();
-                }
-            }
-            if (e.Button == MouseButtons.Left)
-            {
-                bool MovingMode = false;
-                foreach (var item in NeighborCells)
-                {
-                    if (item._IsToMoving == true)
-                    {
-                        int newIndex = item._ColumnData.Index;
-                        item._ColumnData.Index = _ColumnData.Index;
-                        _ColumnData.Index = newIndex;
-                        MovingMode = true;
-                        if (_API.SortedColumnIndex == item._ColumnData.Index) 
-                        {
-                            _API.SortedColumnIndex = newIndex;
-                        }
-                        else if (_API.SortedColumnIndex == newIndex)
-                        {
-                            _API.SortedColumnIndex = item._ColumnData.Index;
-                        }
-                        break;
-                    }
-                }
-                if (!MovingMode)
-                {                  
-                   if (_API.SortedColumnIndex != _ColumnData.Index)
-                    {
-                       _API.SortDirection = Sort.None;
-                   }
-                  _API.SortedColumnIndex = _ColumnData.Index;
-                  ChangeSortDirection();
-                   
-                }
-                else
-                {
-                    _API.SortColumns();
-                    Parent.Invalidate();
-                }
          
-            }
-            if (e.Button == MouseButtons.Right)
+            if (_API.IsEditorNedded)
             {
-                if (!_IsToMoving)
+                var a = Parent.Controls;
+                foreach (var item in a)
                 {
-                    BackColor = Color.Coral;
-                    _IsToMoving = true;
+                    if (item.GetType() == _API.EditorComponentType)
+                    {
+                        Parent.Controls.Remove((Control)item);
+                    }
+                }
+                _API.IsEditorNedded = false;
+
+
+            }
+            
+          else if (_API.isTypeSelectorOpened)
+            {
+                var aa = Parent.Controls;
+                foreach (var item in aa)
+                {
+                    if (item.GetType() == typeof(TypeSelector))
+                    {
+                        Parent.Controls.Remove((Control)item);
+                    }
+                }
+                _API.isTypeSelectorOpened = false;
+            }
+          
+            else
+                {
+                if (e.Button == MouseButtons.Middle)
+                {
+
+                    for (int i = 0; i < Parent.Controls.Count; i++)
+                    {
+                        Type Type = Parent.Controls[i].GetType();
+
+                        if (Type == typeof(TypeSelector))
+                        {
+                            Parent.Controls.RemoveAt(i);
+                        }
+                    }
+                    if (_TypeSelector.Visible)
+                    {
+                        _API.isTypeSelectorOpened = false;
+                        _TypeSelector.Visible = false;
+                        Parent.Invalidate();
+                    }
+                    else
+                    {
+                        _TypeSelector.Width = 80;
+                        _TypeSelector.Height = 20;
+                        _TypeSelector.Location = new Point(this.Location.X + 5, this.Location.Y + 5);
+                        _TypeSelector.Visible = true;
+                        _TypeSelector.Parent = this.Parent;
+                        _API.isTypeSelectorOpened = true;
+                        _TypeSelector.BringToFront();
+                    }
+                }
+                if (e.Button == MouseButtons.Left)
+                {
+                
+
+                    bool MovingMode = false;
                     foreach (var item in NeighborCells)
                     {
-                        item._IsToMoving = false;
-                        item.BackColor = Parent.BackColor;
+                        if (item._IsToMoving == true)
+                        {
+                          
+                            int newIndex = item._ColumnData.Index;
+                            item._ColumnData.Index = _ColumnData.Index;
+                            item._IsToMoving = false;
+                            item.BackColor = Parent.BackColor;
+                            _ColumnData.Index = newIndex;
+                            MovingMode = true;
+                            if (_API.SortedColumnIndex == item._ColumnData.Index)
+                            {
+                                _API.SortedColumnIndex = newIndex;
+                            }
+                            else if (_API.SortedColumnIndex == newIndex)
+                            {
+                                _API.SortedColumnIndex = item._ColumnData.Index;
+                            }
+                            break;
+                        }
                     }
-                }
-                else if (_IsToMoving)
-                {
-                    BackColor = Parent.BackColor;
-                    _IsToMoving = false;
-                }
+                    if (!MovingMode)
+                    {
+                        if (_API.SortedColumnIndex != _ColumnData.Index)
+                        {
+                            _API.SortDirection = Sort.None;
+                        }
+                        _API.SortedColumnIndex = _ColumnData.Index;
+                     
+                        ChangeSortDirection();
 
+                    }
+                    else
+                    {
+                        _API.SortColumns();
+                        Parent.Invalidate();
+                    }
+
+                }
+                if (e.Button == MouseButtons.Right)
+                {
+                    if (!_IsToMoving)
+                    {
+                        BackColor = Color.Coral;
+                        _IsToMoving = true;
+                        foreach (var item in NeighborCells)
+                        {
+                            item._IsToMoving = false;
+                            item.BackColor = Parent.BackColor;
+                        }
+                    }
+                    else if (_IsToMoving)
+                    {
+                        BackColor = Parent.BackColor;
+                        _IsToMoving = false;
+                    }
+
+
+                }
 
             }
+         
         }
 
         private void HeaderCell_Load(object sender, EventArgs e)

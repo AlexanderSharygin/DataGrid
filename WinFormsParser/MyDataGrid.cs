@@ -11,10 +11,7 @@ using System.ComponentModel;
 
 namespace Parser
 {
-
-
     [System.ComponentModel.DesignerCategory("Code")]
-
     public partial class MyDataGrid : UserControl
     {
 
@@ -61,8 +58,6 @@ namespace Parser
             HorisontalScrollBar.Value = 0;
             _Brush = new SolidBrush(ForeColor);
             _Pen = new Pen(LineColor, _LineWidth);
-
-
         }
 
         //!why internal?
@@ -72,7 +67,6 @@ namespace Parser
             {
                 return _API.Columns;
             }
-
         }
         [DisplayName(@"Source")]
         public object Source
@@ -137,7 +131,6 @@ namespace Parser
                     deletedHeaderText = item.Body;
                     break;
                 }
-
             }
             int index = GetXIndexInBufer(deletedHeaderText);          
             if (index != -1)
@@ -147,8 +140,6 @@ namespace Parser
                     _Bufer[i].Cells.RemoveAt(index);
                 }
             }
-
-
         }
         public void AddToBufer(string headerText)
         {
@@ -182,9 +173,7 @@ namespace Parser
                     _Bufer[k].Cells.Add(temp);
                 }
             }
-
         }
-
         public void RemoveColumnByName(string columnName)
         {
             for (int i = 0; i < _API.Columns.Count; i++)
@@ -196,7 +185,6 @@ namespace Parser
                 }
             }
         }
-
         private void UpdateScrolls()
         {
 
@@ -237,20 +225,31 @@ namespace Parser
                     }
                 }
             }
-
         }
-
         private void APIPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "SortDirection")
             {
+                
                 CustomInvalidate();
             }
         }
         private void ColumnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "Visible")
-            {
+            {               
+                 foreach (var item in Controls)
+                {
+                    if (item.GetType() == _Editor?.Editor.GetType())
+                    {
+                        Controls.Remove((Control)item);
+                        _Editor = null;
+                        _API.IsEditorNedded = false;
+                        _API.isEditorOpened = false;
+
+                    }                  
+                }
+                _Editor = null;
                 CustomInvalidate();
             }
         }
@@ -327,7 +326,9 @@ namespace Parser
             if (_Editor != null)
             {
                 _Editor.Editor.Visible = false;
+                _API.isEditorOpened = true;
             }
+            
             CalculateTotalTableWidth();            
             if (_Bufer.Count > 0)
             {
@@ -394,6 +395,8 @@ namespace Parser
             if (_Editor != null)
             {
                 Controls.Add(_Editor.Editor);
+                _API.EditorComponentType = _Editor.Editor.GetType();              
+                _API.IsEditorNedded = true;
                 _Editor.Editor.Visible = true;
                 _Editor.Editor.Focus();
                
@@ -403,8 +406,19 @@ namespace Parser
         }
 
         private void Editor_LostFocus(object sender, EventArgs e)
-        {            
-            _Editor.BuferCell.Body = _Editor.Editor.Text;         
+        {
+            if (!_Editor.Dropchanges)
+            {
+                _Editor.BuferCell.Body = _Editor.Editor.Text;
+            }
+            else
+            {
+                _Editor.BuferCell.Body = _Editor.OriginalValue;
+               
+            }
+          
+            _API.isEditorOpened = false;
+
             UpdateColumnsPosition();
             UpdateHeaderWidth();          
             CalculateTotalTableWidth();
@@ -425,35 +439,7 @@ namespace Parser
                 }
             }
         }
-        /*    private void RemoveExtraChildControls()
-            {
-                for (int i = 0; i < Controls.Count; i++)
-                {
-                    Control item = Controls[i];
-                    if (item.GetType() == typeof(HScrollBar))
-                    {
-                        continue;
-                    }
-                    if (item.GetType() == typeof(VScrollBar))
-                    {
-                        continue;
-                    }
-                    if (item.GetType() == typeof(HeaderCell))
-                    {
-                        continue;
-                    }
-                    if (item.GetType() == _Editor?.Editor.GetType())
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        Controls.Remove((Control)item);
-                        i--;
-                    }
-
-                }
-            }*/
+        
         private int GetXIndexInBufer(string item)
         {
             int index = -1;
@@ -476,10 +462,10 @@ namespace Parser
             e.Graphics.DrawLine(_Pen, 0, this.Height, 0, 0);
             if (_Bufer.Count > 0)
             {
-                //  RemoveExtraChildControls();                    
-                if (_Editor != null)
+                                
+                if (_API.IsEditorNedded==false)
                 {
-                  //  _Editor.Editor.Invalidate();
+                    _Editor = null;
                 }
                 int xCounterForLine = 0;
                 
@@ -492,9 +478,7 @@ namespace Parser
                 int xCounterForText = _LineWidth + _CellMinMargin;
                 for (int i = 0; i < _API.Columns.Count; i++)
                 {
-                   // var ColumnItems = _Bufer.First().Cells.Select(k => k.Body).ToList();
-                    //    if (ColumnItems.IndexOf(_API.Columns[i].HeaderText) != -1)
-                    //  {
+                  
                     int bufferRowIndex = _FirstPrintedRowIndex + 1;
                     int viewPortRowIndex = 1;
                     if (_API.Columns[i].Visible)
@@ -525,7 +509,7 @@ namespace Parser
                         xCounterForText += _API.Columns[i].Width * (int)Font.Size + _CellMinMargin + _LineWidth + _CellMinMargin;
                     }
                 }
-               // }               
+                         
                 e.Graphics.DrawLine(_Pen, _TableWidth - HorisontalScrollBar.Value, 0, _TableWidth - HorisontalScrollBar.Value, 0 + RowHeight * (_ViewPortRowsCount + 1));
                 e.Graphics.DrawLine(_Pen, 0 - HorisontalScrollBar.Value, RowHeight, _TableWidth - HorisontalScrollBar.Value, RowHeight);
                
@@ -692,11 +676,13 @@ namespace Parser
         }
         private void HorisontalScrollBar_Scroll(object sender, ScrollEventArgs e)
         {
+
             
-            var item = _API.Columns.Select(k => k).Where(k => k.Index == _Editor.ColumnIndex).Single();
+           
             if (_Editor != null)
             {
-               int xstart = item.XStartPosition;
+                var item = _API.Columns.Select(k => k).Where(k => k.Index == _Editor.ColumnIndex).Single();
+                int xstart = item.XStartPosition;
                int xend = item.XEndPosition;
                 _Editor.Editor.Location = new Point(xstart + _LineWidth, _Editor.Editor.Location.Y);
                 _Editor.Editor.Width = item.XEndPosition - item.XStartPosition;
@@ -709,10 +695,21 @@ namespace Parser
      
         private void MyDataGrid_MouseClick(object sender, MouseEventArgs e)
         {
-
            
+            foreach (var item in Controls)
+            {            
+                if (item.GetType() == typeof(TypeSelector))
+                {
+                    Controls.Remove((Control)item);
+
+                    _API.isTypeSelectorOpened = false;
+                }
+            }
             var X = e.Location.X;
             var Y = e.Location.Y;
+            int YIndex ;
+            int XIndex ;
+         
             if (Y / RowHeight < _Bufer.Count)
             {
                 int xend = 0;
@@ -725,20 +722,23 @@ namespace Parser
                         xend = item.XEndPosition;
                         if (xstart < X && X < xend)
                         {
-                            int YIndex = Y / RowHeight + _FirstPrintedRowIndex;
-                            int XIndex = GetXIndexInBufer(item.HeaderText);                          
+                            YIndex = Y / RowHeight + _FirstPrintedRowIndex;
+                            XIndex = GetXIndexInBufer(item.HeaderText);
                             if (_Editor != null)
                             {
                                 Controls.Remove(_Editor.Editor);
                                 UpdateColumnsPosition();
                             }
-                            EditorSelector es = new EditorSelector(_Bufer[YIndex].Cells[XIndex], item.Type);                                                     
+                         
+                            EditorSelector es = new EditorSelector(_Bufer[YIndex].Cells[XIndex], item.Type);
+                            
                             xstart = item.XStartPosition;
-                            xend = item.XEndPosition;                        
+                            xend = item.XEndPosition;
                             es.CreateEditor();
+                            es.OriginalValue= _Bufer[YIndex].Cells[XIndex].Body;
                             es.Font = this.Font;
                             es.Editor.Width = item.XEndPosition - item.XStartPosition;
-                            es.Editor.Location= new Point(xstart + _LineWidth, _RowHeight * YIndex + _LineWidth);
+                            es.Editor.Location = new Point(xstart + _LineWidth, _RowHeight * YIndex + _LineWidth);
                             es.Editor.Height = RowHeight - _LineWidth;
                             es.ColumnIndex = item.Index;
                             _Editor = es;
@@ -750,6 +750,28 @@ namespace Parser
 
                 }
                 CustomInvalidate();
+            }
+            else
+            {
+              
+                foreach (var item in Controls)
+                {
+                    if (item.GetType() == _Editor?.Editor.GetType())
+                    {
+                        Controls.Remove((Control)item);
+                        _Editor = null;
+                        _API.IsEditorNedded=false;
+                        _API.isEditorOpened = false;
+                        
+                    }
+                    if (item.GetType() == typeof(TypeSelector))
+                    {
+                        Controls.Remove((Control)item);
+                       
+                        _API.isTypeSelectorOpened = false;
+                    }
+                }
+              
             }
 
         }

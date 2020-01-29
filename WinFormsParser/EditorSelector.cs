@@ -14,9 +14,11 @@ namespace Parser
         public int ColumnIndex { get; set; }
         public Type Type { get; }
         public Cell BuferCell { get; }
-      //  public int Width { get; set; }
-      // public int Height { get; set; }
-      
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public string OriginalValue { get; set; }
+        public bool Dropchanges = false;
+
         public Control Editor { get; private set; }
         public EditorSelector(Cell cell, Type type)
         {
@@ -45,8 +47,14 @@ namespace Parser
         private void ValueField_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
-            {             
+            {
+                Dropchanges = false;
                 Editor.Visible = false;               
+            }
+            if (e.KeyCode == Keys.Escape)
+            {
+                Dropchanges = true;
+                Editor.Visible = false;
             }
         }
 
