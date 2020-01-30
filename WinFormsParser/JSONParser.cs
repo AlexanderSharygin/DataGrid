@@ -233,6 +233,45 @@ namespace WinFormsParser
             NU_FieldsIndexes.Maximum = DataTable.Columns.Count - 1;
         }
 
-        
+        private void button4_Click(object sender, EventArgs e)
+        {
+            var table = GetTable();
+            DataTable.ColumnsAutoGeneretion = false;
+            DataTable.Source = table;
+            List<string> AggregatedObjectsFields = table.Select(k => k.First()).ToList();
+
+           
+
+                DataTable.Columns.Add(new Column("FirstName", typeof(string)) { Visible = true });
+
+         
+          
+           
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            var table = GetTable();
+            DataTable.ColumnsAutoGeneretion = false;
+            DataTable.Source = table;
+            List<string> AggregatedObjectsFields = table.Select(k => k.First()).ToList();
+
+
+
+            DataTable.Columns.Add(new Column("LastName", typeof(string)) { Visible = true });
+
+
+
+        }
+
+        private void DataTable_Scroll(object sender, ScrollEventArgs e)
+        {
+
+        }
+
+        private void DataTable_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }
