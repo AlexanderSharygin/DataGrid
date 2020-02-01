@@ -276,7 +276,7 @@
             this.DataTable.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.DataTable.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.DataTable.LineColor = System.Drawing.Color.Black;
-            this.DataTable.Location = new System.Drawing.Point(13, 20);
+            this.DataTable.Location = new System.Drawing.Point(24, 25);
             this.DataTable.Margin = new System.Windows.Forms.Padding(0);
             this.DataTable.Name = "DataTable";
             this.DataTable.RowHeight = 18;

@@ -52,25 +52,59 @@ namespace Parser
            
             if (ColumnType == typeof(string))
             {
-                TextBox StringEditor = new TextBox();                     
-                StringEditor.Font = Font;
-                StringEditor.AutoSize = false;
-                StringEditor.Text = BuferCell.Body;
-                StringEditor.TabIndex = 1;
-                StringEditor.Enabled = true;
-                StringEditor.Select(StringEditor.Text.Length, 0);              
-                StringEditor.KeyUp += new KeyEventHandler(ValueField_KeyUp);
-                _Editor = StringEditor;                            
+                TextBox Editor = new TextBox();                     
+                Editor.Font = Font;
+                Editor.AutoSize = false;
+                Editor.Text = BuferCell.Body;
+                Editor.TabIndex = 1;
+                Editor.Enabled = true;
+                Editor.Select(Editor.Text.Length, 0);
+                Editor.KeyUp += new KeyEventHandler(ValueField_KeyUp);
+                _Editor = Editor;                            
             }
-        }       
+            if (ColumnType == typeof(Int32))
+            {
+                TextBox Editor = new TextBox();
+                Editor.Font = Font;
+                Editor.AutoSize = false;
+                Editor.Text = BuferCell.Body;
+                Editor.TabIndex = 1;
+                Editor.Enabled = true;
+                Editor.Select(Editor.Text.Length, 0);
+                Editor.KeyPress += Editor_KeyPress;
+                Editor.KeyUp += new KeyEventHandler(ValueField_KeyUp);
+                _Editor = Editor;
+            }
+        }
+
+
+      
+        private void Editor_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            var PressedButton = e.KeyChar;
+           
+                bool isNumber = char.IsNumber(PressedButton);
+            TextBox tb = sender as TextBox;
+            if (isNumber)
+            {                 
+                e.Handled =  long.Parse(tb.Text + PressedButton.ToString()) >= int.MaxValue || long.Parse(tb.Text + PressedButton.ToString())<int.MinValue || (tb.Text.Contains("-") && tb.SelectionStart == 0);
+            }
+                else
+                e.Handled = !(isNumber || char.IsControl(PressedButton) || (PressedButton == '-'&& !tb.Text.Contains("-") && tb.SelectionStart==0));
+            
+        }
+
+       
         private void ValueField_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
+               
                 closed = true;
                 Dropchanges = false;
                 _Editor.Visible = false;
-              
+               
+
             }
             if (e.KeyCode == Keys.Escape)
             {
@@ -78,6 +112,7 @@ namespace Parser
                 Dropchanges = true;
                 _Editor.Visible = false;
               
+
             }
         } 
     }

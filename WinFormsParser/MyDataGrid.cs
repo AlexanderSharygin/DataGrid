@@ -388,33 +388,8 @@ namespace Parser
                 _API.isEditorOpened = true;
             }
             
-            CalculateTotalTableWidth();            
-            if (_Bufer.Count > 0)
-            {
-                Row firstRowBufer = new Row();
-                firstRowBufer = _Bufer.First();
-                int sortedIndex = -1;
-                if (_API.SortedColumnIndex != -1 && _API.Columns.Count>0)
-                {
-                    sortedIndex = GetXIndexInBufer(_API.Columns[_API.SortedColumnIndex].HeaderText);
-
-                }
-                _Bufer.RemoveAt(0);
-                if (_API.SortDirection != Sort.None)
-                {
-                    RowComparer u = (_API.SortDirection == Sort.ASC) ? new RowComparer(true, sortedIndex, _API.Columns[_API.SortedColumnIndex].Type) : new RowComparer(false, sortedIndex, _API.Columns[_API.SortedColumnIndex].Type);
-                    _Bufer.Sort(u);
-                }
-                else if (_API.SortDirection == Sort.None)
-                {
-                    if (_Bufer.First().Cells.Count > 0)
-                    {
-                        _Bufer.Sort((a, b) => a.Cells.First().SourceYIndex.CompareTo(b.Cells.First().SourceYIndex));
-                    }
-                }
-                _Bufer.Insert(0, firstRowBufer);
-
-            }
+            CalculateTotalTableWidth();
+            SortBuferRows();
             Header = new List<HeaderCell>();
             for (int i = 0; i < Controls.Count; i++)
             {
@@ -483,7 +458,40 @@ namespace Parser
             UpdateColumnsPosition();
             UpdateHeaderWidth();          
             CalculateTotalTableWidth();
+            if (_API.SortDirection != Sort.None)
+            {
+                SortBuferRows(); 
+            }
             Invalidate();           
+        }
+        private void SortBuferRows()
+        {
+            if (_Bufer.Count > 0)
+            {
+                Row firstRowBufer = new Row();
+                firstRowBufer = _Bufer.First();
+                int sortedIndex = -1;
+                if (_API.SortedColumnIndex != -1 && _API.Columns.Count > 0)
+                {
+                    sortedIndex = GetXIndexInBufer(_API.Columns[_API.SortedColumnIndex].HeaderText);
+
+                }
+                _Bufer.RemoveAt(0);
+                if (_API.SortDirection != Sort.None)
+                {
+                    RowComparer u = (_API.SortDirection == Sort.ASC) ? new RowComparer(true, sortedIndex, _API.Columns[_API.SortedColumnIndex].Type) : new RowComparer(false, sortedIndex, _API.Columns[_API.SortedColumnIndex].Type);
+                    _Bufer.Sort(u);
+                }
+                else if (_API.SortDirection == Sort.None)
+                {
+                    if (_Bufer.First().Cells.Count > 0)
+                    {
+                        _Bufer.Sort((a, b) => a.Cells.First().SourceYIndex.CompareTo(b.Cells.First().SourceYIndex));
+                    }
+                }
+                _Bufer.Insert(0, firstRowBufer);
+
+            }
         }
         private void UpdateHeaderWidth()
         {
@@ -523,10 +531,13 @@ namespace Parser
             e.Graphics.DrawLine(_Pen, 0, this.Height, 0, 0);
             if (_Bufer.Count > 0)
             {
-                                
-                if (_API.IsEditorNedded==false)
+                if (_Editor != null)
                 {
-                    _Editor = null;
+                    if (_API.IsEditorNedded == false)
+                    {
+                        Controls.Remove(_Editor.GetControl());
+                        _Editor = null;
+                    }
                 }
                 int xCounterForLine = 0;
                 
