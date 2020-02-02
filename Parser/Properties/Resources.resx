@@ -144,6 +144,6 @@ Space - Adding a field to the ones displayed in the table.</value>
     <value>[ ] </value>
   </data>
   <data name="UndefinedFieldText" xml:space="preserve">
-    <value>Undefined field</value>
+    <value />
   </data>
 </root>

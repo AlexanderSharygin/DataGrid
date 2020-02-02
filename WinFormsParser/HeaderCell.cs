@@ -13,20 +13,20 @@ namespace Parser
     {
         int _CellMinMargin = 2;
         bool _IsToMoving = false;
-        Column _ColumnData;
-        internal Column ColumnData { get => _ColumnData; }
+
+        internal Column ColumnData { get; }
         internal APICore _API;
         TypeSelector _TypeSelector = new TypeSelector();
         public string HeaderText { get; set; }       
         internal List<HeaderCell> NeighborCells { get; set; } = new List<HeaderCell>();
-        private System.ComponentModel.IContainer components = null;
+        private IContainer components = null;
        
       
         internal HeaderCell(Column ColumnData)
         {
             InitializeComponent();
-            components = new System.ComponentModel.Container();
-            _ColumnData = ColumnData;
+            components = new Container();
+            this.ColumnData = ColumnData;
             HeaderText = ColumnData.HeaderText;
             _TypeSelector.Items = ColumnData.AllTypes.TypesCollection.Keys.ToList();
             _TypeSelector.SelectedItem = ColumnData.AllTypes.GetKeyyValue(ColumnData.Type);
@@ -47,13 +47,13 @@ namespace Parser
         {
             this.SuspendLayout();
 
-            this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.BackgroundImageLayout = ImageLayout.Zoom;
 
             this.DoubleBuffered = true;
             this.Name = "HeaderCell";
-            this.Size = new System.Drawing.Size(127, 31);
+            this.Size = new Size(127, 31);
 
-            this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.HeaderCell_MouseClick);
+            this.MouseClick += new MouseEventHandler(this.HeaderCell_MouseClick);
             this.ResumeLayout(false);
 
         }
@@ -79,9 +79,9 @@ namespace Parser
             e.Graphics.DrawLine(_Pen, this.Width-1, 1, this.Width-1, this.Height);
             e.Graphics.DrawLine(_Pen, this.Width-1, this.Height, 1, this.Height);
             e.Graphics.DrawLine(_Pen, 0, this.Height, 0, 0);
-            _ColumnData.Type = _ColumnData.AllTypes.TypesCollection[_TypeSelector.SelectedItem];
+            ColumnData.Type = ColumnData.AllTypes.TypesCollection[_TypeSelector.SelectedItem];
             e.Graphics.DrawString(HeaderText, Font, new SolidBrush(Color.Black), _CellMinMargin, _CellMinMargin);
-            if (_API.SortedColumnIndex == _ColumnData.Index)
+            if (_API.SortedColumnIndex == ColumnData.Index)
             {
                 if (_API.SortDirection == Sort.DESC)
                 {
@@ -122,7 +122,7 @@ namespace Parser
 
             }
             
-          else if (_API.isTypeSelectorOpened)
+          else if (_API.IsTypeSelectorOpened)
             {
                 var aa = Parent.Controls;
                 foreach (var item in aa)
@@ -132,7 +132,7 @@ namespace Parser
                         Parent.Controls.Remove((Control)item);
                     }
                 }
-                _API.isTypeSelectorOpened = false;
+                _API.IsTypeSelectorOpened = false;
             }
           
             else
@@ -151,7 +151,7 @@ namespace Parser
                     }
                     if (_TypeSelector.Visible)
                     {
-                        _API.isTypeSelectorOpened = false;
+                        _API.IsTypeSelectorOpened = false;
                         _TypeSelector.Visible = false;
                         Parent.Invalidate();
                     }
@@ -162,7 +162,7 @@ namespace Parser
                         _TypeSelector.Location = new Point(this.Location.X + 5, this.Location.Y + 5);
                         _TypeSelector.Visible = true;
                         _TypeSelector.Parent = this.Parent;
-                        _API.isTypeSelectorOpened = true;
+                        _API.IsTypeSelectorOpened = true;
                         _TypeSelector.BringToFront();
                     }
                 }
@@ -176,30 +176,30 @@ namespace Parser
                         if (item._IsToMoving == true)
                         {
                           
-                            int newIndex = item._ColumnData.Index;
-                            item._ColumnData.Index = _ColumnData.Index;
+                            int newIndex = item.ColumnData.Index;
+                            item.ColumnData.Index = ColumnData.Index;
                             item._IsToMoving = false;
                             item.BackColor = Parent.BackColor;
-                            _ColumnData.Index = newIndex;
+                            ColumnData.Index = newIndex;
                             MovingMode = true;
-                            if (_API.SortedColumnIndex == item._ColumnData.Index)
+                            if (_API.SortedColumnIndex == item.ColumnData.Index)
                             {
                                 _API.SortedColumnIndex = newIndex;
                             }
                             else if (_API.SortedColumnIndex == newIndex)
                             {
-                                _API.SortedColumnIndex = item._ColumnData.Index;
+                                _API.SortedColumnIndex = item.ColumnData.Index;
                             }
                             break;
                         }
                     }
                     if (!MovingMode)
                     {
-                        if (_API.SortedColumnIndex != _ColumnData.Index)
+                        if (_API.SortedColumnIndex != ColumnData.Index)
                         {
                             _API.SortDirection = Sort.None;
                         }
-                        _API.SortedColumnIndex = _ColumnData.Index;
+                        _API.SortedColumnIndex = ColumnData.Index;
                      
                         ChangeSortDirection();
 
@@ -236,10 +236,6 @@ namespace Parser
          
         }
 
-        private void HeaderCell_Load(object sender, EventArgs e)
-        {
-
-        }
     }
 
 }

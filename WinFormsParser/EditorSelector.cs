@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Parser
@@ -29,7 +25,7 @@ namespace Parser
         public Point DefaultPosition { get; set; }
         public bool Visible { get => _Editor.Visible; set { _Visible = value; _Editor.Visible = _Visible; } }
 
-        public bool closed = false;
+        public bool Closed { get; set; } = false;
         public EditorSelector(Cell cell, Type type)
         {
             BuferCell = cell;
@@ -62,7 +58,7 @@ namespace Parser
                 Editor.KeyUp += new KeyEventHandler(ValueField_KeyUp);
                 _Editor = Editor;                            
             }
-            if (ColumnType == typeof(Int32))
+            if (ColumnType == typeof(int))
             {
                 TextBox Editor = new TextBox();
                 Editor.Font = Font;
@@ -72,6 +68,19 @@ namespace Parser
                 Editor.Enabled = true;
                 Editor.Select(Editor.Text.Length, 0);
                 Editor.KeyPress += Editor_KeyPress;
+                Editor.KeyUp += new KeyEventHandler(ValueField_KeyUp);
+                _Editor = Editor;
+            }
+            if (ColumnType == typeof(DateTime))
+            {
+               DateTimePicker Editor = new DateTimePicker();
+                Editor.Font = Font;
+                Editor.AutoSize = false;
+                Editor.CustomFormat = "yyyy/MM/dd";
+                Editor.Format = DateTimePickerFormat.Custom;
+                Editor.Text = BuferCell.Body;                      
+                Editor.TabIndex = 1;
+                Editor.Enabled = true;                    
                 Editor.KeyUp += new KeyEventHandler(ValueField_KeyUp);
                 _Editor = Editor;
             }
@@ -90,8 +99,7 @@ namespace Parser
                 e.Handled =  long.Parse(tb.Text + PressedButton.ToString()) >= int.MaxValue || long.Parse(tb.Text + PressedButton.ToString())<int.MinValue || (tb.Text.Contains("-") && tb.SelectionStart == 0);
             }
                 else
-                e.Handled = !(isNumber || char.IsControl(PressedButton) || (PressedButton == '-'&& !tb.Text.Contains("-") && tb.SelectionStart==0));
-            
+                e.Handled = !(isNumber || char.IsControl(PressedButton) || (PressedButton == '-'&& !tb.Text.Contains("-") && tb.SelectionStart==0));            
         }
 
        
@@ -100,7 +108,7 @@ namespace Parser
             if (e.KeyCode == Keys.Enter)
             {
                
-                closed = true;
+                Closed = true;
                 Dropchanges = false;
                 _Editor.Visible = false;
                
@@ -108,7 +116,7 @@ namespace Parser
             }
             if (e.KeyCode == Keys.Escape)
             {
-                closed = true;
+                Closed = true;
                 Dropchanges = true;
                 _Editor.Visible = false;
               

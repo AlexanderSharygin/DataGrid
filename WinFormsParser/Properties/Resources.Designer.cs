@@ -155,7 +155,7 @@ namespace Parser.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Undefined field.
+        ///   Ищет локализованную строку, похожую на .
         /// </summary>
         internal static string UndefinedFieldText {
             get {

@@ -37,23 +37,21 @@ namespace Parser
             }
         }
         public int SortedColumnIndex { get; set; } = -1;
-        public bool isEditorOpened { get; set; } 
-        public Type EditorComponentType { get; set; }
-     
+        public bool IsEditorOpened { get; set; } 
+        public Type EditorComponentType { get; set; }     
         public bool IsEditorNedded  { get; set; }
-        public bool isTypeSelectorOpened { get; set; } 
+        public bool IsTypeSelectorOpened { get; set; } 
         public ObservableCollection<Column> Columns { get; } = new ObservableCollection<Column>();
         public event PropertyChangedEventHandler PropertyChanged;
         public APICore()
         {
             Columns.CollectionChanged += ColumnsChannge;
         }
-
         private void OnPropertyChanged([CallerMemberName]string prop = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
         }
-               private void ColumnsChannge(object sender, NotifyCollectionChangedEventArgs e)
+        private void ColumnsChannge(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Remove)
             {
@@ -65,7 +63,7 @@ namespace Parser
 
                 }
                 SortDirection = Sort.None;
-                SortedColumnIndex = -1; 
+                SortedColumnIndex = -1;
 
             }
             if (e.Action == NotifyCollectionChangedAction.Add)
@@ -83,8 +81,8 @@ namespace Parser
                 {
                     int maxColumnsIndex = Columns.Max(k => k.Index);
                     Columns[newIndex].Index = maxColumnsIndex + 1;
-                }        
-                
+                }
+
             }
         }
         internal void SortColumns()

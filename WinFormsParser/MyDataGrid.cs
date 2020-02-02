@@ -73,7 +73,7 @@ namespace Parser
                     _Editor.BuferCell.Body = _Editor.OriginalValue;
                    _Editor = null;
                     _API.IsEditorNedded = false;
-                    _API.isEditorOpened = false;
+                    _API.IsEditorOpened = false;
                     
 
                 }
@@ -279,7 +279,7 @@ namespace Parser
                         Controls.Remove((Control)item);
                         _Editor = null;
                         _API.IsEditorNedded = false;
-                        _API.isEditorOpened = false;
+                        _API.IsEditorOpened = false;
 
                     }                  
                 }
@@ -297,7 +297,7 @@ namespace Parser
                     Controls.Remove((Control)item);
                     _Editor = null;
                     _API.IsEditorNedded = false;
-                    _API.isEditorOpened = false;
+                    _API.IsEditorOpened = false;
 
                 }
             }
@@ -343,7 +343,7 @@ namespace Parser
                     Controls.Remove((Control)item);
                     _Editor = null;
                     _API.IsEditorNedded = false;
-                    _API.isEditorOpened = false;
+                    _API.IsEditorOpened = false;
 
                 }
             }
@@ -385,7 +385,7 @@ namespace Parser
             if (_Editor != null)
             {
                 _Editor.Visible = false;
-                _API.isEditorOpened = true;
+                _API.IsEditorOpened = true;
             }
             
             CalculateTotalTableWidth();
@@ -450,8 +450,8 @@ namespace Parser
             {
                 _Editor.BuferCell.Body = _Editor.OriginalValue;               
             }          
-            _API.isEditorOpened = false;
-            if (_Editor.closed)
+            _API.IsEditorOpened = false;
+            if (_Editor.Closed)
             {
                 _API.IsEditorNedded = false;
             }
@@ -778,7 +778,7 @@ namespace Parser
                 {
                     Controls.Remove((Control)item);
 
-                    _API.isTypeSelectorOpened = false;
+                    _API.IsTypeSelectorOpened = false;
                 }
             }
             var X = e.Location.X;
@@ -817,7 +817,7 @@ namespace Parser
                             es.Width = item.XEndPosition - item.XStartPosition;
                             es.DefaultPosition = new Point(xstart + _LineWidth, _RowHeight * YIndex + _LineWidth);
                             es.Location = new Point(xstart + _LineWidth, _RowHeight * YIndex + _LineWidth-_FirstPrintedRowIndex*RowHeight);
-                            es.Height = RowHeight - _LineWidth;
+                                                        es.Height = RowHeight - _LineWidth;
                             es.ColumnIndex = item.Index;
                             _Editor = es;
                           
@@ -839,14 +839,14 @@ namespace Parser
                         Controls.Remove((Control)item);
                         _Editor = null;
                         _API.IsEditorNedded=false;
-                        _API.isEditorOpened = false;
+                        _API.IsEditorOpened = false;
                         
                     }
                     if (item.GetType() == typeof(TypeSelector))
                     {
                         Controls.Remove((Control)item);
                        
-                        _API.isTypeSelectorOpened = false;
+                        _API.IsTypeSelectorOpened = false;
                     }
                 }
               

@@ -32,6 +32,7 @@
             this.GB_Fields = new System.Windows.Forms.GroupBox();
             this.LB_FieldsList = new System.Windows.Forms.ListBox();
             this.GB_Table = new System.Windows.Forms.GroupBox();
+            this.DataTable = new Parser.MyDataGrid();
             this.Add = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.Remove = new System.Windows.Forms.Button();
@@ -47,9 +48,6 @@
             this.label3 = new System.Windows.Forms.Label();
             this.CB_FieldsList2 = new System.Windows.Forms.ComboBox();
             this.button3 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
-            this.button5 = new System.Windows.Forms.Button();
-            this.DataTable = new Parser.MyDataGrid();
             this.GB_Fields.SuspendLayout();
             this.GB_Table.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -62,9 +60,9 @@
             this.GB_Fields.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.GB_Fields.Controls.Add(this.LB_FieldsList);
-            this.GB_Fields.Location = new System.Drawing.Point(12, 108);
+            this.GB_Fields.Location = new System.Drawing.Point(12, 72);
             this.GB_Fields.Name = "GB_Fields";
-            this.GB_Fields.Size = new System.Drawing.Size(192, 286);
+            this.GB_Fields.Size = new System.Drawing.Size(192, 322);
             this.GB_Fields.TabIndex = 0;
             this.GB_Fields.TabStop = false;
             this.GB_Fields.Text = "Список полей";
@@ -78,7 +76,7 @@
             this.LB_FieldsList.MinimumSize = new System.Drawing.Size(4, 50);
             this.LB_FieldsList.Name = "LB_FieldsList";
             this.LB_FieldsList.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
-            this.LB_FieldsList.Size = new System.Drawing.Size(179, 251);
+            this.LB_FieldsList.Size = new System.Drawing.Size(179, 277);
             this.LB_FieldsList.TabIndex = 0;
             this.LB_FieldsList.MouseClick += new System.Windows.Forms.MouseEventHandler(this.LB_FieldsList_MouseClick);
             // 
@@ -94,6 +92,24 @@
             this.GB_Table.TabIndex = 2;
             this.GB_Table.TabStop = false;
             this.GB_Table.Text = "Таблица полей";
+            // 
+            // DataTable
+            // 
+            this.DataTable.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.DataTable.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.DataTable.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.DataTable.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.DataTable.LineColor = System.Drawing.Color.Black;
+            this.DataTable.Location = new System.Drawing.Point(24, 25);
+            this.DataTable.Margin = new System.Windows.Forms.Padding(0);
+            this.DataTable.Name = "DataTable";
+            this.DataTable.RowHeight = 18;
+            this.DataTable.Size = new System.Drawing.Size(532, 556);
+            this.DataTable.Source = ((object)(resources.GetObject("DataTable.Source")));
+            this.DataTable.TabIndex = 1;
+          
             // 
             // Add
             // 
@@ -243,55 +259,15 @@
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(192, 23);
             this.button3.TabIndex = 11;
-            this.button3.Text = "button3";
+            this.button3.Text = "Автогенрация";
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.Button3_Click_1);
-            // 
-            // button4
-            // 
-            this.button4.Location = new System.Drawing.Point(12, 79);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(75, 23);
-            this.button4.TabIndex = 12;
-            this.button4.Text = "button4";
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
-            // 
-            // button5
-            // 
-            this.button5.Location = new System.Drawing.Point(122, 79);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(75, 23);
-            this.button5.TabIndex = 13;
-            this.button5.Text = "button5";
-            this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
-            // 
-            // DataTable
-            // 
-            this.DataTable.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.DataTable.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.DataTable.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.DataTable.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.DataTable.LineColor = System.Drawing.Color.Black;
-            this.DataTable.Location = new System.Drawing.Point(24, 25);
-            this.DataTable.Margin = new System.Windows.Forms.Padding(0);
-            this.DataTable.Name = "DataTable";
-            this.DataTable.RowHeight = 18;
-            this.DataTable.Size = new System.Drawing.Size(532, 556);
-            this.DataTable.Source = ((object)(resources.GetObject("DataTable.Source")));
-            this.DataTable.TabIndex = 1;
-            this.DataTable.Load += new System.EventHandler(this.DataTable_Load);
             // 
             // Show_Button
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(781, 616);
-            this.Controls.Add(this.button5);
-            this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
@@ -333,8 +309,6 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.NumericUpDown NU_FieldsIndexes;
         private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Button button5;
     }
 }
 

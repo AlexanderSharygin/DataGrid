@@ -129,7 +129,7 @@ Space - Adding a field to the ones displayed in the table.</value>
     <value>3</value>
   </data>
   <data name="UndefinedFieldText" xml:space="preserve">
-    <value>Undefined field</value>
+    <value />
   </data>
   <data name="ColumnInterval" xml:space="preserve">
     <value>5</value>
