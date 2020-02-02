@@ -30,6 +30,7 @@ namespace Parser
         float _TableWidth;
         Brush _Brush;
         Pen _Pen;
+         List<HeaderCell> Header;
     
         public MyDataGrid()
         {
@@ -61,23 +62,41 @@ namespace Parser
             MouseWheel += MyDataGrid_MouseWheel;
             Leave += MyDataGrid_LostFocus;
         }
-
-        private void MyDataGrid_LostFocus(object sender, EventArgs e)
+        private void RemoveEditorFromControls(bool isDropChanges)
         {
             foreach (var item in Controls)
             {
                 if (item.GetType() == _Editor?.GetComponentType())
                 {
-                    
                     Controls.Remove((Control)item);
-                    _Editor.BuferCell.Body = _Editor.OriginalValue;
-                   _Editor = null;
+                    if (!isDropChanges)
+                    {
+                        _Editor.BuferCell.Body = _Editor.OriginalValue;
+                    }                    
+                    _Editor = null;
                     _API.IsEditorNedded = false;
                     _API.IsEditorOpened = false;
-                    
 
                 }
             }
+        
+        }
+        private void RemoveTypeSelectorFromControls()
+        {
+            foreach (var item in Controls)
+            {
+
+                if (item.GetType() == typeof(TypeSelector))
+                {
+                    Controls.Remove((Control)item);
+
+                    _API.IsTypeSelectorOpened = false;
+                }
+            }
+        }
+        private void MyDataGrid_LostFocus(object sender, EventArgs e)
+        {
+            RemoveEditorFromControls(true);
             _Editor = null;
             CustomInvalidate();
         }
@@ -271,18 +290,9 @@ namespace Parser
         private void ColumnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "Visible")
-            {               
-                 foreach (var item in Controls)
-                {
-                    if (item.GetType() == _Editor?.GetComponentType())
-                    {
-                        Controls.Remove((Control)item);
-                        _Editor = null;
-                        _API.IsEditorNedded = false;
-                        _API.IsEditorOpened = false;
-
-                    }                  
-                }
+            {
+                RemoveEditorFromControls(false);
+              
                 _Editor = null;
                 CustomInvalidate();
             }
@@ -290,17 +300,7 @@ namespace Parser
         private void ColumnsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
 
-            foreach (var item in Controls)
-            {
-                if (item.GetType() == _Editor?.GetComponentType())
-                {
-                    Controls.Remove((Control)item);
-                    _Editor = null;
-                    _API.IsEditorNedded = false;
-                    _API.IsEditorOpened = false;
-
-                }
-            }
+            RemoveEditorFromControls(false);
             _Editor = null;
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
@@ -336,31 +336,31 @@ namespace Parser
 
         public void ChangeSorting(string columnName, Sort sortDirection)
         {
-            foreach (var item in Controls)
-            {
-                if (item.GetType() == _Editor?.GetComponentType())
-                {
-                    Controls.Remove((Control)item);
-                    _Editor = null;
-                    _API.IsEditorNedded = false;
-                    _API.IsEditorOpened = false;
-
-                }
-            }
-            _API.IsEditorNedded = false;
+            RemoveEditorFromControls(false);          
             var newSortedColumn = Columns.Select(k => k).Where(u => u.HeaderText == columnName).ToList();
             foreach (var item in newSortedColumn)
             {
                 if (item.Visible)
                 {
                     _API.SortedColumnIndex = item.Index;
-                    _API.SortDirection = sortDirection;
-                 
+                    _API.SortDirection = sortDirection;                 
                     break;
                 }
             }
         }
-        List<HeaderCell> Header;
+        private void RemoveHeaderFromControls()
+        {
+            for (int i = 0; i < Controls.Count; i++)
+            {
+                Control item = Controls[i];
+                if (item.GetType() == typeof(HeaderCell))
+                {
+                    Controls.Remove((Control)item);
+                    i--;
+                }
+            }
+            Header.Clear();
+        }
         private void CalculateTotalTableWidth()
         {
             _TableWidth = 0;
@@ -391,16 +391,8 @@ namespace Parser
             CalculateTotalTableWidth();
             SortBuferRows();
             Header = new List<HeaderCell>();
-            for (int i = 0; i < Controls.Count; i++)
-            {
-                Control item = Controls[i];
-                if (item.GetType() == typeof(HeaderCell))
-                {
-                    Controls.Remove((Control)item);
-                    i--;
-                }
-            }
-            Header.Clear();
+            RemoveHeaderFromControls();
+           
             for (int i = 0; i < _API.Columns.Count; i++)
             {
                 var a = _Bufer.First().Cells.Select(k => k.Body).ToList();
@@ -539,8 +531,7 @@ namespace Parser
                         _Editor = null;
                     }
                 }
-                int xCounterForLine = 0;
-                
+                int xCounterForLine = 0;               
                 
                 if (_ViewPortRowsCount > _Bufer.Count - 1)
                 {
@@ -767,20 +758,12 @@ namespace Parser
             }
             Invalidate();
         }
-
+      
      
         private void MyDataGrid_MouseClick(object sender, MouseEventArgs e)
         {
-           
-            foreach (var item in Controls)
-            {            
-                if (item.GetType() == typeof(TypeSelector))
-                {
-                    Controls.Remove((Control)item);
 
-                    _API.IsTypeSelectorOpened = false;
-                }
-            }
+            RemoveTypeSelectorFromControls();
             var X = e.Location.X;
             var Y = e.Location.Y;
             int YIndex ;
@@ -805,10 +788,8 @@ namespace Parser
                                 Controls.Remove(_Editor.GetControl());
                                 _Editor = null;
                                 UpdateColumnsPosition();
-                            }
-                            
-                            EditorSelector es = new EditorSelector(_Bufer[YIndex].Cells[XIndex], item.Type);
-                            
+                            }                            
+                            EditorSelector es = new EditorSelector(_Bufer[YIndex].Cells[XIndex], item.Type);                            
                             xstart = item.XStartPosition;
                             xend = item.XEndPosition;
                             es.CreateEditor();
@@ -817,39 +798,20 @@ namespace Parser
                             es.Width = item.XEndPosition - item.XStartPosition;
                             es.DefaultPosition = new Point(xstart + _LineWidth, _RowHeight * YIndex + _LineWidth);
                             es.Location = new Point(xstart + _LineWidth, _RowHeight * YIndex + _LineWidth-_FirstPrintedRowIndex*RowHeight);
-                                                        es.Height = RowHeight - _LineWidth;
+                            es.Height = RowHeight - _LineWidth;
                             es.ColumnIndex = item.Index;
-                            _Editor = es;
-                          
+                            _Editor = es;                          
                             break;
                         }
                     }
                     xstart = xend;
-
                 }
                 CustomInvalidate();
             }
             else
             {
-              
-                foreach (var item in Controls)
-                {
-                    if (item.GetType() == _Editor?.GetComponentType())
-                    {
-                        Controls.Remove((Control)item);
-                        _Editor = null;
-                        _API.IsEditorNedded=false;
-                        _API.IsEditorOpened = false;
-                        
-                    }
-                    if (item.GetType() == typeof(TypeSelector))
-                    {
-                        Controls.Remove((Control)item);
-                       
-                        _API.IsTypeSelectorOpened = false;
-                    }
-                }
-              
+                RemoveEditorFromControls(false);
+                RemoveTypeSelectorFromControls();
             }
 
         }
