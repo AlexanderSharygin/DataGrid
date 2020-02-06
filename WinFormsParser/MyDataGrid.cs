@@ -471,7 +471,7 @@ namespace Parser
                 _Bufer.RemoveAt(0);
                 if (_API.SortDirection != Sort.None)
                 {
-                    RowComparer u = (_API.SortDirection == Sort.ASC) ? new RowComparer(true, sortedIndex, _API.Columns[_API.SortedColumnIndex].Type) : new RowComparer(false, sortedIndex, _API.Columns[_API.SortedColumnIndex].Type);
+                    RowComparer u = (_API.SortDirection == Sort.ASC) ? new RowComparer(true, sortedIndex, _API.Columns[_API.SortedColumnIndex].DataType) : new RowComparer(false, sortedIndex, _API.Columns[_API.SortedColumnIndex].DataType);
                     _Bufer.Sort(u);
                 }
                 else if (_API.SortDirection == Sort.None)
@@ -789,7 +789,7 @@ namespace Parser
                                 _Editor = null;
                                 UpdateColumnsPosition();
                             }                            
-                            EditorSelector es = new EditorSelector(_Bufer[YIndex].Cells[XIndex], item.Type);                            
+                            EditorSelector es = new EditorSelector(_Bufer[YIndex].Cells[XIndex], item.DataType);                            
                             xstart = item.XStartPosition;
                             xend = item.XEndPosition;
                             es.CreateEditor();

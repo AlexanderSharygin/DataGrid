@@ -37,9 +37,11 @@ namespace Parser
         internal void AddAPI(APICore api)
         {
             _API = api;
+            var a = ColumnData.DataType;
             _TypeSelector.Items = _API.AllTypes.TypesCollection.Keys.ToList();
-            _TypeSelector.SelectedItem = _API.AllTypes.GetKeyyValue(ColumnData.Type);
-            _TypeSelector.AllTypes = _API.AllTypes;
+            ColumnData.DataType = a;
+           _TypeSelector.SelectedItem = _API.AllTypes.GetKeyyValue(ColumnData.DataType);
+            _TypeSelector.AddAPI(_API);
 
         }
         protected override void Dispose(bool disposing)
@@ -81,12 +83,13 @@ namespace Parser
         }
         protected override void OnPaint(PaintEventArgs e)
         {
+           
             Pen _Pen = new Pen(Color.Black); 
             e.Graphics.DrawLine(_Pen, 0, 0, this.Width, 0);
             e.Graphics.DrawLine(_Pen, this.Width-1, 1, this.Width-1, this.Height);
             e.Graphics.DrawLine(_Pen, this.Width-1, this.Height, 1, this.Height);
             e.Graphics.DrawLine(_Pen, 0, this.Height, 0, 0);
-            ColumnData.Type = _API.AllTypes.TypesCollection[_TypeSelector.SelectedItem];
+            ColumnData.DataType = _API.AllTypes.TypesCollection[_TypeSelector.SelectedItem];
             e.Graphics.DrawString(HeaderText, Font, new SolidBrush(Color.Black), _CellMinMargin, _CellMinMargin);
             if (_API.SortedColumnIndex == ColumnData.Index)
             {

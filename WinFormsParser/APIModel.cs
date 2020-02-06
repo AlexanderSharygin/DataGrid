@@ -99,7 +99,7 @@ namespace Parser
         public bool IsSignedToPropertyChange { get; set; }
         public int Index { get; set; }
         public int Width { get; set; }
-        public Type Type { get; set; }
+        public Type DataType { get; set; }
         public int XStartPosition { get; set; }
         public int XEndPosition { get; set; }
         public bool Visible
@@ -133,7 +133,7 @@ namespace Parser
             Index =0;
             Width = 1;
            
-            Type =type;
+            DataType =type;
         }     
         private void OnPropertyChanged([CallerMemberName]string prop = "")
         {

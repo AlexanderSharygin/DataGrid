@@ -8,8 +8,8 @@ namespace Parser
     {
         List<string> _Items = new List<string>();
         string _SelectedItem;
-        internal Types AllTypes { get; set; } = new Types();
-        internal Column ColumnData { get; set; } = new Column("", typeof(String));
+        internal APICore _API = new APICore();
+        internal Column ColumnData { get; set; }
         public TypeSelector()
         {
             InitializeComponent();
@@ -30,16 +30,36 @@ namespace Parser
             {
                 _Items = value; comboBox1.DataSource = _Items;
             }
-        }     
+        }
+        internal void AddAPI(APICore api)
+        {
+            _API = api;
+          
+
+        }
         private void ComboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             _SelectedItem = comboBox1.SelectedItem.ToString();
-        //   ColumnData.Type =   AllTypes.TypesCollection[_SelectedItem]; 
-          
+         ColumnData.DataType =   _API.AllTypes.TypesCollection[_SelectedItem];
+            _API.IsTypeSelectorOpened = false;
+
             if (Parent != null)
             {
                 this.Visible = false;
-                           
+
+
+               /* foreach (var item in Parent.Controls)
+                {
+                    {
+                        Type Type = item.GetType();
+
+                        if (Type == typeof(TypeSelector))
+                        {
+                            Parent.Controls.Remove((Control)item);
+                        }
+
+                    }
+                }*/
             }
         }
     }
