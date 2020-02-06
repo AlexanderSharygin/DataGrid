@@ -26,6 +26,7 @@ namespace Parser
        
     class APICore : INotifyPropertyChanged
     {
+        public Types AllTypes { get; set; } = new Types();
         public Sort _SortDirection = Sort.None;
         public Sort SortDirection
         {
@@ -122,7 +123,7 @@ namespace Parser
                Width = (Width > HeaderText.Length) ? Width : HeaderText.Length;
             }
         }
-        public Types AllTypes { get; set; }
+        
      
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -131,7 +132,7 @@ namespace Parser
             _HeaderText = headerText;
             Index =0;
             Width = 1;
-            AllTypes = new Types();
+           
             Type =type;
         }     
         private void OnPropertyChanged([CallerMemberName]string prop = "")

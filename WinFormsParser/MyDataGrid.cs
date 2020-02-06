@@ -406,7 +406,7 @@ namespace Parser
                         Cell.Width = (int)(_LineWidth * 2 + _CellMinMargin + _API.Columns[i].Width * (int)this.Font.Size + _CellMinMargin);
                         Cell.Height = _RowHeight;
                         Cell.Location = new Point(0, 0);
-                        Cell._API = _API;                       
+                        Cell.AddAPI(_API);                       
                         Header.Add(Cell);
                         Controls.Add(Cell);
                     }                   

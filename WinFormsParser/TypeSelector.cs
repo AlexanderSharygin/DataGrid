@@ -8,6 +8,7 @@ namespace Parser
     {
         List<string> _Items = new List<string>();
         string _SelectedItem;
+        internal Types AllTypes { get; set; } = new Types();
         internal Column ColumnData { get; set; } = new Column("", typeof(String));
         public TypeSelector()
         {
@@ -33,7 +34,7 @@ namespace Parser
         private void ComboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             _SelectedItem = comboBox1.SelectedItem.ToString();
-            ColumnData.Type = ColumnData.AllTypes.TypesCollection[_SelectedItem];       
+        //   ColumnData.Type =   AllTypes.TypesCollection[_SelectedItem]; 
           
             if (Parent != null)
             {

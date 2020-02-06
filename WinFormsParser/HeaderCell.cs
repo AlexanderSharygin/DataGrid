@@ -15,7 +15,8 @@ namespace Parser
         bool _IsToMoving = false;
 
         internal Column ColumnData { get; }
-        internal APICore _API;
+        APICore _API;
+        
         TypeSelector _TypeSelector = new TypeSelector();
         public string HeaderText { get; set; }       
         internal List<HeaderCell> NeighborCells { get; set; } = new List<HeaderCell>();
@@ -27,13 +28,19 @@ namespace Parser
             InitializeComponent();
             components = new Container();
             this.ColumnData = ColumnData;
-            HeaderText = ColumnData.HeaderText;
-            _TypeSelector.Items = ColumnData.AllTypes.TypesCollection.Keys.ToList();
-            _TypeSelector.SelectedItem = ColumnData.AllTypes.GetKeyyValue(ColumnData.Type);
+            HeaderText = ColumnData.HeaderText;                  
             _TypeSelector.Visible = false;
             _TypeSelector.Font = this.Font;
             Controls.Add(_TypeSelector);
             _TypeSelector.ColumnData = ColumnData;                
+        }
+        internal void AddAPI(APICore api)
+        {
+            _API = api;
+            _TypeSelector.Items = _API.AllTypes.TypesCollection.Keys.ToList();
+            _TypeSelector.SelectedItem = _API.AllTypes.GetKeyyValue(ColumnData.Type);
+            _TypeSelector.AllTypes = _API.AllTypes;
+
         }
         protected override void Dispose(bool disposing)
         {
@@ -79,7 +86,7 @@ namespace Parser
             e.Graphics.DrawLine(_Pen, this.Width-1, 1, this.Width-1, this.Height);
             e.Graphics.DrawLine(_Pen, this.Width-1, this.Height, 1, this.Height);
             e.Graphics.DrawLine(_Pen, 0, this.Height, 0, 0);
-            ColumnData.Type = ColumnData.AllTypes.TypesCollection[_TypeSelector.SelectedItem];
+            ColumnData.Type = _API.AllTypes.TypesCollection[_TypeSelector.SelectedItem];
             e.Graphics.DrawString(HeaderText, Font, new SolidBrush(Color.Black), _CellMinMargin, _CellMinMargin);
             if (_API.SortedColumnIndex == ColumnData.Index)
             {
@@ -164,6 +171,7 @@ namespace Parser
                         _TypeSelector.Parent = this.Parent;
                         _API.IsTypeSelectorOpened = true;
                         _TypeSelector.BringToFront();
+                       
                     }
                 }
                 if (e.Button == MouseButtons.Left)
