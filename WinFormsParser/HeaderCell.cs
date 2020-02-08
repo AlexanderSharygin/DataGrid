@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
 using System.Windows.Forms;
 
 namespace Parser
@@ -32,17 +31,25 @@ namespace Parser
             _TypeSelector.Visible = false;
             _TypeSelector.Font = this.Font;
             Controls.Add(_TypeSelector);
-            _TypeSelector.ColumnData = ColumnData;                
+            _TypeSelector.ColumnData = ColumnData;
+            _TypeSelector.VisibleChanged += TypeSelector_VisibleChanged;
         }
-        internal void AddAPI(APICore api)
-        {
-            _API = api;
-            var a = ColumnData.DataType;
-            _TypeSelector.Items = _API.AllTypes.TypesCollection.Keys.ToList();
-            ColumnData.DataType = a;
-           _TypeSelector.SelectedItem = _API.AllTypes.GetKeyyValue(ColumnData.DataType);
-            _TypeSelector.AddAPI(_API);
 
+        private void TypeSelector_VisibleChanged(object sender, EventArgs e)
+        {
+            var control = (TypeSelector)(sender);
+            if (!control.Visible)
+            {
+                _API.IsTypeSelectorOpened = false;
+            }
+        }
+
+        internal void ConnectToAPI(APICore api)
+        {
+            _API = api;             
+            _TypeSelector.Items = _API.AllTypes;         
+           _TypeSelector.SelectedItem = _API.AllTypes.GetKeyyValue(ColumnData.DataType);
+          
         }
         protected override void Dispose(bool disposing)
         {

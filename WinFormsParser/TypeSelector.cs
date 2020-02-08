@@ -6,60 +6,50 @@ namespace Parser
 {
     public partial class TypeSelector : UserControl
     {
-        List<string> _Items = new List<string>();
-        string _SelectedItem;
-        internal APICore _API = new APICore();
+     
+        string _SelectedItem;       
+        Types _Items  = new Types();       
         internal Column ColumnData { get; set; }
         public TypeSelector()
         {
             InitializeComponent();
         }
+        internal Types Items
+        {
+            get => _Items;
+            set
+            {
+                _Items = value;
+                List<string> keys = new List<string>();
+                foreach (var item in _Items.TypesCollection.Keys)
+                {
+                    keys.Add(item.ToString());
+                }
+                var dataType = ColumnData.DataType;
+                CB_Types.DataSource = keys;
+                ColumnData.DataType = dataType;
+               
+            }
+        }
+
         public string SelectedItem
         {
             get => _SelectedItem;
             set
             {
                 _SelectedItem = value;
-                comboBox1.SelectedItem = _SelectedItem;
+                CB_Types.SelectedItem = _SelectedItem;
             }
         }
-        public List<string> Items
-        {
-            get =>_Items;
-            set
-            {
-                _Items = value; comboBox1.DataSource = _Items;
-            }
-        }
-        internal void AddAPI(APICore api)
-        {
-            _API = api;
-          
-
-        }
+      
         private void ComboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            _SelectedItem = comboBox1.SelectedItem.ToString();
-         ColumnData.DataType =   _API.AllTypes.TypesCollection[_SelectedItem];
-            _API.IsTypeSelectorOpened = false;
-
+            _SelectedItem = CB_Types.SelectedItem.ToString();
+         ColumnData.DataType =   Items.TypesCollection[_SelectedItem];
             if (Parent != null)
             {
                 this.Visible = false;
 
-
-               /* foreach (var item in Parent.Controls)
-                {
-                    {
-                        Type Type = item.GetType();
-
-                        if (Type == typeof(TypeSelector))
-                        {
-                            Parent.Controls.Remove((Control)item);
-                        }
-
-                    }
-                }*/
             }
         }
     }

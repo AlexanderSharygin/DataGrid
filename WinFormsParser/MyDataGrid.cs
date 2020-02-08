@@ -370,6 +370,20 @@ namespace Parser
                 if (index != -1)
                 {
                     var columnItems = _Bufer.Select(k => k.Cells[index].Body).ToList();
+                    for (int i = 1; i <columnItems.Count; i++)
+                    {
+                       
+                            if (columnItems[i].Length < columnItems.First().Length * Convert.ToInt32(Resources.ReductionRatio))
+                            {
+                            continue;
+                            }
+                            else
+                            {
+                            columnItems[i] = columnItems[i].Substring(0, columnItems.First().Length * Convert.ToInt32(Resources.ReductionRatio)) + Resources.Ellipsis;
+                            }
+                       
+                    }
+                    
                     int columnWidth = (columnItems.Max(k => k.Length) > APIColumn.HeaderText.Length) ? columnItems.Max(k => k.Length) : APIColumn.HeaderText.Length;
                     APIColumn.Width = columnWidth;
                     if (APIColumn.Visible)
@@ -406,7 +420,7 @@ namespace Parser
                         Cell.Width = (int)(_LineWidth * 2 + _CellMinMargin + _API.Columns[i].Width * (int)this.Font.Size + _CellMinMargin);
                         Cell.Height = _RowHeight;
                         Cell.Location = new Point(0, 0);
-                        Cell.AddAPI(_API);                       
+                        Cell.ConnectToAPI(_API);                       
                         Header.Add(Cell);
                         Controls.Add(Cell);
                     }                   
@@ -560,10 +574,21 @@ namespace Parser
                                
                                 int index = GetXIndexInBufer(_API.Columns[i].HeaderText);                             
                                 Cell TempCell = _Bufer[bufferRowIndex].Cells[index];
-                                e.Graphics.DrawString(TempCell.Body, this.Font, _Brush, xCounterForText - HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex) + (RowHeight - FontHeight) / 2);
+                                string cellBody;
+                                if (TempCell.Body.Length < _API.Columns[i].HeaderText.Length * Convert.ToInt32(Resources.ReductionRatio))
+                                {
+                                    cellBody=TempCell.Body;
+                                }
+                                else
+                                {
+                                    cellBody = TempCell.Body.Substring(0, _API.Columns[i].HeaderText.Length * Convert.ToInt32(Resources.ReductionRatio)) + Resources.Ellipsis;
+                                }
+
+                                e.Graphics.DrawString(cellBody, this.Font, _Brush, xCounterForText - HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex) + (RowHeight - FontHeight) / 2);
                                 e.Graphics.DrawLine(_Pen, -HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex + 1), _TableWidth - HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex + 1));
                                 viewPortRowIndex++;
                                 bufferRowIndex++;
+                                cellBody = "";
 
                             }
                         }
@@ -675,6 +700,20 @@ namespace Parser
                     {
                         _API.Columns[i].XStartPosition = xCounter - HorisontalScrollBar.Value;
                         var columnItems = _Bufer.Select(k => k.Cells[index].Body).ToList();
+                       
+                        for (int j = 1; j < columnItems.Count; j++)
+                        {
+
+                            if (columnItems[j].Length < columnItems.First().Length * Convert.ToInt32(Resources.ReductionRatio))
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                columnItems[j] = columnItems[j].Substring(0, columnItems.First().Length * Convert.ToInt32(Resources.ReductionRatio)) + Resources.Ellipsis;
+                            }
+
+                        }
                         int columnWidth = (columnItems.Max(k => k.Length) > _API.Columns[i].HeaderText.Length) ? columnItems.Max(k => k.Length) : _API.Columns[i].HeaderText.Length;
                         _API.Columns[i].Width = columnWidth;
                         xCounter += _LineWidth + _CellMinMargin + _API.Columns[i].Width * (int)this.Font.Size + _CellMinMargin;

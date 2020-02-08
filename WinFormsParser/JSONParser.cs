@@ -35,15 +35,8 @@ namespace WinFormsParser
                 foreach (var obj in _JSONObjects)
                 {
                     if (obj.ContainsKey(item))
-                    {
-                        if (obj[item].Length < item.Length * Convert.ToInt32(Resources.ReductionRatio))
-                        {
-                            temp.Add(obj[item]);
-                        }
-                        else
-                        {
-                            temp.Add(obj[item].Substring(0, item.Length * Convert.ToInt32(Resources.ReductionRatio)) + Resources.Ellipsis);
-                        }
+                    {                      
+                            temp.Add(obj[item]);                    
                     }
                     else
                     {
