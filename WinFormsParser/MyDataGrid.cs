@@ -448,7 +448,7 @@ namespace Parser
 
         private void Editor_Leave(object sender, EventArgs e)
         {
-            if (!_Editor.Dropchanges)
+            if (!_Editor.Dropchanges && _Editor.IsValidated)
             {
                 _Editor.BuferCell.Body = _Editor.Value;
             }

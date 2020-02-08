@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Globalization;
 using System.Windows.Forms;
 
 namespace Parser
@@ -12,7 +13,7 @@ namespace Parser
         private Point _Location;
         private bool _Visible;
         private Control _Editor;
-
+        public bool IsValidated { get; private set; } = true;
         public Font Font { get; set; }
         public int ColumnIndex { get; set; }
         public Cell BuferCell { get; }     
@@ -24,7 +25,6 @@ namespace Parser
         public bool Dropchanges { get; set; } = false;
         public Point DefaultPosition { get; set; }
         public bool Visible { get => _Editor.Visible; set { _Visible = value; _Editor.Visible = _Visible; } }
-
         public bool Closed { get; set; } = false;
         public EditorSelector(Cell cell, Type type)
         {
@@ -60,14 +60,20 @@ namespace Parser
             }
             if (ColumnType == typeof(int))
             {
+                IsValidated = false;
                 TextBox Editor = new TextBox();
                 Editor.Font = Font;
                 Editor.AutoSize = false;
+                int value;
+                if (!int.TryParse(BuferCell.Body, out value))
+                {
+                    Editor.BackColor = Color.Red;
+                }
                 Editor.Text = BuferCell.Body;
                 Editor.TabIndex = 1;
                 Editor.Enabled = true;
                 Editor.Select(Editor.Text.Length, 0);
-                Editor.KeyPress += Editor_KeyPress;
+                Editor.KeyPress += IntTypeValidation;
                 Editor.KeyUp += new KeyEventHandler(ValueField_KeyUp);
                 _Editor = Editor;
             }
@@ -78,50 +84,116 @@ namespace Parser
                 Editor.AutoSize = false;
                 Editor.CustomFormat = "yyyy/MM/dd";
                 Editor.Format = DateTimePickerFormat.Custom;
-                Editor.Text = BuferCell.Body;                      
+                DateTime date;
+                if (DateTime.TryParseExact(BuferCell.Body, "yyyy/MM/dd", CultureInfo.GetCultureInfo("ru-RU"), DateTimeStyles.None, out date))
+                {
+                    Editor.Value = date;                   
+                }
+                else
+                {                    
+                    Editor.Value = DateTime.Now;                              
+                }
                 Editor.TabIndex = 1;
                 Editor.Enabled = true;                    
                 Editor.KeyUp += new KeyEventHandler(ValueField_KeyUp);
                 _Editor = Editor;
             }
-        }
-
-
-      
-        private void Editor_KeyPress(object sender, KeyPressEventArgs e)
-        {
+        }      
+        private void IntTypeValidation(object sender, KeyPressEventArgs e)
+        {                 
             var PressedButton = e.KeyChar;
-           
-                bool isNumber = char.IsNumber(PressedButton);
-            TextBox tb = sender as TextBox;
-            if (isNumber)
-            {                 
-                e.Handled =  long.Parse(tb.Text + PressedButton.ToString()) >= int.MaxValue || long.Parse(tb.Text + PressedButton.ToString())<int.MinValue || (tb.Text.Contains("-") && tb.SelectionStart == 0);
-            }
+            if (ColumnType == typeof(int))
+            {
+                int value;
+                if (int.TryParse(_Editor.Text + PressedButton, out value))
+                {
+                    _Editor.BackColor = Color.White;
+                    IsValidated = true;
+                }              
                 else
-                e.Handled = !(isNumber || char.IsControl(PressedButton) || (PressedButton == '-'&& !tb.Text.Contains("-") && tb.SelectionStart==0));            
+                {
+                    IsValidated = false;
+                }
+            }
+            bool isNumber = char.IsNumber(PressedButton);
+            TextBox tb = sender as TextBox;
+            int a;
+            if (!int.TryParse(_Editor.Text + PressedButton, out a) && _Editor.Text != "" )
+            {
+                e.Handled = !(isNumber || char.IsControl(PressedButton) || (PressedButton == '-' && !tb.Text.Contains("-") && tb.SelectionStart == 0));
+            }
+            else if (isNumber)
+            {
+                e.Handled = long.Parse(tb.Text + PressedButton.ToString()) >= int.MaxValue || long.Parse(tb.Text + PressedButton.ToString()) < int.MinValue || (tb.Text.Contains("-") && tb.SelectionStart == 0);
+            }
+         
         }
+        private void AdditionalValidations(KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Back && ColumnType != typeof(string))
+            {
+                if (_Editor.Text == "")
+                {
+                    _Editor.BackColor = Color.Red;
+                    IsValidated = false;
+                }
+            }
+            int b;
+            if (ColumnType == typeof(int) && int.TryParse(_Editor.Text, out b))
+            {
 
+                _Editor.BackColor = Color.White;
+                IsValidated = true;
+
+            }
+        }
+        private bool IsNewValueValid()
+        {
+            if (ColumnType == typeof(int))
+            {
+                int value;
+                return int.TryParse(_Editor.Text, out value);
+
+            }
+            else
+            { 
+                return true;
+            }
+        }
        
         private void ValueField_KeyUp(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter)
-            {
-               
-                Closed = true;
-                Dropchanges = false;
-                _Editor.Visible = false;
-               
 
+            AdditionalValidations(e);
+            if (e.KeyCode == Keys.Enter)
+            {                
+                if (!IsNewValueValid())
+                {                   
+                        IsValidated = false;                                     
+                }
+                if (IsValidated)
+                {
+                    Closed = true;
+                    Dropchanges = false;
+                    _Editor.Visible = false;
+                }
+                else
+                {
+                    Closed = true;
+                    Dropchanges = true;
+                    _Editor.Visible = false;
+                }              
             }
             if (e.KeyCode == Keys.Escape)
             {
                 Closed = true;
                 Dropchanges = true;
                 _Editor.Visible = false;
-              
+            }            
+           
+          
 
-            }
+
         } 
     }
 }
