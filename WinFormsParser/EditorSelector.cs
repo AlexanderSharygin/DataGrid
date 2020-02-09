@@ -43,35 +43,39 @@ namespace Parser
         {
             _Editor.Focus();
         }       
-        public void CreateEditor()
+        public void CreateControl()
         {
-           
+
             if (ColumnType == typeof(string))
             {
-                TextBox Editor = new TextBox();                     
-                Editor.Font = Font;
-                Editor.AutoSize = false;
-                Editor.Text = BuferCell.Body;
-                Editor.TabIndex = 1;
-                Editor.Enabled = true;
+                TextBox Editor = new TextBox()
+                {
+                    Font = Font,
+                    AutoSize = false,
+                    Text = BuferCell.Body,
+                    TabIndex = 1,
+                    Enabled = true
+                };
                 Editor.Select(Editor.Text.Length, 0);
                 Editor.KeyUp += new KeyEventHandler(ValueField_KeyUp);
-                _Editor = Editor;                            
+                _Editor = Editor;
             }
             if (ColumnType == typeof(int))
             {
                 IsValidated = false;
-                TextBox Editor = new TextBox();
-                Editor.Font = Font;
-                Editor.AutoSize = false;
+                TextBox Editor = new TextBox()
+                {
+                    Font = Font,
+                    AutoSize = false,
+                    Text = BuferCell.Body,
+                    TabIndex = 1,
+                    Enabled = true
+                };               
                 int value;
                 if (!int.TryParse(BuferCell.Body, out value))
                 {
                     Editor.BackColor = Color.Red;
                 }
-                Editor.Text = BuferCell.Body;
-                Editor.TabIndex = 1;
-                Editor.Enabled = true;
                 Editor.Select(Editor.Text.Length, 0);
                 Editor.KeyPress += IntTypeValidation;
                 Editor.KeyUp += new KeyEventHandler(ValueField_KeyUp);
@@ -79,22 +83,24 @@ namespace Parser
             }
             if (ColumnType == typeof(DateTime))
             {
-               DateTimePicker Editor = new DateTimePicker();
-                Editor.Font = Font;
-                Editor.AutoSize = false;
-                Editor.CustomFormat = "yyyy/MM/dd";
-                Editor.Format = DateTimePickerFormat.Custom;
+                DateTimePicker Editor = new DateTimePicker()
+                {
+                    Font = Font,
+                    AutoSize = false,
+                    CustomFormat = "yyyy/MM/dd",
+                    Format = DateTimePickerFormat.Custom,
+                    TabIndex = 1,
+                    Enabled = true
+                };               
                 DateTime date;
                 if (DateTime.TryParseExact(BuferCell.Body, "yyyy/MM/dd", CultureInfo.GetCultureInfo("ru-RU"), DateTimeStyles.None, out date))
                 {
-                    Editor.Value = date;                   
+                    Editor.Value = date;
                 }
                 else
-                {                    
-                    Editor.Value = DateTime.Now;                              
+                {
+                    Editor.Value = DateTime.Now;
                 }
-                Editor.TabIndex = 1;
-                Editor.Enabled = true;                    
                 Editor.KeyUp += new KeyEventHandler(ValueField_KeyUp);
                 _Editor = Editor;
             }

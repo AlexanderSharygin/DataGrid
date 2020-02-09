@@ -42,7 +42,7 @@
             this.CB_Types.Size = new System.Drawing.Size(121, 21);
             this.CB_Types.TabIndex = 0;
             this.CB_Types.Text = "Select Type";
-            this.CB_Types.SelectedIndexChanged += new System.EventHandler(this.ComboBox1_SelectedIndexChanged);
+            this.CB_Types.SelectedIndexChanged += new System.EventHandler(this.CB_Types_SelectedIndexChanged);
             // 
             // TypeSelector
             // 

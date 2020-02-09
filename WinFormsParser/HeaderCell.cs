@@ -12,7 +12,6 @@ namespace Parser
     {
         int _CellMinMargin = 2;
         bool _IsToMoving = false;
-
         internal Column ColumnData { get; }
         APICore _API;
         
@@ -47,8 +46,8 @@ namespace Parser
         internal void ConnectToAPI(APICore api)
         {
             _API = api;             
-            _TypeSelector.Items = _API.AllTypes;         
-           _TypeSelector.SelectedItem = _API.AllTypes.GetKeyyValue(ColumnData.DataType);
+            _TypeSelector.Items = _API.DataTypes;         
+           _TypeSelector.SelectedItem = _API.DataTypes.GetKeyyValue(ColumnData.DataType);
           
         }
         protected override void Dispose(bool disposing)
@@ -62,30 +61,27 @@ namespace Parser
         private void InitializeComponent()
         {
             this.SuspendLayout();
-
             this.BackgroundImageLayout = ImageLayout.Zoom;
-
             this.DoubleBuffered = true;
             this.Name = "HeaderCell";
             this.Size = new Size(127, 31);
-
             this.MouseClick += new MouseEventHandler(this.HeaderCell_MouseClick);
             this.ResumeLayout(false);
 
         }
         public void ChangeSortDirection()
         {      
-                if (_API.SortDirection == Sort.DESC)
+                if (_API.SortDirection == SortDirections.DESC)
                 {
-                _API.SortDirection = Sort.None;
+                _API.SortDirection = SortDirections.None;
                 }
-                else if (_API.SortDirection == Sort.None)
+                else if (_API.SortDirection == SortDirections.None)
                 {
-                _API.SortDirection = Sort.ASC;
+                _API.SortDirection = SortDirections.ASC;
                 }
                 else
                 {
-                _API.SortDirection = Sort.DESC;
+                _API.SortDirection = SortDirections.DESC;
                 }          
         }
         protected override void OnPaint(PaintEventArgs e)
@@ -96,11 +92,11 @@ namespace Parser
             e.Graphics.DrawLine(_Pen, this.Width-1, 1, this.Width-1, this.Height);
             e.Graphics.DrawLine(_Pen, this.Width-1, this.Height, 1, this.Height);
             e.Graphics.DrawLine(_Pen, 0, this.Height, 0, 0);
-            ColumnData.DataType = _API.AllTypes.TypesCollection[_TypeSelector.SelectedItem];
+            ColumnData.DataType = _API.DataTypes.TypesCollection[_TypeSelector.SelectedItem];
             e.Graphics.DrawString(HeaderText, Font, new SolidBrush(Color.Black), _CellMinMargin, _CellMinMargin);
             if (_API.SortedColumnIndex == ColumnData.Index)
             {
-                if (_API.SortDirection == Sort.DESC)
+                if (_API.SortDirection == SortDirections.DESC)
                 {
                     Point[] p = new Point[3];
                     int a = this.Height / 2 - _CellMinMargin * 2;
@@ -110,7 +106,7 @@ namespace Parser
 
                     e.Graphics.FillPolygon(new SolidBrush(Color.Black), p);
                 }
-                if (_API.SortDirection == Sort.ASC)
+                if (_API.SortDirection == SortDirections.ASC)
                 {
                     Point[] p = new Point[3];
                     int a = this.Height / 2 - _CellMinMargin * 2;
@@ -124,18 +120,17 @@ namespace Parser
         private void HeaderCell_MouseClick(object sender, MouseEventArgs e)
         {
          
-            if (_API.IsEditorNedded)
+            if (_API.IsEditorUsed)
             {
                 var a = Parent.Controls;
                 foreach (var item in a)
                 {
-                    if (item.GetType() == _API.EditorComponentType)
+                    if (item.GetType() == _API.EditorControlType)
                     {
                         Parent.Controls.Remove((Control)item);
                     }
                 }
-                _API.IsEditorNedded = false;
-
+                _API.IsEditorUsed = false;
 
             }
             
@@ -215,7 +210,7 @@ namespace Parser
                     {
                         if (_API.SortedColumnIndex != ColumnData.Index)
                         {
-                            _API.SortDirection = Sort.None;
+                            _API.SortDirection = SortDirections.None;
                         }
                         _API.SortedColumnIndex = ColumnData.Index;
                      

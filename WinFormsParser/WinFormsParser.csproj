@@ -68,6 +68,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="APIModel.cs" />
+    <Compile Include="Cell.cs" />
+    <Compile Include="Column.cs" />
     <Compile Include="EditorSelector.cs" />
     <Compile Include="HeaderCell.cs" />
     <Compile Include="JSONParser.cs">
@@ -87,6 +89,7 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
+    <Compile Include="Row.cs" />
     <Compile Include="TypeSelector.cs">
       <SubType>UserControl</SubType>
     </Compile>

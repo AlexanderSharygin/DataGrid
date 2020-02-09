@@ -101,8 +101,7 @@ namespace WinFormsParser
               
              DataTable.Columns.Add(new Column(item, typeof(string)) { Visible = false });
               
-           }
-          //  DataTable.Columns.Add(new Column("gygy", typeof(string)) { Visible = false });
+           }      
             LB_FieldsList.Items.Clear();
              CB_FieldsList1.Items.Clear();
             CB_FieldsList2.Items.Clear();
@@ -129,16 +128,16 @@ namespace WinFormsParser
           
             if (CB_SortDirection.SelectedItem.ToString()=="ASC")
             {
-                DataTable.ChangeSorting((string)CB_FieldsList1.SelectedItem, Sort.ASC);
+                DataTable.ChangeSorting((string)CB_FieldsList1.SelectedItem, SortDirections.ASC);
             }
             if (CB_SortDirection.SelectedItem.ToString() == "DESC")
             {
-                DataTable.ChangeSorting((string)CB_FieldsList1.SelectedItem, Sort.DESC);
+                DataTable.ChangeSorting((string)CB_FieldsList1.SelectedItem, SortDirections.DESC);
 
             }
             if (CB_SortDirection.SelectedItem.ToString() == "None")
             {
-                DataTable.ChangeSorting((string)CB_FieldsList1.SelectedItem, Sort.None);
+                DataTable.ChangeSorting((string)CB_FieldsList1.SelectedItem, SortDirections.None);
 
             }
         }
@@ -149,10 +148,7 @@ namespace WinFormsParser
             UpdateUI();
         }      
         private void Button1_Click_1(object sender, EventArgs e)
-        {
-          //  DataTable.RowHeight = 100;
-    //    DataTable.Font = new System.Drawing.Font(DataTable.Font.FontFamily, 25.5f);
-      
+        {    
            string temp = DataTable.Columns[(int)NU_FieldsIndexes.Value].HeaderText;
            DataTable.Columns.RemoveAt(DataTable.Columns[(int)NU_FieldsIndexes.Value].Index);
            LB_FieldsList.Items.Remove(temp);

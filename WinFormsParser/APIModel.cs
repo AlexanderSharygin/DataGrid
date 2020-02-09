@@ -26,9 +26,9 @@ namespace Parser
        
     class APICore : INotifyPropertyChanged
     {
-        public Types AllTypes { get; set; } = new Types();
-        public Sort _SortDirection = Sort.None;
-        public Sort SortDirection
+        public DataTypes DataTypes { get; set; } = new DataTypes();
+        public SortDirections _SortDirection = SortDirections.None;
+        public SortDirections SortDirection
         {
             get => _SortDirection;
             set
@@ -39,8 +39,8 @@ namespace Parser
         }
         public int SortedColumnIndex { get; set; } = -1;
         public bool IsEditorOpened { get; set; } 
-        public Type EditorComponentType { get; set; }     
-        public bool IsEditorNedded  { get; set; }
+        public Type EditorControlType { get; set; }     
+        public bool IsEditorUsed  { get; set; }
         public bool IsTypeSelectorOpened { get; set; } 
         public ObservableCollection<Column> Columns { get; } = new ObservableCollection<Column>();
         public event PropertyChangedEventHandler PropertyChanged;
@@ -63,7 +63,7 @@ namespace Parser
                     index++;
 
                 }
-                SortDirection = Sort.None;
+                SortDirection = SortDirections.None;
                 SortedColumnIndex = -1;
 
             }
@@ -92,64 +92,17 @@ namespace Parser
         }   
     }
 
-    internal class Column : INotifyPropertyChanged
-    {
-        string _HeaderText;
-        bool _Visible;
-        public bool IsSignedToPropertyChange { get; set; }
-        public int Index { get; set; }
-        public int Width { get; set; }
-        public Type DataType { get; set; }
-        public int XStartPosition { get; set; }
-        public int XEndPosition { get; set; }
-        public bool Visible
-        {
-            get
-            {
-                return _Visible;
-            }
-            set
-            {
-                _Visible = value;
-                OnPropertyChanged();
-            }
-        }
-        public string HeaderText
-        {
-            get => _HeaderText;
-            set
-            {
-                _HeaderText = value;
-               Width = (Width > HeaderText.Length) ? Width : HeaderText.Length;
-            }
-        }
-        
-     
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public Column(string headerText, Type type)
-        {
-            _HeaderText = headerText;
-            Index =0;
-            Width = 1;
-           
-            DataType =type;
-        }     
-        private void OnPropertyChanged([CallerMemberName]string prop = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
-        }
-    }
-    public enum Sort
+   
+    public enum SortDirections
     {
         ASC,
         DESC,
         None
     }
-    class Types
+    class DataTypes
     {
        internal Dictionary<string, Type> TypesCollection { get; } = new Dictionary<string, Type>();
-        public Types()
+        public DataTypes()
         {
             TypesCollection.Add("String", typeof(String));
             TypesCollection.Add("Integer", typeof(Int32));
