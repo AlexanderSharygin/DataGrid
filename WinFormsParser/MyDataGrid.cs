@@ -16,6 +16,7 @@ namespace Parser
     {
 
         List<List<string>> _Source;
+        //! Wrong name!
         List<Row> _Bufer;
         APICore _API;
         EditorSelector _Editor;
@@ -36,6 +37,7 @@ namespace Parser
 
             AutoScaleMode = AutoScaleMode.None;
             InitializeComponent();
+            //! What's this?
             components = new System.ComponentModel.Container();
             _Source = new List<List<string>>();
             _Bufer = new List<Row>();
@@ -63,6 +65,7 @@ namespace Parser
         }
         private void RemoveEditorFromControls(bool isDropChanges)
         {
+            //! Stop iterating controls. Just keep a link to your editor.
             foreach (var item in Controls)
             {
                 if (item.GetType() == _Editor?.GetComponentType())
@@ -82,6 +85,7 @@ namespace Parser
         }
         private void RemoveTypeSelectorFromControls()
         {
+            //! the same, I guess..
             foreach (var item in Controls)
             {
                 if (item.GetType() == typeof(TypeSelector))
@@ -124,6 +128,7 @@ namespace Parser
             set
             {
                 _Source = (List<List<string>>)value;
+                //! Wrong name!
                 if (ColumnsAutoGeneretion)
                 {
                     Columns.Clear();

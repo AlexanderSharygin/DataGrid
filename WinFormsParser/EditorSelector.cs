@@ -16,12 +16,14 @@ namespace Parser
         public bool IsValidated { get; private set; } = true;
         public Font Font { get; set; }
         public int ColumnIndex { get; set; }
+        // Wrong name!
         public Cell BuferCell { get; }     
         public int Width { get => _Editor.Width; set  { _Width = value; _Editor.Width = _Width; } }        
         public int Height { get => _Editor.Height; set { _Height = value; _Editor.Height = _Height; } }     
         public Point Location { get=> _Editor.Location; set { _Location = value; _Editor.Location = _Location; } }
         public string OriginalValue { get; set; }      
         public string Value { get=>_Editor.Text; }
+        // better: cancel, reset.
         public bool Dropchanges { get; set; } = false;
         public Point DefaultPosition { get; set; }
         public bool Visible { get => _Editor.Visible; set { _Visible = value; _Editor.Visible = _Visible; } }
@@ -63,6 +65,7 @@ namespace Parser
             if (ColumnType == typeof(int))
             {
                 IsValidated = false;
+                // Don't invent a wheel with TextBox. google NumericUpDown.
                 TextBox Editor = new TextBox()
                 {
                     Font = Font,
@@ -87,18 +90,21 @@ namespace Parser
                 {
                     Font = Font,
                     AutoSize = false,
+                    // It would be a column setting...
                     CustomFormat = "yyyy/MM/dd",
                     Format = DateTimePickerFormat.Custom,
                     TabIndex = 1,
                     Enabled = true
                 };               
                 DateTime date;
+                // Isn't CultureInfo excessive since you explicitly specify custom format?
                 if (DateTime.TryParseExact(BuferCell.Body, "yyyy/MM/dd", CultureInfo.GetCultureInfo("ru-RU"), DateTimeStyles.None, out date))
                 {
                     Editor.Value = date;
                 }
                 else
                 {
+                    // No, you should not misleading the user! 
                     Editor.Value = DateTime.Now;
                 }
                 Editor.KeyUp += new KeyEventHandler(ValueField_KeyUp);

@@ -7,7 +7,7 @@ using System.Windows.Forms;
 namespace Parser
 {
     [System.ComponentModel.DesignerCategory("Code")]
-
+    // Why its partial?
     public partial class HeaderCell : Control
     {
         int _CellMinMargin = 2;
@@ -42,7 +42,7 @@ namespace Parser
                 _API.IsTypeSelectorOpened = false;
             }
         }
-
+        // Do you have HeaderCells that aren't connected to your API? If not, put this code in the constructor
         internal void ConnectToAPI(APICore api)
         {
             _API = api;             
@@ -58,6 +58,7 @@ namespace Parser
             }
             base.Dispose(disposing);
         }
+        // Should this code be placed in a separate method? At first glance, it can be placed in the constructor 
         private void InitializeComponent()
         {
             this.SuspendLayout();
@@ -69,8 +70,10 @@ namespace Parser
             this.ResumeLayout(false);
 
         }
+        // It is better to name it Toggle..., but not Change
         public void ChangeSortDirection()
         {      
+            // if is ugly here. use switch/case
                 if (_API.SortDirection == SortDirections.DESC)
                 {
                 _API.SortDirection = SortDirections.None;
@@ -96,6 +99,7 @@ namespace Parser
             e.Graphics.DrawString(HeaderText, Font, new SolidBrush(Color.Black), _CellMinMargin, _CellMinMargin);
             if (_API.SortedColumnIndex == ColumnData.Index)
             {
+                // consider refactoring this part. you are almost repeating yourself
                 if (_API.SortDirection == SortDirections.DESC)
                 {
                     Point[] p = new Point[3];
@@ -120,8 +124,10 @@ namespace Parser
         private void HeaderCell_MouseClick(object sender, MouseEventArgs e)
         {
          
+            // too complex IF-ELSE chain.
             if (_API.IsEditorUsed)
             {
+                // again, stop iterating Controls. Keep a reference to your editor instead.
                 var a = Parent.Controls;
                 foreach (var item in a)
                 {
