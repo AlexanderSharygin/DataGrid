@@ -7,8 +7,8 @@ using System.Windows.Forms;
 namespace Parser
 {
     [System.ComponentModel.DesignerCategory("Code")]
-    // Why its partial?
-    public partial class HeaderCell : Control
+  
+    public class HeaderCell : Control
     {
         int _CellMinMargin = 2;
         bool _IsToMoving = false;
@@ -23,7 +23,13 @@ namespace Parser
       
         internal HeaderCell(Column ColumnData)
         {
-            InitializeComponent();
+            this.SuspendLayout();
+            this.BackgroundImageLayout = ImageLayout.Zoom;
+            this.DoubleBuffered = true;
+            this.Name = "HeaderCell";
+            this.Size = new Size(127, 31);
+            this.MouseClick += new MouseEventHandler(this.HeaderCell_MouseClick);
+            this.ResumeLayout(false);
             components = new Container();
             this.ColumnData = ColumnData;
             HeaderText = ColumnData.HeaderText;                  
@@ -47,7 +53,7 @@ namespace Parser
         {
             _API = api;             
             _TypeSelector.Items = _API.DataTypes;         
-           _TypeSelector.SelectedItem = _API.DataTypes.GetKeyyValue(ColumnData.DataType);
+           _TypeSelector.SelectedItem = _API.DataTypes.GetKeyByValue(ColumnData.DataType);
           
         }
         protected override void Dispose(bool disposing)
@@ -58,20 +64,9 @@ namespace Parser
             }
             base.Dispose(disposing);
         }
-        // Should this code be placed in a separate method? At first glance, it can be placed in the constructor 
-        private void InitializeComponent()
-        {
-            this.SuspendLayout();
-            this.BackgroundImageLayout = ImageLayout.Zoom;
-            this.DoubleBuffered = true;
-            this.Name = "HeaderCell";
-            this.Size = new Size(127, 31);
-            this.MouseClick += new MouseEventHandler(this.HeaderCell_MouseClick);
-            this.ResumeLayout(false);
-
-        }
-        // It is better to name it Toggle..., but not Change
-        public void ChangeSortDirection()
+      
+      
+        public void ToggleSortDirection()
         {      
             // if is ugly here. use switch/case
                 if (_API.SortDirection == SortDirections.DESC)
@@ -122,8 +117,7 @@ namespace Parser
             }           
         }
         private void HeaderCell_MouseClick(object sender, MouseEventArgs e)
-        {
-         
+        {         
             // too complex IF-ELSE chain.
             if (_API.IsEditorUsed)
             {
@@ -220,12 +214,12 @@ namespace Parser
                         }
                         _API.SortedColumnIndex = ColumnData.Index;
                      
-                        ChangeSortDirection();
+                        ToggleSortDirection();
 
                     }
                     else
                     {
-                        _API.SortColumns();
+                       // _API.SortColumns();
                         Parent.Invalidate();
                     }
 

@@ -16,21 +16,20 @@ namespace Parser
         public bool IsValidated { get; private set; } = true;
         public Font Font { get; set; }
         public int ColumnIndex { get; set; }
-        // Wrong name!
-        public Cell BuferCell { get; }     
+        public Cell BufferCell { get; }     
         public int Width { get => _Editor.Width; set  { _Width = value; _Editor.Width = _Width; } }        
         public int Height { get => _Editor.Height; set { _Height = value; _Editor.Height = _Height; } }     
         public Point Location { get=> _Editor.Location; set { _Location = value; _Editor.Location = _Location; } }
         public string OriginalValue { get; set; }      
         public string Value { get=>_Editor.Text; }
         // better: cancel, reset.
-        public bool Dropchanges { get; set; } = false;
+        public bool CancelChanges { get; set; } = false;
         public Point DefaultPosition { get; set; }
         public bool Visible { get => _Editor.Visible; set { _Visible = value; _Editor.Visible = _Visible; } }
         public bool Closed { get; set; } = false;
         public EditorSelector(Cell cell, Type type)
         {
-            BuferCell = cell;
+            BufferCell = cell;
             ColumnType = type;
         }
         public Type GetComponentType()
@@ -54,7 +53,7 @@ namespace Parser
                 {
                     Font = Font,
                     AutoSize = false,
-                    Text = BuferCell.Body,
+                    Text = BufferCell.Body,
                     TabIndex = 1,
                     Enabled = true
                 };
@@ -70,12 +69,12 @@ namespace Parser
                 {
                     Font = Font,
                     AutoSize = false,
-                    Text = BuferCell.Body,
+                    Text = BufferCell.Body,
                     TabIndex = 1,
                     Enabled = true
                 };               
                 int value;
-                if (!int.TryParse(BuferCell.Body, out value))
+                if (!int.TryParse(BufferCell.Body, out value))
                 {
                     Editor.BackColor = Color.Red;
                 }
@@ -98,7 +97,7 @@ namespace Parser
                 };               
                 DateTime date;
                 // Isn't CultureInfo excessive since you explicitly specify custom format?
-                if (DateTime.TryParseExact(BuferCell.Body, "yyyy/MM/dd", CultureInfo.GetCultureInfo("ru-RU"), DateTimeStyles.None, out date))
+                if (DateTime.TryParseExact(BufferCell.Body, "yyyy/MM/dd", CultureInfo.GetCultureInfo("ru-RU"), DateTimeStyles.None, out date))
                 {
                     Editor.Value = date;
                 }
@@ -186,20 +185,20 @@ namespace Parser
                 if (IsValidated)
                 {
                     Closed = true;
-                    Dropchanges = false;
+                    CancelChanges = false;
                     _Editor.Visible = false;
                 }
                 else
                 {
                     Closed = true;
-                    Dropchanges = true;
+                    CancelChanges = true;
                     _Editor.Visible = false;
                 }              
             }
             if (e.KeyCode == Keys.Escape)
             {
                 Closed = true;
-                Dropchanges = true;
+                CancelChanges = true;
                 _Editor.Visible = false;
             }            
            

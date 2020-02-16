@@ -91,7 +91,7 @@ namespace WinFormsParser
         private void Button1_Click(object sender, EventArgs e)
         {
             var table = GetTable();
-            DataTable.ColumnsAutoGeneretion = false;           
+            DataTable.ColumnsAutoGeneration = false;           
             DataTable.Source = table;
             List<string> AggregatedObjectsFields = table.Select(k => k.First()).ToList();              
 
@@ -176,7 +176,7 @@ namespace WinFormsParser
 
         private void Button3_Click(object sender, EventArgs e)
         {
-            DataTable.ColumnsAutoGeneretion = true;
+            DataTable.ColumnsAutoGeneration = true;
             DataTable.Source = GetTable();           
             LB_FieldsList.Items.Clear();
             foreach (var item in DataTable.Columns)
@@ -199,7 +199,7 @@ namespace WinFormsParser
 
         private void Button3_Click_1(object sender, EventArgs e)
         {
-            DataTable.ColumnsAutoGeneretion = true;
+            DataTable.ColumnsAutoGeneration = true;
             DataTable.Source = GetTable();
             LB_FieldsList.Items.Clear();
             CB_FieldsList1.Items.Clear();

@@ -11,20 +11,22 @@ using System.Runtime.CompilerServices;
 namespace Parser
 {
 
-    public static class ObservableCollectionExtensions
-    {
+  //  public static class ObservableCollectionExtensions
+   // {
         // It's not a common practice to sort ObservableCollection. MS did not implement it out of the box for a reason. Consider reconsidering your logic =)
-        public static void Sort<T>(this ObservableCollection<T> collection, Comparison<T> comparison)
-        {
-            var sortableList = new List<T>(collection);
-            sortableList.Sort(comparison);
-            for (int i = 0; i < sortableList.Count; i++)
-            {
-                // It's a bad practice to mix up items in ObsColl many times, especially if someone subscribes to its CollectionChanged event. Does Move() raise it?
-                collection.Move(collection.IndexOf(sortableList[i]), i);
-            }
-        }
-    }
+       // public static void Sort<T>(this ObservableCollection<T> collection, Comparison<T> comparison)
+       // {
+       //     var sortableList = new List<T>(collection);
+        //    sortableList.Sort(comparison);
+        //    for (int i = 0; i < sortableList.Count; i++)
+        //    {
+              // It's a bad practice to mix up items in ObsColl many times, especially if someone subscribes to its CollectionChanged event. Does Move() raise it?
+          //      collection.Move(collection.IndexOf(sortableList[i]), i);
+         //   }
+       // }
+  //  }----------------------------------------
+
+
     //! API is not a good name. API is a concept.
     // When we talk about a control's API, we mean its public properties and methods. 
     // I think that you can embed this code in the DataGrid class and stop handling events you raise on the same abstraction level.
@@ -90,10 +92,7 @@ namespace Parser
 
             }
         }
-        internal void SortColumns()
-        {
-           Columns.Sort((a, b) => { return a.Index.CompareTo(b.Index); });
-        }   
+         
     }
 
    
@@ -114,9 +113,9 @@ namespace Parser
             TypesCollection.Add("Integer", typeof(Int32));
             TypesCollection.Add("Date/Time", typeof(DateTime));
         }
-        // Wrong name!
+    
         // Unnecessary code.
-        public string GetKeyyValue(Type t)
+        public string GetKeyByValue(Type t)
         {
             string res = "";
             foreach (var item in TypesCollection)
