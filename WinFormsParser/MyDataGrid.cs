@@ -18,7 +18,7 @@ namespace Parser
         List<List<string>> _Source;
         List<Row> _Buffer;
         APICore _API;
-        EditorSelector _Editor;
+         EditorSelector _Editor;
         int _RowHeight;
         int _LineWidth = 1;
         int _FirstPrintedRowIndex = 0;
@@ -35,9 +35,7 @@ namespace Parser
         {
 
             AutoScaleMode = AutoScaleMode.None;
-            InitializeComponent();
-            //! What's this?
-            components = new System.ComponentModel.Container();
+            InitializeComponent();           
             _Source = new List<List<string>>();
             _Buffer = new List<Row>();
             _API = new APICore();
@@ -63,36 +61,23 @@ namespace Parser
             Leave += MyDataGrid_LostFocus;
         }
         private void RemoveEditorFromControls(bool isDropChanges)
-        {
-            //! Stop iterating controls. Just keep a link to your editor.
-            foreach (var item in Controls)
+        {            
+            var editorControl = _Editor?.GetControl();
+            if (editorControl != null)
             {
-                if (item.GetType() == _Editor?.GetComponentType())
+                Controls.Remove((Control)editorControl);
+                if (!isDropChanges)
                 {
-                    Controls.Remove((Control)item);
-                    if (!isDropChanges)
-                    {
-                        _Editor.BufferCell.Body = _Editor.OriginalValue;
-                    }                    
-                    _Editor = null;
-                    _API.IsEditorUsed = false;
-                    _API.IsEditorOpened = false;
-
+                    _Editor.BufferCell.Body = _Editor.OriginalValue;
                 }
-            }
-        
+                _Editor = null;
+                _API.IsEditorUsed = false;
+                _API.IsEditorOpened = false;
+            }                    
         }
         private void RemoveTypeSelectorFromControls()
-        {
-            //! the same, I guess..
-            foreach (var item in Controls)
-            {
-                if (item.GetType() == typeof(TypeSelector))
-                {
-                    Controls.Remove((Control)item);
-                    _API.IsTypeSelectorOpened = false;
-                }
-            }
+        {           
+          Controls.Remove((Control)_API.TypeSelector);          
         }
         private void MyDataGrid_LostFocus(object sender, EventArgs e)
         {
@@ -258,17 +243,9 @@ namespace Parser
                 HorisontalScrollBar.Value = 0;
                 HorisontalScrollBar.SmallChange = _HorisontalScrollValueRatio;
                 HorisontalScrollBar.LargeChange = _HorisontalScrollValueRatio;
-                CustomInvalidate();
-                        
-                for (int i = 0; i < Controls.Count; i++)
-                {
-                    Type Type = Controls[i].GetType();
+                CustomInvalidate();                  
+                _API.TypeSelector.Visible = false;              
 
-                    if (Type == typeof(TypeSelector))
-                    {
-                        Controls[i].Visible = false;
-                    }
-                }
             }
         }
         private void APIPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -397,14 +374,13 @@ namespace Parser
                 {                   
                     if (b.Visible)
                     {
-                        HeaderCell Cell = new HeaderCell(b)
+                        HeaderCell Cell = new HeaderCell(b, _API)
                         {
                             Font = this.Font,
                             Width = (int)(_LineWidth * 2 + _CellMinMargin + b.Width * (int)this.Font.Size + _CellMinMargin),
                             Height = _RowHeight,
                             Location = new Point(0, 0)
-                        };                     
-                        Cell.ConnectToAPI(_API);                       
+                        };                                                  
                         Header.Add(Cell);
                         Controls.Add(Cell);
                     }                   
@@ -420,8 +396,8 @@ namespace Parser
             }
             if (_Editor != null)
             {
-                Controls.Add(_Editor.GetControl());
-                _API.EditorControlType = _Editor.GetComponentType();              
+                Controls.Add(_Editor.GetControl());           
+                _API.EditorControl = _Editor.GetControl();
                 _API.IsEditorUsed = true;
                 _Editor.Visible = true;
                 _Editor.SetFocus();               

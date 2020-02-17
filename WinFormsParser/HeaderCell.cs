@@ -21,7 +21,7 @@ namespace Parser
         private IContainer components = null;
        
       
-        internal HeaderCell(Column ColumnData)
+        internal HeaderCell(Column ColumnData, APICore api)
         {
             this.SuspendLayout();
             this.BackgroundImageLayout = ImageLayout.Zoom;
@@ -38,6 +38,9 @@ namespace Parser
             Controls.Add(_TypeSelector);
             _TypeSelector.ColumnData = ColumnData;
             _TypeSelector.VisibleChanged += TypeSelector_VisibleChanged;
+            _API = api;
+            _TypeSelector.Items = _API.DataTypes;
+            _TypeSelector.SelectedItem = _API.DataTypes.GetKeyByValue(ColumnData.DataType);
         }
 
         private void TypeSelector_VisibleChanged(object sender, EventArgs e)
@@ -47,15 +50,7 @@ namespace Parser
             {
                 _API.IsTypeSelectorOpened = false;
             }
-        }
-        // Do you have HeaderCells that aren't connected to your API? If not, put this code in the constructor
-        internal void ConnectToAPI(APICore api)
-        {
-            _API = api;             
-            _TypeSelector.Items = _API.DataTypes;         
-           _TypeSelector.SelectedItem = _API.DataTypes.GetKeyByValue(ColumnData.DataType);
-          
-        }
+        }       
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -67,20 +62,28 @@ namespace Parser
       
       
         public void ToggleSortDirection()
-        {      
-            // if is ugly here. use switch/case
-                if (_API.SortDirection == SortDirections.DESC)
-                {
-                _API.SortDirection = SortDirections.None;
-                }
-                else if (_API.SortDirection == SortDirections.None)
-                {
-                _API.SortDirection = SortDirections.ASC;
-                }
-                else
-                {
-                _API.SortDirection = SortDirections.DESC;
-                }          
+        {
+         
+            switch (_API.SortDirection)
+            {
+                case SortDirections.DESC: _API.SortDirection = SortDirections.None; break;
+                case SortDirections.None: _API.SortDirection = SortDirections.ASC; break;
+                default: _API.SortDirection = SortDirections.DESC; break;
+            }
+
+        }
+        private void DrawSortDirectionIcon(bool isASC, PaintEventArgs e)
+        {
+            Point[] p = new Point[3];
+            int a = this.Height / 2 - _CellMinMargin * 2;
+            if (!isASC)
+            {
+                a = a * -1;
+            }
+            p[0] = new Point(this.Width - 2, this.Height / 2 + a);
+            p[1] = new Point(this.Width - 7, this.Height / 2 - a);
+            p[2] = new Point(this.Width - 12, this.Height / 2 + a);
+            e.Graphics.FillPolygon(new SolidBrush(Color.Black), p);
         }
         protected override void OnPaint(PaintEventArgs e)
         {
@@ -93,26 +96,14 @@ namespace Parser
             ColumnData.DataType = _API.DataTypes.TypesCollection[_TypeSelector.SelectedItem];
             e.Graphics.DrawString(HeaderText, Font, new SolidBrush(Color.Black), _CellMinMargin, _CellMinMargin);
             if (_API.SortedColumnIndex == ColumnData.Index)
-            {
-                // consider refactoring this part. you are almost repeating yourself
+            {              
                 if (_API.SortDirection == SortDirections.DESC)
                 {
-                    Point[] p = new Point[3];
-                    int a = this.Height / 2 - _CellMinMargin * 2;
-                    p[0] = new Point(this.Width - 2, this.Height / 2 - a);
-                    p[1] = new Point(this.Width - 7, this.Height / 2 + a);
-                    p[2] = new Point(this.Width - 12, this.Height / 2 - a);
-
-                    e.Graphics.FillPolygon(new SolidBrush(Color.Black), p);
+                    DrawSortDirectionIcon(false, e);
                 }
                 if (_API.SortDirection == SortDirections.ASC)
                 {
-                    Point[] p = new Point[3];
-                    int a = this.Height / 2 - _CellMinMargin * 2;
-                    p[0] = new Point(this.Width - 2, this.Height / 2 + a);
-                    p[1] = new Point(this.Width - 7, this.Height / 2 - a);
-                    p[2] = new Point(this.Width - 12, this.Height / 2 + a);
-                    e.Graphics.FillPolygon(new SolidBrush(Color.Black), p);
+                    DrawSortDirectionIcon(true, e);
                 }
             }           
         }
@@ -120,47 +111,22 @@ namespace Parser
         {         
             // too complex IF-ELSE chain.
             if (_API.IsEditorUsed)
-            {
-                // again, stop iterating Controls. Keep a reference to your editor instead.
-                var a = Parent.Controls;
-                foreach (var item in a)
-                {
-                    if (item.GetType() == _API.EditorControlType)
-                    {
-                        Parent.Controls.Remove((Control)item);
-                    }
-                }
+            {               
+                Parent.Controls.Remove(_API.EditorControl);
                 _API.IsEditorUsed = false;
 
             }
-            
-          else if (_API.IsTypeSelectorOpened)
+            else if (_API.IsTypeSelectorOpened)
             {
-                var aa = Parent.Controls;
-                foreach (var item in aa)
-                {
-                    if (item.GetType() == typeof(TypeSelector))
-                    {
-                        Parent.Controls.Remove((Control)item);
-                    }
-                }
+                Parent.Controls.Remove(_API.TypeSelector);               
                 _API.IsTypeSelectorOpened = false;
-            }
-          
+            }          
             else
                 {
                 if (e.Button == MouseButtons.Middle)
                 {
 
-                    for (int i = 0; i < Parent.Controls.Count; i++)
-                    {
-                        Type Type = Parent.Controls[i].GetType();
-
-                        if (Type == typeof(TypeSelector))
-                        {
-                            Parent.Controls.RemoveAt(i);
-                        }
-                    }
+                    Parent.Controls.Remove(_API.TypeSelector);
                     if (_TypeSelector.Visible)
                     {
                         _API.IsTypeSelectorOpened = false;
@@ -174,6 +140,7 @@ namespace Parser
                         _TypeSelector.Location = new Point(this.Location.X + 5, this.Location.Y + 5);
                         _TypeSelector.Visible = true;
                         _TypeSelector.Parent = this.Parent;
+                        _API.TypeSelector = _TypeSelector;
                         _API.IsTypeSelectorOpened = true;
                         _TypeSelector.BringToFront();
                        

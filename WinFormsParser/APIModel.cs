@@ -5,26 +5,25 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-
-
+using System.Windows.Forms;
 
 namespace Parser
 {
 
-  //  public static class ObservableCollectionExtensions
-   // {
-        // It's not a common practice to sort ObservableCollection. MS did not implement it out of the box for a reason. Consider reconsidering your logic =)
-       // public static void Sort<T>(this ObservableCollection<T> collection, Comparison<T> comparison)
-       // {
-       //     var sortableList = new List<T>(collection);
-        //    sortableList.Sort(comparison);
-        //    for (int i = 0; i < sortableList.Count; i++)
-        //    {
-              // It's a bad practice to mix up items in ObsColl many times, especially if someone subscribes to its CollectionChanged event. Does Move() raise it?
-          //      collection.Move(collection.IndexOf(sortableList[i]), i);
-         //   }
-       // }
-  //  }----------------------------------------
+    //  public static class ObservableCollectionExtensions
+    // {
+    // It's not a common practice to sort ObservableCollection. MS did not implement it out of the box for a reason. Consider reconsidering your logic =)
+    // public static void Sort<T>(this ObservableCollection<T> collection, Comparison<T> comparison)
+    // {
+    //     var sortableList = new List<T>(collection);
+    //    sortableList.Sort(comparison);
+    //    for (int i = 0; i < sortableList.Count; i++)
+    //    {
+    // It's a bad practice to mix up items in ObsColl many times, especially if someone subscribes to its CollectionChanged event. Does Move() raise it?
+    //      collection.Move(collection.IndexOf(sortableList[i]), i);
+    //   }
+    // }
+    //  }----------------------------------------
 
 
     //! API is not a good name. API is a concept.
@@ -44,8 +43,9 @@ namespace Parser
             }
         }
         public int SortedColumnIndex { get; set; } = -1;
-        public bool IsEditorOpened { get; set; } 
-        public Type EditorControlType { get; set; }     
+        public TypeSelector TypeSelector { get; set; } = new TypeSelector();
+        public Control EditorControl { get; set; } = new Control();
+        public bool IsEditorOpened { get; set; }       
         public bool IsEditorUsed  { get; set; }
         public bool IsTypeSelectorOpened { get; set; } 
         public ObservableCollection<Column> Columns { get; } = new ObservableCollection<Column>();
