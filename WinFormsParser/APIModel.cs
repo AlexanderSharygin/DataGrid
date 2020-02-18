@@ -104,8 +104,7 @@ namespace Parser
     }
     
     class DataTypes
-    {
-        // You are using Dictionary in a wrong way.
+    {  
         internal Dictionary<string, Type> TypesCollection { get; } = new Dictionary<string, Type>();
         public DataTypes()
         {
@@ -114,7 +113,7 @@ namespace Parser
             TypesCollection.Add("Date/Time", typeof(DateTime));
         }
     
-        // Unnecessary code.
+       
         public string GetKeyByValue(Type t)
         {
             string res = "";
