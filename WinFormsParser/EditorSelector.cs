@@ -13,6 +13,7 @@ namespace Parser
         private Point _Location;
         private bool _Visible;
         private Control _Editor;
+        private string DataFormat;
         public bool IsValidated { get; private set; } = true;
         public Font Font { get; set; }
         public int ColumnIndex { get; set; }
@@ -26,10 +27,11 @@ namespace Parser
         public Point DefaultPosition { get; set; }
         public bool Visible { get => _Editor.Visible; set { _Visible = value; _Editor.Visible = _Visible; } }
         public bool Closed { get; set; } = false;
-        public EditorSelector(Cell cell, Type type)
+        public EditorSelector(Cell cell, Type type, string dataFormat)
         {
             BufferCell = cell;
             ColumnType = type;
+            DataFormat = dataFormat;
         }
         public Type GetComponentType()
         {
@@ -86,23 +88,20 @@ namespace Parser
                 DateTimePicker Editor = new DateTimePicker()
                 {
                     Font = Font,
-                    AutoSize = false,
-                    // It would be a column setting...
-                    CustomFormat = "yyyy/MM/dd",
+                    AutoSize = false,                   
+                    CustomFormat = DataFormat,
                     Format = DateTimePickerFormat.Custom,
                     TabIndex = 1,
                     Enabled = true
                 };               
-                DateTime date;
-                // Isn't CultureInfo excessive since you explicitly specify custom format?
-                if (DateTime.TryParseExact(BufferCell.Body, "yyyy/MM/dd", CultureInfo.GetCultureInfo("ru-RU"), DateTimeStyles.None, out date))
+                DateTime date;         
+                if (DateTime.TryParseExact(BufferCell.Body, "yyyy/MM/dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
                 {
                     Editor.Value = date;
                 }
                 else
-                {
-                    // No, you should not misleading the user! 
-                    Editor.Value = DateTime.Now;
+                {                  
+                    Editor.Value = DateTime.Parse("2000/01/01");                
                 }
                 Editor.KeyUp += new KeyEventHandler(ValueField_KeyUp);
                 _Editor = Editor;

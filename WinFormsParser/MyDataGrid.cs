@@ -720,7 +720,7 @@ namespace Parser
                                 _Editor = null;
                                 UpdateColumnsPosition();
                             }                            
-                            EditorSelector editor = new EditorSelector(_Buffer[BuferRowIndex].Cells[BuferColumnIndex], item.DataType);                            
+                            EditorSelector editor = new EditorSelector(_Buffer[BuferRowIndex].Cells[BuferColumnIndex], item.DataType, item.DataFormat);                            
                             ColumnXStart = item.XStartPosition;
                             ColumnXEnd = item.XEndPosition;
                             editor.CreateControl();

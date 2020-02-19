@@ -79,6 +79,15 @@ namespace Parser.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на yyyy/MM/dd.
+        /// </summary>
+        internal static string DefaultDataFormat {
+            get {
+                return ResourceManager.GetString("DefaultDataFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap depositphotos_126071218_stock_illustration_direction_up_vector_icon {

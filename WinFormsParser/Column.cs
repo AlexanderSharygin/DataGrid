@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Parser.Properties;
+using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
@@ -8,10 +9,20 @@ namespace Parser
     {
         string _HeaderText;
         bool _Visible;
+        Type _DataType;
         public bool IsSignedToPropertyChange { get; set; }
         public int Index { get; set; }
         public int Width { get; set; }
-        public Type DataType { get; set; }
+        public Type DataType 
+        { get
+            { return _DataType; }
+            set
+            {
+                _DataType = value;
+                SetDefaultDataFormat();
+            } 
+        }
+        public string DataFormat { get; set; }
         public int XStartPosition { get; set; }
         public int XEndPosition { get; set; }
         public bool Visible
@@ -46,10 +57,22 @@ namespace Parser
             Width = 1;
 
             DataType = type;
+            SetDefaultDataFormat();
         }
         private void OnPropertyChanged([CallerMemberName]string prop = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
+        }
+        private void SetDefaultDataFormat()
+        {
+            if (DataType == typeof(DateTime))
+            {
+                DataFormat = Resources.DefaultDataFormat;
+            }
+            else
+            { 
+                DataFormat = "";
+            }
         }
     }
 }
