@@ -22,7 +22,6 @@ namespace Parser
         public Point Location { get=> _Editor.Location; set { _Location = value; _Editor.Location = _Location; } }
         public string OriginalValue { get; set; }      
         public string Value { get=>_Editor.Text; }
-        // better: cancel, reset.
         public bool CancelChanges { get; set; } = false;
         public Point DefaultPosition { get; set; }
         public bool Visible { get => _Editor.Visible; set { _Visible = value; _Editor.Visible = _Visible; } }
@@ -63,8 +62,7 @@ namespace Parser
             }
             if (ColumnType == typeof(int))
             {
-                IsValidated = false;
-                // Don't invent a wheel with TextBox. google NumericUpDown.
+                IsValidated = false;               
                 TextBox Editor = new TextBox()
                 {
                     Font = Font,
