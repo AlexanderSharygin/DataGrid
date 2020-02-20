@@ -7,13 +7,13 @@ namespace Parser
     public partial class TypeSelector : UserControl
     {     
         string _SelectedItem;       
-        DataTypes _Items  = new DataTypes();       
+        ColumnDataTypesList _Items  = new ColumnDataTypesList();       
         internal Column ColumnData { get; set; }
         public TypeSelector()
         {
             InitializeComponent();
         }
-        internal DataTypes Items
+        internal ColumnDataTypesList Items
         {
             get => _Items;
             set

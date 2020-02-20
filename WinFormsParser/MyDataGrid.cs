@@ -17,7 +17,7 @@ namespace Parser
 
         List<List<string>> _Source;
         List<Row> _Buffer;
-        APICore _API;
+        Source _API;
          EditorSelector _Editor;
         int _RowHeight;
         int _LineWidth = 1;
@@ -38,7 +38,7 @@ namespace Parser
             InitializeComponent();           
             _Source = new List<List<string>>();
             _Buffer = new List<Row>();
-            _API = new APICore();
+            _API = new Source();
             _API.PropertyChanged += APIPropertyChanged;
             Columns.CollectionChanged += ColumnsCollectionChanged;
             ResizeRedraw = true;
@@ -556,7 +556,7 @@ namespace Parser
                          
                 e.Graphics.DrawLine(_Pen, _TableWidth - HorisontalScrollBar.Value, 0, _TableWidth - HorisontalScrollBar.Value, 0 + RowHeight * (_ViewPortRowsCount + 1));
                 e.Graphics.DrawLine(_Pen, 0 - HorisontalScrollBar.Value, RowHeight, _TableWidth - HorisontalScrollBar.Value, RowHeight);
-               
+         
             }
         }
 
@@ -646,6 +646,7 @@ namespace Parser
                     VerticalScrollBar.Value = 0;
                 }
                 VerticalScrollBar.Maximum = ((_TotalRowsCount - _ViewPortRowsCount) * _VerticalScrollValueRatio - 1);
+               
             }
             UpdateHorizontalScroll();
             Invalidate();
@@ -662,6 +663,7 @@ namespace Parser
                 _Editor.Location = new Point(_Editor.Location.X, _Editor.DefaultPosition.Y-_FirstPrintedRowIndex*RowHeight);
                 _Editor.SetFocus();
             }
+          
             Invalidate();
         }
         private void VerticalScrollBar_VisibleChanged(object sender, EventArgs e)
@@ -687,6 +689,16 @@ namespace Parser
                 _Editor.Width = item.XEndPosition - item.XStartPosition;
                 _Editor.SetFocus();
                
+            }
+            if (_API.IsTypeSelectorOpened)
+            {
+                var item = _API.Columns.Select(k => k).Where(k => k.Index == _API.TypeSelector.ColumnData.Index).Single();
+               int xstart = item.XStartPosition;
+               
+               _API.TypeSelector.Location = new Point(xstart + 5, _API.TypeSelector.Location.Y);
+
+              
+
             }
             Invalidate();
         }

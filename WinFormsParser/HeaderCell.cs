@@ -13,7 +13,7 @@ namespace Parser
         int _CellMinMargin = 2;
         bool _IsToMoving = false;
         internal Column ColumnData { get; }
-        APICore _API;
+        Source _API;
         
         TypeSelector _TypeSelector = new TypeSelector();
         public string HeaderText { get; set; }       
@@ -21,7 +21,7 @@ namespace Parser
         private IContainer components = null;
        
       
-        internal HeaderCell(Column ColumnData, APICore api)
+        internal HeaderCell(Column ColumnData, Source api)
         {
             this.SuspendLayout();
             this.BackgroundImageLayout = ImageLayout.Zoom;
@@ -107,109 +107,126 @@ namespace Parser
                 }
             }           
         }
+        private void TypeSelectorShow(MouseEventArgs e)
+        {
+            Parent.Controls.Remove(_API.TypeSelector);
+            if (_TypeSelector.Visible)
+            {
+                _API.IsTypeSelectorOpened = false;
+                _TypeSelector.Visible = false;
+                Parent.Invalidate();
+            }
+            else
+            {
+                _TypeSelector.Width = 80;
+                _TypeSelector.Height = 20;
+                _TypeSelector.Location = new Point(this.Location.X + 5, this.Location.Y + 5);
+                _TypeSelector.Visible = true;
+                _TypeSelector.Parent = this.Parent;
+                _API.TypeSelector = _TypeSelector;
+                _API.IsTypeSelectorOpened = true;
+                _TypeSelector.BringToFront();
+
+                foreach (var item in Parent.Controls)
+                {
+                    if (item.GetType() == typeof(VScrollBar) || item.GetType() == typeof(HScrollBar))
+                    {
+                        var a = (Control)item;
+                        a.BringToFront();
+                    }
+                }
+                
+
+            }
+        }
+        private void CheckColumnForMoving(MouseEventArgs e)
+        {
+            if (!_IsToMoving)
+            {
+                BackColor = Color.Coral;
+                _IsToMoving = true;
+                foreach (var item in NeighborCells)
+                {
+                    item._IsToMoving = false;
+                    item.BackColor = Parent.BackColor;
+                }
+            }
+            else if (_IsToMoving)
+            {
+                BackColor = Parent.BackColor;
+                _IsToMoving = false;
+            }
+        }
+        private void MoveOrChangeSorting(MouseEventArgs e)
+        {
+            bool MovingMode = false;
+            foreach (var item in NeighborCells)
+            {
+                if (item._IsToMoving == true)
+                {
+
+                    int newIndex = item.ColumnData.Index;
+                    item.ColumnData.Index = ColumnData.Index;
+                    item._IsToMoving = false;
+                    item.BackColor = Parent.BackColor;
+                    ColumnData.Index = newIndex;
+                    MovingMode = true;
+                    if (_API.SortedColumnIndex == item.ColumnData.Index)
+                    {
+                        _API.SortedColumnIndex = newIndex;
+                    }
+                    else if (_API.SortedColumnIndex == newIndex)
+                    {
+                        _API.SortedColumnIndex = item.ColumnData.Index;
+                    }
+                    break;
+                }
+            }
+            if (!MovingMode)
+            {
+                if (_API.SortedColumnIndex != ColumnData.Index)
+                {
+                    _API.SortDirection = SortDirections.None;
+                }
+                _API.SortedColumnIndex = ColumnData.Index;
+
+                ToggleSortDirection();
+
+            }
+            else
+            {
+                Parent.Invalidate();
+            }
+        }
         private void HeaderCell_MouseClick(object sender, MouseEventArgs e)
-        {         
-            // too complex IF-ELSE chain.
+        {
+           
             if (_API.IsEditorUsed)
-            {               
+            {
                 Parent.Controls.Remove(_API.EditorControl);
                 _API.IsEditorUsed = false;
 
             }
             else if (_API.IsTypeSelectorOpened)
             {
-                Parent.Controls.Remove(_API.TypeSelector);               
+                Parent.Controls.Remove(_API.TypeSelector);
                 _API.IsTypeSelectorOpened = false;
-            }          
+            }
             else
-                {
+            {
                 if (e.Button == MouseButtons.Middle)
                 {
-
-                    Parent.Controls.Remove(_API.TypeSelector);
-                    if (_TypeSelector.Visible)
-                    {
-                        _API.IsTypeSelectorOpened = false;
-                        _TypeSelector.Visible = false;
-                        Parent.Invalidate();
-                    }
-                    else
-                    {
-                        _TypeSelector.Width = 80;
-                        _TypeSelector.Height = 20;
-                        _TypeSelector.Location = new Point(this.Location.X + 5, this.Location.Y + 5);
-                        _TypeSelector.Visible = true;
-                        _TypeSelector.Parent = this.Parent;
-                        _API.TypeSelector = _TypeSelector;
-                        _API.IsTypeSelectorOpened = true;
-                        _TypeSelector.BringToFront();
-                       
-                    }
+                    TypeSelectorShow(e);
+                   
                 }
                 if (e.Button == MouseButtons.Left)
                 {
-                
-
-                    bool MovingMode = false;
-                    foreach (var item in NeighborCells)
-                    {
-                        if (item._IsToMoving == true)
-                        {
-                          
-                            int newIndex = item.ColumnData.Index;
-                            item.ColumnData.Index = ColumnData.Index;
-                            item._IsToMoving = false;
-                            item.BackColor = Parent.BackColor;
-                            ColumnData.Index = newIndex;
-                            MovingMode = true;
-                            if (_API.SortedColumnIndex == item.ColumnData.Index)
-                            {
-                                _API.SortedColumnIndex = newIndex;
-                            }
-                            else if (_API.SortedColumnIndex == newIndex)
-                            {
-                                _API.SortedColumnIndex = item.ColumnData.Index;
-                            }
-                            break;
-                        }
-                    }
-                    if (!MovingMode)
-                    {
-                        if (_API.SortedColumnIndex != ColumnData.Index)
-                        {
-                            _API.SortDirection = SortDirections.None;
-                        }
-                        _API.SortedColumnIndex = ColumnData.Index;
-                     
-                        ToggleSortDirection();
-
-                    }
-                    else
-                    {
-                       // _API.SortColumns();
-                        Parent.Invalidate();
-                    }
-
+                    MoveOrChangeSorting(e);                 
+                   
                 }
                 if (e.Button == MouseButtons.Right)
                 {
-                    if (!_IsToMoving)
-                    {
-                        BackColor = Color.Coral;
-                        _IsToMoving = true;
-                        foreach (var item in NeighborCells)
-                        {
-                            item._IsToMoving = false;
-                            item.BackColor = Parent.BackColor;
-                        }
-                    }
-                    else if (_IsToMoving)
-                    {
-                        BackColor = Parent.BackColor;
-                        _IsToMoving = false;
-                    }
-
-
+                    CheckColumnForMoving(e);
                 }
 
             }
