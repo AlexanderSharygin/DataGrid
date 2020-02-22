@@ -23,7 +23,8 @@ namespace Parser
         int _LineWidth = 1;
         int _FirstPrintedRowIndex = 0;
         int _VerticalScrollValueRatio = 10;
-        int _HorisontalScrollValueRatio = 1;
+        int _HorisontalScrollSmallChangeValueRatio = 10;
+        int __HorisontalScrollLargeChangeValueRatio;
         int _CellMinMargin = 2;
         int _TotalRowsCount;
         int _ViewPortRowsCount;
@@ -94,7 +95,15 @@ namespace Parser
             }
             if(e.Delta>0 && VerticalScrollBar.Value > VerticalScrollBar.Minimum)
             {
-                VerticalScrollBar.Value -= VerticalScrollBar.SmallChange;
+                if (VerticalScrollBar.Value >= VerticalScrollBar.SmallChange)
+                {
+                    VerticalScrollBar.Value -= VerticalScrollBar.SmallChange;
+                    if (VerticalScrollBar.Value < VerticalScrollBar.SmallChange)
+                    { 
+                        VerticalScrollBar.Value = VerticalScrollBar.Minimum;
+                    }
+                }
+               
             }    
         }
         
@@ -241,8 +250,13 @@ namespace Parser
                 VerticalScrollBar.LargeChange = _VerticalScrollValueRatio;
                 UpdateHorizontalScroll();
                 HorisontalScrollBar.Value = 0;
-                HorisontalScrollBar.SmallChange = _HorisontalScrollValueRatio;
-                HorisontalScrollBar.LargeChange = _HorisontalScrollValueRatio;
+                
+                if (_TableWidth > this.Width)
+                {
+                    __HorisontalScrollLargeChangeValueRatio = _TableWidth - this.Width;
+                }
+                HorisontalScrollBar.SmallChange = _HorisontalScrollSmallChangeValueRatio;
+                HorisontalScrollBar.LargeChange = __HorisontalScrollLargeChangeValueRatio;
                 CustomInvalidate();                  
                 _API.TypeSelector.Visible = false;              
 
@@ -569,7 +583,8 @@ namespace Parser
             if (_TableWidth >= viewportWidth)
             {
                 HorisontalScrollBar.Visible = true;
-                HorisontalScrollBar.Maximum = (int)(_TableWidth - viewportWidth + 1);
+                HorisontalScrollBar.Maximum = (int)(_TableWidth - viewportWidth + __HorisontalScrollLargeChangeValueRatio);
+              
             }
             else
             {
@@ -647,6 +662,21 @@ namespace Parser
                 }
                 VerticalScrollBar.Maximum = ((_TotalRowsCount - _ViewPortRowsCount) * _VerticalScrollValueRatio - 1);
                
+            }
+            if (_Editor != null)
+            {
+                var item = _API.Columns.Select(k => k).Where(k => k.Index == _Editor.ColumnIndex).Single();
+                int xstart = item.XStartPosition;           
+                _Editor.Location = new Point(xstart + _LineWidth, _Editor.Location.Y);
+               
+
+            }
+            if (_API.IsTypeSelectorOpened)
+            {
+                int xstart = _API.TypeSelector.ColumnData.XStartPosition;
+                _API.TypeSelector.Location = new Point(xstart + 5, _API.TypeSelector.Location.Y);
+
+
             }
             UpdateHorizontalScroll();
             Invalidate();
