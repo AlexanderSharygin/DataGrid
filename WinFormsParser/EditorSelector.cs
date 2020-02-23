@@ -14,12 +14,28 @@ namespace Parser
         private bool _Visible;
         private Control _Editor;
         private string DataFormat;
+        bool IsMultilain;
         public bool IsValidated { get; private set; } = true;
         public Font Font { get; set; }
         public int ColumnIndex { get; set; }
         public Cell BufferCell { get; }     
         public int Width { get => _Editor.Width; set  { _Width = value; _Editor.Width = _Width; } }        
-        public int Height { get => _Editor.Height; set { _Height = value; _Editor.Height = _Height; } }     
+        public int Height 
+        {
+            get => _Editor.Height; 
+            set 
+            {
+                if (IsMultilain)
+                {
+                    _Height = value*3;
+                }
+                else
+                {
+                    _Height = value;
+                }
+                _Editor.Height = _Height; 
+            } 
+        }     
         public Point Location { get=> _Editor.Location; set { _Location = value; _Editor.Location = _Location; } }
         public string OriginalValue { get; set; }      
         public string Value { get=>_Editor.Text; }
@@ -49,18 +65,51 @@ namespace Parser
         {
 
             if (ColumnType == typeof(string))
-            {
-                TextBox Editor = new TextBox()
+            
+          {
+                var text = BufferCell.Body;
+                IsMultilain = text.Contains(Environment.NewLine);
+                if (IsMultilain)
                 {
-                    Font = Font,
-                    AutoSize = false,
-                    Text = BufferCell.Body,
-                    TabIndex = 1,
-                    Enabled = true
-                };
-                Editor.Select(Editor.Text.Length, 0);
+                    RichTextBox Editor = new RichTextBox();
+                    Editor.Text = BufferCell.Body;
+                    Editor.Multiline = true;
+                    Editor.SelectionAlignment = HorizontalAlignment.Left;
+                    Editor.TabIndex = 1;
+                    Editor.Enabled = true;
+                    Editor.Select(Editor.Text.Length, 0);
+
+
+
+
+                    Editor.KeyUp += new KeyEventHandler(ValueField_KeyUp);
+                    _Editor = Editor;
+                }
+                else
+                {
+
+
+
+
+
+                    TextBox Editor = new TextBox()
+                    {
+                        Font = Font,
+                        AutoSize = false,
+                        Text = BufferCell.Body,
+                        TabIndex = 1,
+                        Enabled = true
+                        
+                    };
+                    Editor.Select(Editor.Text.Length, 0);
+                   
+                  
+                  
+                
+                
                 Editor.KeyUp += new KeyEventHandler(ValueField_KeyUp);
                 _Editor = Editor;
+                }
             }
             if (ColumnType == typeof(int))
             {

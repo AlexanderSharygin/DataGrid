@@ -5,7 +5,8 @@
     "Prefix": "Mr.",
     "Position": "CEO",
     "HireDate": "1995/01/15",
-    "Notes": "John has been in the Audio/Video industry since 1990. He has led DevAv as its CEO since 2003.\r\n\r\nWhen not working hard as the CEO, John loves to golf and bowl. He once bowled a perfect game of 300.",
+    "Notes": "John has been in the Audio/Video industry since 1990. He has led DevAv as its CEO since 2003.
+    When not working hard as the CEO, John loves to golf and bowl. He once bowled a perfect game of 300.",
     "Address": "351 S Hill St.",
     "StateID": 5
 }, {
