@@ -4,10 +4,18 @@ namespace Parser
 {
    public static class JSONParser
     {
+        public static void CreateObjects<T>(string inputText) where T: new ()
+        {
+            List<string> ObjectsText = SplitTextToObjects(inputText);
+            List<Dictionary<string, string>> objectsData = ParseObjectsText(ObjectsText);
+            List<T> Results = new List<T>();
+        }
         public static List<Dictionary<string,string>> ParseSimpleJSON(string inputText)
         {
             List<string> ObjectsText = SplitTextToObjects(inputText);
-            return ParseObjectsText(ObjectsText);
+            List<Dictionary<string, string>> Results = ParseObjectsText(ObjectsText);
+
+            return Results;
         }
         private static List<string> SplitTextToObjects(string inputText)
         {
