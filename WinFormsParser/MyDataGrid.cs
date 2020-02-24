@@ -58,9 +58,28 @@ namespace Parser
             HorisontalScrollBar.Value = 0;
             _Brush = new SolidBrush(ForeColor);
             _Pen = new Pen(LineColor, _LineWidth);
-            MouseWheel += MyDataGrid_MouseWheel;
+           MouseWheel += DataGridMouseWheel;
+            HorisontalScrollBar.MouseWheel += HorisontalScrollMouseWheel;
             Leave += MyDataGrid_LostFocus;
         }
+
+        private void HorisontalScrollMouseWheel(object sender, MouseEventArgs e)
+        {
+            UpdateColumnsPosition();
+            if (_Editor != null)
+            {
+                var item = _API.Columns.Select(k => k).Where(k => k.Index == _Editor.ColumnIndex).Single();
+                int xstart = item.XStartPosition;            
+                _Editor.Location = new Point(xstart + _LineWidth, _Editor.Location.Y);            
+            }
+            if (_API.IsTypeSelectorOpened)
+            {
+                var item = _API.Columns.Select(k => k).Where(k => k.Index == _API.TypeSelector.ColumnData.Index).Single();
+                int xstart = item.XStartPosition;
+                _API.TypeSelector.Location = new Point(xstart + 5, _API.TypeSelector.Location.Y);
+            }
+        }
+
         private void RemoveEditorFromControls(bool isDropChanges)
         {            
             var editorControl = _Editor?.GetControl();
@@ -87,7 +106,7 @@ namespace Parser
             CustomInvalidate();
         }
 
-        private void MyDataGrid_MouseWheel(object sender, MouseEventArgs e)
+        private void DataGridMouseWheel(object sender, MouseEventArgs e)
         {
             if (e.Delta < 0 && VerticalScrollBar.Value+VerticalScrollBar.SmallChange<VerticalScrollBar.Maximum)
             {
@@ -410,6 +429,7 @@ namespace Parser
             }
             if (_Editor != null)
             {
+   
                 Controls.Add(_Editor.GetControl());           
                 _API.EditorControl = _Editor.GetControl();
                 _API.IsEditorUsed = true;
@@ -442,7 +462,9 @@ namespace Parser
             {
                 SortBuferRows(); 
             }
-            Invalidate();           
+            VerticalScrollBar.Maximum = ((_TotalRowsCount - _ViewPortRowsCount) * _VerticalScrollValueRatio)-1;
+            Invalidate();
+        
         }
         private void SortBuferRows()
         {
@@ -517,6 +539,7 @@ namespace Parser
                         Controls.Remove(_Editor.GetControl());
                         _Editor = null;
                     }
+                   
                 }
                 int xCounterForLine = 0;                           
                 if (_ViewPortRowsCount > _Buffer.Count - 1)
@@ -548,13 +571,28 @@ namespace Parser
                                 string cellBody;
                                 if (TempCell.Body.Length < b.HeaderText.Length * Convert.ToInt32(Resources.ReductionRatio))
                                 {
-                                    cellBody=TempCell.Body;
+                                  
+                                    cellBody = TempCell.Body;
                                 }
                                 else
                                 {
-                                    cellBody = TempCell.Body.Substring(0, b.HeaderText.Length * Convert.ToInt32(Resources.ReductionRatio)) + Resources.Ellipsis;
+                                    var text = TempCell.Body.Substring(0, b.HeaderText.Length * Convert.ToInt32(Resources.ReductionRatio)) + Resources.Ellipsis;
+                                    if (text.Contains(Environment.NewLine))
+                                    {
+                                        text = text.Replace(Environment.NewLine, " ");
+                                    }
+                                    if (text.Contains("\r"))
+                                    {
+                                        text = text.Replace("\r", " ");
+                                    }
+                                    if (text.Contains("\n"))
+                                    {
+                                        text = text.Replace("\n", " ");
+                                    }
+                                    cellBody = text;
                                 }
                                 e.Graphics.DrawString(cellBody, this.Font, _Brush, xCounterForText - HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex) + (RowHeight - FontHeight) / 2);
+                               
                                 e.Graphics.DrawLine(_Pen, -HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex + 1), _TableWidth - HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex + 1));
                                 viewPortRowIndex++;
                                 bufferRowIndex++;
@@ -562,7 +600,7 @@ namespace Parser
 
                             }
                         }
-                        e.Graphics.DrawLine(_Pen, xCounterForLine - HorisontalScrollBar.Value, 0, xCounterForLine - HorisontalScrollBar.Value, RowHeight * (_ViewPortRowsCount + 1));
+                         e.Graphics.DrawLine(_Pen, xCounterForLine - HorisontalScrollBar.Value, 0, xCounterForLine - HorisontalScrollBar.Value, RowHeight * (_ViewPortRowsCount+1));
                         xCounterForLine += _LineWidth + _CellMinMargin + b.Width * (int)this.Font.Size + _CellMinMargin;
                         xCounterForText += b.Width * (int)Font.Size + _CellMinMargin + _LineWidth + _CellMinMargin;
                     }
@@ -660,14 +698,25 @@ namespace Parser
                     VerticalScrollBar.Minimum = 0;
                     VerticalScrollBar.Value = 0;
                 }
-                VerticalScrollBar.Maximum = ((_TotalRowsCount - _ViewPortRowsCount) * _VerticalScrollValueRatio - 1);
+                VerticalScrollBar.Maximum = ((_TotalRowsCount - _ViewPortRowsCount) * _VerticalScrollValueRatio) - 1;
                
             }
             if (_Editor != null)
             {
+                var viewportheight = this.Height;
+                if (HorisontalScrollBar.Visible)
+                {
+                    viewportheight = viewportheight - HorisontalScrollBar.Height;
+                }
                 var item = _API.Columns.Select(k => k).Where(k => k.Index == _Editor.ColumnIndex).Single();
                 int xstart = item.XStartPosition;           
                 _Editor.Location = new Point(xstart + _LineWidth, _Editor.Location.Y);
+                if (_Editor.Location.Y + _Editor.Height > _TotalRowsCount * _RowHeight && _Editor.Location.Y + _Editor.Height>this.Height)
+                {
+                   
+                    _Editor.Location = new Point(_Editor.Location.X, _Editor.Location.Y - _Editor.Height + RowHeight - _LineWidth);
+                }
+
                
 
             }
@@ -681,6 +730,7 @@ namespace Parser
             UpdateHorizontalScroll();
             Invalidate();
         }
+        int oldValue = 0;
         private void VScrollBar1_ValueChanged(object sender, EventArgs e)
         {
             _FirstPrintedRowIndex = VerticalScrollBar.Value / _VerticalScrollValueRatio;          
@@ -688,9 +738,13 @@ namespace Parser
             {
                 _FirstPrintedRowIndex = 0;
             }
+           
             if (_Editor != null)
-            {               
-                _Editor.Location = new Point(_Editor.Location.X, _Editor.DefaultPosition.Y-_FirstPrintedRowIndex*RowHeight);
+            {
+                  
+                _Editor.Location = new Point(_Editor.Location.X, _Editor.DefaultPosition.Y - _FirstPrintedRowIndex * RowHeight);
+                
+
                 _Editor.SetFocus();
             }
           
@@ -762,7 +816,13 @@ namespace Parser
                                 _Editor = null;
                                 UpdateColumnsPosition();
                             }                            
-                            EditorSelector editor = new EditorSelector(_Buffer[BuferRowIndex].Cells[BuferColumnIndex], item.DataType, item.DataFormat);                            
+                            EditorSelector editor = new EditorSelector(_Buffer[BuferRowIndex].Cells[BuferColumnIndex], item.DataType, item.DataFormat);
+
+                            if (_Buffer[BuferRowIndex].Cells[BuferColumnIndex].Body.Length > item.HeaderText.Length * Convert.ToInt32(Resources.ReductionRatio) || _Buffer[BuferRowIndex].Cells[BuferColumnIndex].Body.Contains(Environment.NewLine))
+                            {
+                                editor.IsMultilain = true;
+
+                            }
                             ColumnXStart = item.XStartPosition;
                             ColumnXEnd = item.XEndPosition;
                             editor.CreateControl();
@@ -770,8 +830,28 @@ namespace Parser
                             editor.Font = this.Font;
                             editor.Width = item.XEndPosition - item.XStartPosition;
                             editor.DefaultPosition = new Point(ColumnXStart + _LineWidth, _RowHeight * BuferRowIndex + _LineWidth);
+                         
+                            var viewportheight = this.Height;
+                            if (HorisontalScrollBar.Visible)
+                            {
+                                viewportheight = viewportheight - HorisontalScrollBar.Height;
+                            }                           
                             editor.Location = new Point(ColumnXStart + _LineWidth, _RowHeight * BuferRowIndex + _LineWidth-_FirstPrintedRowIndex*RowHeight);
-                            editor.Height = RowHeight - _LineWidth;
+                            if (editor.IsMultilain)
+                            {
+                                editor.Height = RowHeight * 3 - _LineWidth;
+                            }
+                            else
+                            {
+                                editor.Height = RowHeight - _LineWidth;
+                            }
+                            if (editor.Location.Y + editor.Height > viewportheight && _TotalRowsCount - BuferRowIndex<=1)
+                            {
+                                 editor.Location = new Point(editor.Location.X, editor.Location.Y - editor.Height+RowHeight-_LineWidth);
+                                
+                               
+
+                            }
                             editor.ColumnIndex = item.Index;
                             _Editor = editor;                          
                             break;

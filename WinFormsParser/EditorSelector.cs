@@ -14,7 +14,7 @@ namespace Parser
         private bool _Visible;
         private Control _Editor;
         private string DataFormat;
-        bool IsMultilain;
+      public  bool IsMultilain;
         public bool IsValidated { get; private set; } = true;
         public Font Font { get; set; }
         public int ColumnIndex { get; set; }
@@ -25,14 +25,9 @@ namespace Parser
             get => _Editor.Height; 
             set 
             {
-                if (IsMultilain)
-                {
-                    _Height = value*3;
-                }
-                else
-                {
+                
                     _Height = value;
-                }
+              
                 _Editor.Height = _Height; 
             } 
         }     
@@ -67,8 +62,7 @@ namespace Parser
             if (ColumnType == typeof(string))
             
           {
-                var text = BufferCell.Body;
-                IsMultilain = text.Contains(Environment.NewLine);
+                
                 if (IsMultilain)
                 {
                     RichTextBox Editor = new RichTextBox();
@@ -78,19 +72,11 @@ namespace Parser
                     Editor.TabIndex = 1;
                     Editor.Enabled = true;
                     Editor.Select(Editor.Text.Length, 0);
-
-
-
-
                     Editor.KeyUp += new KeyEventHandler(ValueField_KeyUp);
                     _Editor = Editor;
                 }
                 else
                 {
-
-
-
-
 
                     TextBox Editor = new TextBox()
                     {
@@ -103,10 +89,6 @@ namespace Parser
                     };
                     Editor.Select(Editor.Text.Length, 0);
                    
-                  
-                  
-                
-                
                 Editor.KeyUp += new KeyEventHandler(ValueField_KeyUp);
                 _Editor = Editor;
                 }
