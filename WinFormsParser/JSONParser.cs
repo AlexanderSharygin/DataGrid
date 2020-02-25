@@ -9,6 +9,7 @@ using Parser.Properties;
 
 namespace WinFormsParser
 {
+   
     public partial class Show_Button : Form
     {
         List<Dictionary<string, string>> _JSONObjects;
@@ -16,14 +17,30 @@ namespace WinFormsParser
         public Show_Button()
         {
             InitializeComponent();
-           _JSONObjects = new List<Dictionary<string, string>>();
+            _JSONObjects = new List<Dictionary<string, string>>();
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
             var inputText = File.ReadAllText("Files\\Data.txt");
-            _JSONObjects = JSONParser.ParseSimpleJSON(inputText);        
+            _JSONObjects = JSONParser.ParseSimpleJSON(inputText);
+            List<Workers> Workers = JSONParser.CreateObjects<Workers>(inputText);
+
         }
+        class Workers
+        {
+            public int  ID { get; set; }
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+            public string Prefix { get; set; }
+            public string Position { get; set; }
+            public DateTime BirthDate { get; set; }
+            public DateTime HireDate { get; set; }
+            public string Notes { get; set; }
+            public string Address { get; set; }
+            public int StateID { get; set; }
+        }
+        public DateTime BirthDate { get; set; }
         private List<List <string>> GetTable()
         {
             List<string> _AgregatedFields = _JSONObjects.SelectMany(j => j.Keys).Distinct().ToList();  

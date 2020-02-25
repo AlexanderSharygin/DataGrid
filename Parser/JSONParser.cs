@@ -1,14 +1,44 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace Parser
 {
    public static class JSONParser
     {
-        public static void CreateObjects<T>(string inputText) where T: new ()
+        public static List<T> CreateObjects<T>(string inputText) where T: new ()
         {
-            List<string> ObjectsText = SplitTextToObjects(inputText);
-            List<Dictionary<string, string>> objectsData = ParseObjectsText(ObjectsText);
+          
+            List<Dictionary<string, string>> objectsData = ParseSimpleJSON(inputText);
             List<T> Results = new List<T>();
+            for (int i = 0; i < objectsData.Count; i++)
+            {
+                var properties = TypeDescriptor.GetProperties(typeof(T));
+                var ResultObect = new T();
+                for (int j = 0; j < properties.Count; j++)
+                {
+                    PropertyDescriptor property = properties[j];
+                    string propertyName = property.Name;
+                    if (objectsData[i].ContainsKey(propertyName))
+                    {
+                        string propertyValue = objectsData[i][propertyName];
+                        properties[j].SetValue(ResultObect, Convert.ChangeType(propertyValue, properties[j].PropertyType));
+                    }
+                    else
+                    {
+
+                       // throw new KeyNotFoundException("Property: " + property.Name + " does not exist in object source data");
+                         properties[j].SetValue(ResultObect, null);
+                       
+                    }
+
+                  
+                   
+                }
+                Results.Add(ResultObect);
+          
+            }
+            return Results;
         }
         public static List<Dictionary<string,string>> ParseSimpleJSON(string inputText)
         {
