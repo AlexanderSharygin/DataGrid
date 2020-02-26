@@ -13,18 +13,20 @@ namespace WinFormsParser
     public partial class Show_Button : Form
     {
         List<Dictionary<string, string>> _JSONObjects;
+        List<Workers> _Workers;
         List<int> prev = new List<int>();
         public Show_Button()
         {
             InitializeComponent();
             _JSONObjects = new List<Dictionary<string, string>>();
+            _Workers = new List<Workers>();
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
             var inputText = File.ReadAllText("Files\\Data.txt");
             _JSONObjects = JSONParser.ParseSimpleJSON(inputText);
-            List<Workers> Workers = JSONParser.CreateObjects<Workers>(inputText);
+            _Workers = JSONParser.CreateObjects<Workers>(inputText);
 
         }
         class Workers
@@ -217,7 +219,8 @@ namespace WinFormsParser
         private void Button3_Click_1(object sender, EventArgs e)
         {
             DataTable.ColumnsAutoGeneration = true;
-            DataTable.Source = GetTable();
+            DataTable.Source = GetTable();                  
+            DataTable.ItemsSource = _Workers;
             LB_FieldsList.Items.Clear();
             CB_FieldsList1.Items.Clear();
             CB_FieldsList2.Items.Clear();

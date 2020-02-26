@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Collections;
 
 namespace Parser
 {
@@ -16,6 +17,69 @@ namespace Parser
     {
 
         List<List<string>> _Source;
+        IEnumerable _ItemsSource;
+        public IEnumerable ItemsSource 
+        { get
+            { return _ItemsSource; }
+            set
+            {
+                _ItemsSource = value;
+                List<ColumnDiscriptor> ColumnsTypes = new List<ColumnDiscriptor>();
+                List<List<string>> ColumnItems =  GetStringData(out ColumnsTypes);
+            }
+        }
+        class ColumnDiscriptor
+        {
+            public Type Type;
+            public string Name;
+        }
+        private List<List<string>> GetStringData(out List<ColumnDiscriptor> columns)
+        {
+            List<List<string>> StringData = new List<List<string>>();
+            List<ColumnDiscriptor> Columns = new List<ColumnDiscriptor>();
+            foreach (var item in ItemsSource)
+            {
+             
+                PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(item);
+                foreach (PropertyDescriptor prop in properties)
+                {
+                    ColumnDiscriptor cd = new ColumnDiscriptor();
+                    cd.Name = prop.Name;
+                    cd.Type = prop.PropertyType;
+                    bool isExist = false;
+                    foreach (var column in Columns)
+                    {
+                        isExist = column.Name.Equals(cd.Name);
+                        if (isExist)
+                        { break; }
+                    }
+                    if (!isExist)
+                    {
+                        Columns.Add(cd);
+                    }
+             
+                }
+            }
+           
+            columns = Columns;
+            for (int i = 0; i < Columns.Count; i++)
+            {
+                List<string> ColumnItems = new List<string>();
+                ColumnItems.Add(Columns[i].Name);
+                foreach (var item in ItemsSource)
+                {
+                  
+                    PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(item);
+                    var a = properties.Find(Columns[i].Name, false);
+                    if (a != null)
+                    {
+                        ColumnItems.Add(a.GetValue(item).ToString());
+                    }
+                }
+                StringData.Add(ColumnItems);
+            }
+            return StringData;
+        }
         List<Row> _Buffer;
         Source _API;
          EditorSelector _Editor;
