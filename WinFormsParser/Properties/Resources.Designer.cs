@@ -79,7 +79,7 @@ namespace Parser.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на yyyy/MM/dd.
+        ///   Ищет локализованную строку, похожую на yyyy.MM.dd.
         /// </summary>
         internal static string DefaultDataFormat {
             get {

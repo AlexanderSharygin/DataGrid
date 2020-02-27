@@ -13,6 +13,7 @@ using System.Collections;
 namespace Parser
 {
    [System.ComponentModel.DesignerCategory("Code")]
+   
     public partial class MyDataGrid : UserControl
     {
 
@@ -24,61 +25,91 @@ namespace Parser
             set
             {
                 _ItemsSource = value;
-                List<ColumnDiscriptor> ColumnsTypes = new List<ColumnDiscriptor>();
-                List<List<string>> ColumnItems =  GetStringData(out ColumnsTypes);
+                List<ColumnInfo> ColumnsInfo = GetColumnsInfo();
+                _Source =  GetStringSource(ColumnsInfo);
+                if (ColumnsAutoGeneration)
+                {
+                    Columns.Clear();
+                    _Buffer.Clear();                 
+                    foreach (var item in ColumnsInfo)
+                    {
+                        Columns.Add(new Column(item.Name, item.Type) { Visible = true });
+                    }
+                }
+
             }
         }
-        class ColumnDiscriptor
+       
+        private bool IsColumnAlreadyExist(ColumnInfo column, List<ColumnInfo> columnsList)
         {
-            public Type Type;
-            public string Name;
-        }
-        private List<List<string>> GetStringData(out List<ColumnDiscriptor> columns)
-        {
-            List<List<string>> StringData = new List<List<string>>();
-            List<ColumnDiscriptor> Columns = new List<ColumnDiscriptor>();
-            foreach (var item in ItemsSource)
+            bool isColumnExist = false;
+            foreach (var item in columnsList)
             {
-             
-                PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(item);
-                foreach (PropertyDescriptor prop in properties)
+                
+                isColumnExist = column.Name.Equals(item.Name);
+                if (isColumnExist)
                 {
-                    ColumnDiscriptor cd = new ColumnDiscriptor();
-                    cd.Name = prop.Name;
-                    cd.Type = prop.PropertyType;
-                    bool isExist = false;
-                    foreach (var column in Columns)
-                    {
-                        isExist = column.Name.Equals(cd.Name);
-                        if (isExist)
-                        { break; }
-                    }
-                    if (!isExist)
-                    {
-                        Columns.Add(cd);
-                    }
-             
+                    break; 
                 }
             }
-           
-            columns = Columns;
-            for (int i = 0; i < Columns.Count; i++)
+            return isColumnExist;
+        }
+        private List<ColumnInfo> GetColumnsInfo()
+        {
+          
+            List<ColumnInfo> columnsInfo = new List<ColumnInfo>();
+            foreach (var @object in ItemsSource)
             {
+                PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(@object);
+                foreach (PropertyDescriptor property in properties)
+                {
+                    ColumnInfo Column = new ColumnInfo();
+                    Column.Name = property.Name;
+                    Column.Type = property.PropertyType;
+                    if (!IsColumnAlreadyExist(Column, columnsInfo))
+                    {
+                        columnsInfo.Add(Column);
+                    }
+
+                }
+            }
+            return columnsInfo;
+
+        }
+        private List<List<string>> GetStringSource(List<ColumnInfo> columns)
+        {
+            List<List<string>> StringSource = new List<List<string>>();
+            for (int i = 0; i < columns.Count; i++)
+            {
+              
                 List<string> ColumnItems = new List<string>();
-                ColumnItems.Add(Columns[i].Name);
-                foreach (var item in ItemsSource)
-                {
-                  
-                    PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(item);
-                    var a = properties.Find(Columns[i].Name, false);
-                    if (a != null)
+                ColumnItems.Add(columns[i].Name);
+                foreach (var @object in ItemsSource)
+                {                  
+                    PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(@object);
+                    var property = properties.Find(columns[i].Name, false);
+                    if (property != null)
                     {
-                        ColumnItems.Add(a.GetValue(item).ToString());
+                        if (columns[i].Type == typeof(DateTime))
+                        {
+                            DateTime temp = (DateTime)property.GetValue(@object);
+                            string item = temp.ToString(Resources.DefaultDataFormat);
+                            ColumnItems.Add(item);
+
+                        }
+                        else
+                        {
+                            ColumnItems.Add(property.GetValue(@object).ToString());
+                        }
+                    }
+                    else
+                    {
+                        ColumnItems.Add("");
                     }
                 }
-                StringData.Add(ColumnItems);
+                StringSource.Add(ColumnItems);
             }
-            return StringData;
+            return StringSource;
         }
         List<Row> _Buffer;
         Source _API;
@@ -197,8 +228,8 @@ namespace Parser
                 return _API.Columns;
             }
         }
-        [DisplayName(@"Source")]
-        public object Source
+        //[DisplayName(@"Source")]
+       /* public object Source
         {
             get => _Source;
             set
@@ -218,7 +249,7 @@ namespace Parser
 
             }
 
-        }
+        }*/
         [DisplayName(@"ColumnsAutoGeneretion"), Description("Если value=true - колонки генерируются автоматически из коллекции Source"), DefaultValue(false)]
         public bool ColumnsAutoGeneration { get; set; } = false;
         public Color LineColor { get; set; }
@@ -794,7 +825,7 @@ namespace Parser
             UpdateHorizontalScroll();
             Invalidate();
         }
-        int oldValue = 0;
+      
         private void VScrollBar1_ValueChanged(object sender, EventArgs e)
         {
             _FirstPrintedRowIndex = VerticalScrollBar.Value / _VerticalScrollValueRatio;          
@@ -933,7 +964,12 @@ namespace Parser
 
         }
     }
-    
+    class ColumnInfo
+    {
+        public Type Type { get; set; }
+        public string Name { get; set; }
+    }
+
 }
 
 

@@ -1,84 +1,77 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Parser;
-using Parser.Properties;
+
 
 namespace WinFormsParser
 {
-   
+    class Worker
+    {
+        public int ID { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Prefix { get; set; }
+        public string Position { get; set; }
+        public DateTime BirthDate { get; set; }
+        public DateTime HireDate { get; set; }
+        public string Notes { get; set; }
+        public string Address { get; set; }
+        public int StateID { get; set; }
+    }
     public partial class Show_Button : Form
     {
         List<Dictionary<string, string>> _JSONObjects;
-        List<Workers> _Workers;
+        List<Worker> _Workers;
         List<int> prev = new List<int>();
         public Show_Button()
         {
             InitializeComponent();
             _JSONObjects = new List<Dictionary<string, string>>();
-            _Workers = new List<Workers>();
+            _Workers = new List<Worker>();
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
             var inputText = File.ReadAllText("Files\\Data.txt");
-            _JSONObjects = JSONParser.ParseSimpleJSON(inputText);
-            _Workers = JSONParser.CreateObjects<Workers>(inputText);
+            _Workers = JSONParser.CreateObjects<Worker>(inputText);
 
         }
-        class Workers
+        private List<string> GetAggregatedFields()
         {
-            public int  ID { get; set; }
-            public string FirstName { get; set; }
-            public string LastName { get; set; }
-            public string Prefix { get; set; }
-            public string Position { get; set; }
-            public DateTime BirthDate { get; set; }
-            public DateTime HireDate { get; set; }
-            public string Notes { get; set; }
-            public string Address { get; set; }
-            public int StateID { get; set; }
-        }
-        public DateTime BirthDate { get; set; }
-        private List<List <string>> GetTable()
-        {
-            List<string> _AgregatedFields = _JSONObjects.SelectMany(j => j.Keys).Distinct().ToList();  
-            List<List <string>> Table = new List<List<string>>();           
-            foreach (var item in _AgregatedFields)
+
+            List<string> fields = new List<string>();
+            foreach (var worker in _Workers)
             {
-                List<string> temp = new List<string>();
-                temp.Add(item);
-                foreach (var obj in _JSONObjects)
+                PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(worker);
+                foreach (PropertyDescriptor property in properties)
                 {
-                    if (obj.ContainsKey(item))
-                    {                      
-                            temp.Add(obj[item]);                    
-                    }
-                    else
+                    ColumnInfo Column = new ColumnInfo();
+                    string item = property.Name;
+                    if (!fields.Contains(item))
                     {
-                       temp.Add(Resources.UndefinedFieldText);
+                        fields.Add(item);
                     }
-                   
+
                 }
-                Table.Add(temp);
             }
-            return Table;          
-             
+            return fields;
         }
-      
+
 
         private void LB_FieldsList_MouseClick(object sender, EventArgs e)
-        {          
+        {
             var a = LB_FieldsList.SelectedItems;
             List<string> SelectedItems = new List<string>();
             foreach (var item in a)
             {
                 SelectedItems.Add(item.ToString());
             }
-             var b = LB_FieldsList.Items;
+            var b = LB_FieldsList.Items;
             List<string> AllItems = new List<string>();
             foreach (var item in b)
             {
@@ -103,26 +96,25 @@ namespace WinFormsParser
                         column.Visible = false;
                     }
                 }
-            }        
+            }
 
         }
 
         private void Button1_Click(object sender, EventArgs e)
         {
-            var table = GetTable();
-            DataTable.ColumnsAutoGeneration = false;           
-            DataTable.Source = table;
-            List<string> AggregatedObjectsFields = table.Select(k => k.First()).ToList();              
 
-            List<string> selectedItems = new List<string>();            
+            DataTable.ColumnsAutoGeneration = false;
+            DataTable.ItemsSource = _Workers;
+            List<string> AggregatedObjectsFields = GetAggregatedFields();
+
             foreach (var item in AggregatedObjectsFields)
-          {
-              
-             DataTable.Columns.Add(new Column(item, typeof(string)) { Visible = false });
-              
-           }      
+            {
+
+                DataTable.Columns.Add(new Column(item, typeof(string)) { Visible = false });
+
+            }
             LB_FieldsList.Items.Clear();
-             CB_FieldsList1.Items.Clear();
+            CB_FieldsList1.Items.Clear();
             CB_FieldsList2.Items.Clear();
             foreach (var item in DataTable.Columns)
             {
@@ -139,13 +131,13 @@ namespace WinFormsParser
                 CB_FieldsList2.Items.Add(item.HeaderText);
             }
             CB_FieldsList2.Text = "";
-            NU_FieldsIndexes.Maximum = DataTable.Columns.Count-1;
-        }     
+            NU_FieldsIndexes.Maximum = DataTable.Columns.Count - 1;
+        }
 
         private void Button2_Click(object sender, EventArgs e)
         {
-          
-            if (CB_SortDirection.SelectedItem.ToString()=="ASC")
+
+            if (CB_SortDirection.SelectedItem.ToString() == "ASC")
             {
                 DataTable.ChangeSorting((string)CB_FieldsList1.SelectedItem, SortDirections.ASC);
             }
@@ -161,16 +153,16 @@ namespace WinFormsParser
             }
         }
         private void Remove_Click(object sender, EventArgs e)
-        {           
-           DataTable.RemoveColumnByName(CB_FieldsList2.SelectedItem.ToString()) ;
+        {
+            DataTable.RemoveColumnByName(CB_FieldsList2.SelectedItem.ToString());
             LB_FieldsList.Items.Remove(CB_FieldsList2.SelectedItem.ToString());
             UpdateUI();
-        }      
+        }
         private void Button1_Click_1(object sender, EventArgs e)
-        {    
-           string temp = DataTable.Columns[(int)NU_FieldsIndexes.Value].HeaderText;
-           DataTable.Columns.RemoveAt(DataTable.Columns[(int)NU_FieldsIndexes.Value].Index);
-           LB_FieldsList.Items.Remove(temp);
+        {
+            string temp = DataTable.Columns[(int)NU_FieldsIndexes.Value].HeaderText;
+            DataTable.Columns.RemoveAt(DataTable.Columns[(int)NU_FieldsIndexes.Value].Index);
+            LB_FieldsList.Items.Remove(temp);
             temp = "";
             UpdateUI();
 
@@ -196,7 +188,8 @@ namespace WinFormsParser
         private void Button3_Click(object sender, EventArgs e)
         {
             DataTable.ColumnsAutoGeneration = true;
-            DataTable.Source = GetTable();           
+
+            DataTable.ItemsSource = _Workers;
             LB_FieldsList.Items.Clear();
             foreach (var item in DataTable.Columns)
             {
@@ -205,7 +198,7 @@ namespace WinFormsParser
                 if (item.Visible)
                 {
                     LB_FieldsList.SelectedItems.Add(item.HeaderText);
-                    
+
                 }
                 CB_FieldsList1.Items.Add(item.HeaderText);
                 CB_FieldsList2.Items.Add(item.HeaderText);
@@ -219,7 +212,7 @@ namespace WinFormsParser
         private void Button3_Click_1(object sender, EventArgs e)
         {
             DataTable.ColumnsAutoGeneration = true;
-            DataTable.Source = GetTable();                  
+
             DataTable.ItemsSource = _Workers;
             LB_FieldsList.Items.Clear();
             CB_FieldsList1.Items.Clear();
@@ -242,8 +235,8 @@ namespace WinFormsParser
             NU_FieldsIndexes.Maximum = DataTable.Columns.Count - 1;
         }
 
-        
 
-      
+
+
     }
 }

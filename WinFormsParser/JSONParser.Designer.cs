@@ -107,7 +107,7 @@
             this.DataTable.Name = "DataTable";
             this.DataTable.RowHeight = 18;
             this.DataTable.Size = new System.Drawing.Size(532, 556);
-            this.DataTable.Source = ((object)(resources.GetObject("DataTable.Source")));
+        //    this.DataTable.Source = ((object)(resources.GetObject("DataTable.Source")));
             this.DataTable.TabIndex = 1;
           
             // 

@@ -6,45 +6,37 @@ namespace Parser
 {
    public static class JSONParser
     {
-        public static List<T> CreateObjects<T>(string inputText) where T: new ()
+        public static List<T> CreateObjects<T>(string inputText) where T : new()
         {
-          
-            List<Dictionary<string, string>> objectsData = ParseSimpleJSON(inputText);
+            List<string> objectsText = SplitTextToObjects(inputText);
+            List<Dictionary<string, string>> objectsData = ParseObjectsText(objectsText);
             List<T> Results = new List<T>();
-            for (int i = 0; i < objectsData.Count; i++)
+            foreach (var objectData in objectsData)
             {
-                var properties = TypeDescriptor.GetProperties(typeof(T));
+                var propertiesList = TypeDescriptor.GetProperties(typeof(T));
                 var ResultObect = new T();
-                for (int j = 0; j < properties.Count; j++)
+                foreach (PropertyDescriptor property in propertiesList)
                 {
-                    PropertyDescriptor property = properties[j];
                     string propertyName = property.Name;
-                    if (objectsData[i].ContainsKey(propertyName))
+                    if (objectData.ContainsKey(propertyName))
                     {
-                        string propertyValue = objectsData[i][propertyName];
-                        properties[j].SetValue(ResultObect, Convert.ChangeType(propertyValue, properties[j].PropertyType));
+                        string propertyValue = objectData[propertyName];
+                        property.SetValue(ResultObect, Convert.ChangeType(propertyValue, property.PropertyType));
                     }
                     else
                     {
-
-                       // throw new KeyNotFoundException("Property: " + property.Name + " does not exist in object source data");
-                         properties[j].SetValue(ResultObect, null);
-                       
+                        throw new KeyNotFoundException("Property: " + property.Name + " does not exist in object source data");
                     }
-
-                  
-                   
                 }
                 Results.Add(ResultObect);
-          
             }
             return Results;
         }
+
         public static List<Dictionary<string,string>> ParseSimpleJSON(string inputText)
         {
             List<string> ObjectsText = SplitTextToObjects(inputText);
             List<Dictionary<string, string>> Results = ParseObjectsText(ObjectsText);
-
             return Results;
         }
         private static List<string> SplitTextToObjects(string inputText)

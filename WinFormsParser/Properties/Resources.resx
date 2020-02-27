@@ -154,6 +154,6 @@ Space - Adding a field to the ones displayed in the table.</value>
     <value>..\Resources\Down.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="DefaultDataFormat" xml:space="preserve">
-    <value>yyyy/MM/dd</value>
+    <value>yyyy.MM.dd</value>
   </data>
 </root>
