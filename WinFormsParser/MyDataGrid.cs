@@ -25,11 +25,14 @@ namespace Parser
             set
             {
                 _ItemsSource = value;
+                // it seems that you are using too many abstractions over grid columns.
+                // they require you to write a lot of code to maintain them.
                 List<ColumnInfo> ColumnsInfo = GetColumnsInfo();
                 _Source =  GetStringSource(ColumnsInfo);
                 if (ColumnsAutoGeneration)
                 {
                     Columns.Clear();
+                    // at this step, it's not obvious where you are reinitializing the buffer. It looks like this operation should not be here.
                     _Buffer.Clear();                 
                     foreach (var item in ColumnsInfo)
                     {
@@ -39,7 +42,7 @@ namespace Parser
 
             }
         }
-       
+       // trivial code. use Dictionary or something
         private bool IsColumnAlreadyExist(ColumnInfo column, List<ColumnInfo> columnsList)
         {
             bool isColumnExist = false;
@@ -58,6 +61,7 @@ namespace Parser
         {
           
             List<ColumnInfo> columnsInfo = new List<ColumnInfo>();
+            // you don't need loop
             foreach (var @object in ItemsSource)
             {
                 PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(@object);
@@ -158,6 +162,7 @@ namespace Parser
             Leave += MyDataGrid_LostFocus;
         }
 
+        // wrong name!
         private void HorisontalScrollMouseWheel(object sender, MouseEventArgs e)
         {
             UpdateColumnsPosition();
@@ -404,12 +409,14 @@ namespace Parser
                     var a = _Buffer.First().Cells.Select(k => k.Body).ToList();
                     if (a.IndexOf(_API.Columns[i].HeaderText) == -1)
                     {
+                        // шта?
                         throw new Exception("Невозможно добавить колонкe отсутствую в источнике данных source");
                     }
                 }
                 UpdateScrolls();
                 foreach (var item in Columns)
                 {
+                    // very strange code and API. events aren't usually accompanied with flags.
                     if (!item.IsSignedToPropertyChange)
                     {
                         item.PropertyChanged += ColumnPropertyChanged;
