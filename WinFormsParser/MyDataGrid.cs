@@ -12,19 +12,26 @@ using System.Collections;
 
 namespace Parser
 {
-   [System.ComponentModel.DesignerCategory("Code")]
-   
+
+    [System.ComponentModel.DesignerCategory("Code")]
+
+
     public partial class MyDataGrid : UserControl
     {
 
         List<List<string>> _Source;
-        IEnumerable _ItemsSource;
+        IEnumerable _ItemsSource; 
+        public int BuferSize { get; set; } = 100;
+        int _Page = 1;
         public IEnumerable ItemsSource 
         { get
             { return _ItemsSource; }
             set
             {
+              
                 _ItemsSource = value;
+              
+              
                 // it seems that you are using too many abstractions over grid columns.
                 // they require you to write a lot of code to maintain them.
                 List<ColumnInfo> ColumnsInfo = GetColumnsInfo();

@@ -52,9 +52,18 @@
     <Reference Include="AWSSDK, Version=2.3.55.2, Culture=neutral, PublicKeyToken=9f476d3089b52be3, processorArchitecture=MSIL">
       <HintPath>..\Parser\packages\AWSSDK.2.3.55.2\lib\net45\AWSSDK.dll</HintPath>
     </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\Parser\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\Parser\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -76,6 +85,7 @@
     <Compile Include="JSONParser.Designer.cs">
       <DependentUpon>JSONParser.cs</DependentUpon>
     </Compile>
+    <Compile Include="Model1.cs" />
     <Compile Include="MyDataGrid.cs" />
     <Compile Include="MyDataGrid.Designer.cs">
       <DependentUpon>MyDataGrid.cs</DependentUpon>
@@ -93,6 +103,8 @@
     <Compile Include="TypeSelector.Designer.cs">
       <DependentUpon>TypeSelector.cs</DependentUpon>
     </Compile>
+    <Compile Include="Workers.cs" />
+    <Compile Include="WorkersSmall.cs" />
     <EmbeddedResource Include="HeaderCell.resx">
       <DependentUpon>HeaderCell.cs</DependentUpon>
     </EmbeddedResource>

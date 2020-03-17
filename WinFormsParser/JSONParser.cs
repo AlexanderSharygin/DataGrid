@@ -10,35 +10,26 @@ using Parser;
 
 namespace WinFormsParser
 {
-    class Worker
-    {
-        public int ID { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Prefix { get; set; }
-        public string Position { get; set; }
-        public DateTime BirthDate { get; set; }
-        public DateTime HireDate { get; set; }
-        public string Notes { get; set; }
-        public string Address { get; set; }
-        public int StateID { get; set; }
-    }
+   
     public partial class Show_Button : Form
     {
         List<Dictionary<string, string>> _JSONObjects;
         List<Worker> _Workers;
+        List<Worker> _DBWorkers;
         List<int> prev = new List<int>();
         public Show_Button()
         {
             InitializeComponent();
             _JSONObjects = new List<Dictionary<string, string>>();
             _Workers = new List<Worker>();
+           
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
             var inputText = File.ReadAllText("Files\\Data.txt");
             _Workers = JSONParser.CreateObjects<Worker>(inputText);
+         
 
         }
         private List<string> GetAggregatedFields()
@@ -212,8 +203,12 @@ namespace WinFormsParser
         private void Button3_Click_1(object sender, EventArgs e)
         {
             DataTable.ColumnsAutoGeneration = true;
-
-            DataTable.ItemsSource = _Workers;
+            using (Model1 DBData = new Model1())
+            {
+                var Data = DBData.Workers.Where(k => k.Id < 2000).ToList();
+          
+            DataTable.ItemsSource = Data;
+            }
             LB_FieldsList.Items.Clear();
             CB_FieldsList1.Items.Clear();
             CB_FieldsList2.Items.Clear();
@@ -238,5 +233,18 @@ namespace WinFormsParser
 
 
 
+    }
+    class Worker
+    {
+        public int ID { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Prefix { get; set; }
+        public string Position { get; set; }
+        public DateTime BirthDate { get; set; }
+        public DateTime HireDate { get; set; }
+        public string Notes { get; set; }
+        public string Address { get; set; }
+        public int StateID { get; set; }
     }
 }
