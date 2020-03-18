@@ -20,17 +20,16 @@ namespace Parser
     {
 
         List<List<string>> _Source;
-        IEnumerable _ItemsSource; 
+        IEnumerable<object> _ItemsSource; 
         public int BuferSize { get; set; } = 100;
         int _Page = 1;
-        public IEnumerable ItemsSource 
+        public IEnumerable<object> ItemsSource 
         { get
             { return _ItemsSource; }
             set
             {
               
-                _ItemsSource = value;
-              
+                _ItemsSource = value;              
               
                 // it seems that you are using too many abstractions over grid columns.
                 // they require you to write a lot of code to maintain them.
@@ -66,36 +65,35 @@ namespace Parser
         }
         private List<ColumnInfo> GetColumnsInfo()
         {
-          
-            List<ColumnInfo> columnsInfo = new List<ColumnInfo>();
-            // you don't need loop
-            foreach (var @object in ItemsSource)
-            {
-                PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(@object);
-                foreach (PropertyDescriptor property in properties)
-                {
-                    ColumnInfo Column = new ColumnInfo();
-                    Column.Name = property.Name;
-                    Column.Type = property.PropertyType;
-                    if (!IsColumnAlreadyExist(Column, columnsInfo))
-                    {
-                        columnsInfo.Add(Column);
-                    }
 
+            List<ColumnInfo> columnsInfo = new List<ColumnInfo>();
+            var @object = ItemsSource.First();
+            PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(@object);
+            foreach (PropertyDescriptor property in properties)
+            {
+                ColumnInfo Column = new ColumnInfo();
+                Column.Name = property.Name;
+                Column.Type = property.PropertyType;
+                if (!IsColumnAlreadyExist(Column, columnsInfo))
+                {
+                    columnsInfo.Add(Column);
                 }
+
             }
+
             return columnsInfo;
 
         }
         private List<List<string>> GetStringSource(List<ColumnInfo> columns)
         {
-            List<List<string>> StringSource = new List<List<string>>();
+            List<List<string>> StringSource = new List<List<string>>(BuferSize);
             for (int i = 0; i < columns.Count; i++)
             {
               
                 List<string> ColumnItems = new List<string>();
                 ColumnItems.Add(columns[i].Name);
-                foreach (var @object in ItemsSource)
+                var items = _ItemsSource.Take(BuferSize);
+                foreach (var @object in items)
                 {                  
                     PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(@object);
                     var property = properties.Find(columns[i].Name, false);
@@ -240,28 +238,7 @@ namespace Parser
                 return _API.Columns;
             }
         }
-        //[DisplayName(@"Source")]
-       /* public object Source
-        {
-            get => _Source;
-            set
-            {
-                _Source = (List<List<string>>)value;                
-                if (ColumnsAutoGeneration)
-                {
-                    Columns.Clear();
-                    _Buffer.Clear();
-                    List<string> AggregatedObjectsFields = _Source.Select(k => k.First()).ToList();
-                    List<string> selectedItems = new List<string>();
-                    foreach (var item in AggregatedObjectsFields)
-                    {
-                        Columns.Add(new Column(item, typeof(string)) { Visible = true });
-                    }
-                }
-
-            }
-
-        }*/
+      
         [DisplayName(@"ColumnsAutoGeneretion"), Description("Если value=true - колонки генерируются автоматически из коллекции Source"), DefaultValue(false)]
         public bool ColumnsAutoGeneration { get; set; } = false;
         public Color LineColor { get; set; }
@@ -356,7 +333,7 @@ namespace Parser
         {
             if (_API.Columns.Count > 0)
             {
-                _TotalRowsCount = _Buffer.Count;
+                _TotalRowsCount = _ItemsSource.Count();
                 _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;
                 if (_TableWidth > this.Width)
                 {
@@ -855,6 +832,48 @@ namespace Parser
                 
 
                 _Editor.SetFocus();
+            }
+            if (VerticalScrollBar.Value / _VerticalScrollValueRatio >= BuferSize-_ViewPortRowsCount)
+            {
+                _Page++;
+                List<ColumnInfo> columns = GetColumnsInfo();
+                List<List<string>> StringSource = new List<List<string>>(BuferSize);
+                for (int i = 0; i < columns.Count; i++)
+                {
+
+                    List<string> ColumnItems = new List<string>();
+                    var items = _ItemsSource.Skip(BuferSize*_Page).Take(BuferSize);
+                    foreach (var @object in items)
+                    {
+                        PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(@object);
+                        var property = properties.Find(columns[i].Name, false);
+                        if (property != null)
+                        {
+                            if (columns[i].Type == typeof(DateTime))
+                            {
+                                DateTime temp = (DateTime)property.GetValue(@object);
+                                string item = temp.ToString(Resources.DefaultDataFormat);
+                                ColumnItems.Add(item);
+
+                            }
+                            else
+                            {
+                               ColumnItems.Add(property.GetValue(@object).ToString());
+                            }
+                        }
+                        else
+                        {
+                           ColumnItems.Add("");
+                        }
+                    }
+                   _Source[i].AddRange(ColumnItems);
+                }
+                _Buffer.Clear();
+                for (int  i = 0;  i <_Source.Count;  i++)
+                {
+                    AddToBufer(_Source[i].First());
+                }
+
             }
           
             Invalidate();
