@@ -20,7 +20,8 @@ namespace Parser
     {
 
         List<List<string>> _Source;
-        IEnumerable<object> _ItemsSource; 
+        IEnumerable<object> _ItemsSource;
+        Page _PageDescriptor;
         public int BuferSize { get; set; } = 100;
         int _Page = 1;
         public IEnumerable<object> ItemsSource 
@@ -139,6 +140,7 @@ namespace Parser
         public MyDataGrid()
         {
 
+           
             AutoScaleMode = AutoScaleMode.None;
             InitializeComponent();           
             _Source = new List<List<string>>();
@@ -162,6 +164,7 @@ namespace Parser
             HorisontalScrollBar.Value = 0;
             _Brush = new SolidBrush(ForeColor);
             _Pen = new Pen(LineColor, _LineWidth);
+            _PageDescriptor = new Page() { Number = 1, StartIndex = 0, EndIndex = BuferSize };
            MouseWheel += DataGridMouseWheel;
             HorisontalScrollBar.MouseWheel += HorisontalScrollMouseWheel;
             Leave += MyDataGrid_LostFocus;
@@ -819,10 +822,14 @@ namespace Parser
       
         private void VScrollBar1_ValueChanged(object sender, EventArgs e)
         {
-            _FirstPrintedRowIndex = VerticalScrollBar.Value / _VerticalScrollValueRatio;          
+            
+            _FirstPrintedRowIndex = VerticalScrollBar.Value / _VerticalScrollValueRatio-((_PageDescriptor.StartIndex-_ViewPortRowsCount)*(_PageDescriptor.Number-1));
+            if (_PageDescriptor.Number>1)
+            { _FirstPrintedRowIndex++; }
             if (VerticalScrollBar.Value < 0)
             {
                 _FirstPrintedRowIndex = 0;
+               
             }
            
             if (_Editor != null)
@@ -832,17 +839,21 @@ namespace Parser
                 
 
                 _Editor.SetFocus();
+              
             }
-            if (VerticalScrollBar.Value / _VerticalScrollValueRatio >= BuferSize-_ViewPortRowsCount)
+            if (VerticalScrollBar.Value / _VerticalScrollValueRatio >= _PageDescriptor.EndIndex-_ViewPortRowsCount)
             {
-                _Page++;
+                _PageDescriptor.Number++;
+              
+                
+
                 List<ColumnInfo> columns = GetColumnsInfo();
                 List<List<string>> StringSource = new List<List<string>>(BuferSize);
                 for (int i = 0; i < columns.Count; i++)
                 {
 
                     List<string> ColumnItems = new List<string>();
-                    var items = _ItemsSource.Skip(BuferSize*_Page).Take(BuferSize);
+                    var items = _ItemsSource.Skip(_PageDescriptor.EndIndex-1).Take(BuferSize-_ViewPortRowsCount);
                     foreach (var @object in items)
                     {
                         PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(@object);
@@ -866,14 +877,26 @@ namespace Parser
                            ColumnItems.Add("");
                         }
                     }
-                   _Source[i].AddRange(ColumnItems);
+                    List<string> viewPortItems = new List<string>();
+                    for (int j = _PageDescriptor.EndIndex- _ViewPortRowsCount; j < _PageDescriptor.EndIndex; j++)
+                    {
+                        viewPortItems.Add(_Source[i][j]);
+                    }
+                    var a =_Source[i].First();
+                    _Source[i].Clear();
+                    _Source[i].Add(a);
+                    _Source[i].AddRange(viewPortItems);
+                    _Source[i].AddRange(ColumnItems);
                 }
+               // _FirstPrintedRowIndex = VerticalScrollBar.Value / _VerticalScrollValueRatio - ((_PageDescriptor.StartIndex - _ViewPortRowsCount) * (_PageDescriptor.Number - 1));
+                _FirstPrintedRowIndex = 1;
                 _Buffer.Clear();
                 for (int  i = 0;  i <_Source.Count;  i++)
                 {
                     AddToBufer(_Source[i].First());
                 }
-
+                _PageDescriptor.StartIndex = _PageDescriptor.EndIndex;
+                _PageDescriptor.EndIndex += BuferSize;
             }
           
             Invalidate();
@@ -912,7 +935,7 @@ namespace Parser
               
 
             }
-            Invalidate();
+            //Invalidate();
         }
            
         private void MyDataGrid_MouseClick(object sender, MouseEventArgs e)
@@ -1001,6 +1024,12 @@ namespace Parser
     {
         public Type Type { get; set; }
         public string Name { get; set; }
+    }
+    class Page
+    {
+        public int Number { get; set; }
+        public int StartIndex { get; set; }
+        public int EndIndex { get; set; }
     }
 
 }
