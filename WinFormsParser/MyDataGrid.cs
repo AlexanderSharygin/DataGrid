@@ -166,12 +166,12 @@ namespace Parser
             _Pen = new Pen(LineColor, _LineWidth);
             _PageDescriptor = new Page() { Number = 1, StartIndex = 0, EndIndex = BuferSize };
            MouseWheel += DataGridMouseWheel;
-            HorisontalScrollBar.MouseWheel += HorisontalScrollMouseWheel;
+            HorisontalScrollBar.MouseWheel += HorizontalScrollMouseWheel;
             Leave += MyDataGrid_LostFocus;
         }
 
-        // wrong name!
-        private void HorisontalScrollMouseWheel(object sender, MouseEventArgs e)
+       
+        private void HorizontalScrollMouseWheel(object sender, MouseEventArgs e)
         {
             UpdateColumnsPosition();
             if (_Editor != null)
@@ -396,8 +396,8 @@ namespace Parser
                     var a = _Buffer.First().Cells.Select(k => k.Body).ToList();
                     if (a.IndexOf(_API.Columns[i].HeaderText) == -1)
                     {
-                        // шта?
-                        throw new Exception("Невозможно добавить колонкe отсутствую в источнике данных source");
+                   
+                        throw new Exception("Невозможно добавить колонку отсутствующую в источнике данных source");
                     }
                 }
                 UpdateScrolls();
@@ -823,9 +823,9 @@ namespace Parser
         private void VScrollBar1_ValueChanged(object sender, EventArgs e)
         {
             
-            _FirstPrintedRowIndex = VerticalScrollBar.Value / _VerticalScrollValueRatio-((_PageDescriptor.StartIndex-_ViewPortRowsCount)*(_PageDescriptor.Number-1));
+            _FirstPrintedRowIndex = VerticalScrollBar.Value / _VerticalScrollValueRatio-(_PageDescriptor.StartIndex-(_ViewPortRowsCount*(_PageDescriptor.Number-1)));
             if (_PageDescriptor.Number>1)
-            { _FirstPrintedRowIndex++; }
+           { _FirstPrintedRowIndex++; }
             if (VerticalScrollBar.Value < 0)
             {
                 _FirstPrintedRowIndex = 0;
@@ -841,11 +841,14 @@ namespace Parser
                 _Editor.SetFocus();
               
             }
-            if (VerticalScrollBar.Value / _VerticalScrollValueRatio >= _PageDescriptor.EndIndex-_ViewPortRowsCount)
+           
+
+           
+            if ((VerticalScrollBar.Value / _VerticalScrollValueRatio >= _PageDescriptor.EndIndex-_ViewPortRowsCount*_PageDescriptor.Number))
             {
-                _PageDescriptor.Number++;
-              
-                
+              //  _PageDescriptor.ScrollPrevValue = VerticalScrollBar.Value;
+
+
 
                 List<ColumnInfo> columns = GetColumnsInfo();
                 List<List<string>> StringSource = new List<List<string>>(BuferSize);
@@ -853,7 +856,12 @@ namespace Parser
                 {
 
                     List<string> ColumnItems = new List<string>();
-                    var items = _ItemsSource.Skip(_PageDescriptor.EndIndex-1).Take(BuferSize-_ViewPortRowsCount);
+                    int k = _PageDescriptor.EndIndex -1 - _ViewPortRowsCount * (_PageDescriptor.Number - 1);
+                  if (_PageDescriptor.Number >1)
+                  {
+                       k=k-_PageDescriptor.Number+1;
+                   }
+                    var items = _ItemsSource.Skip(k).Take(BuferSize-_ViewPortRowsCount);
                     foreach (var @object in items)
                     {
                         PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(@object);
@@ -878,9 +886,11 @@ namespace Parser
                         }
                     }
                     List<string> viewPortItems = new List<string>();
-                    for (int j = _PageDescriptor.EndIndex- _ViewPortRowsCount; j < _PageDescriptor.EndIndex; j++)
+
+                    for (int j = _PageDescriptor.EndIndex - _ViewPortRowsCount * _PageDescriptor.Number; j < _PageDescriptor.EndIndex - _ViewPortRowsCount * (_PageDescriptor.Number - 1); j++)
                     {
-                        viewPortItems.Add(_Source[i][j]);
+
+                        viewPortItems.Add(_Source[i][j-(_PageDescriptor.StartIndex-_ViewPortRowsCount*(_PageDescriptor.Number-1))]);
                     }
                     var a =_Source[i].First();
                     _Source[i].Clear();
@@ -895,10 +905,77 @@ namespace Parser
                 {
                     AddToBufer(_Source[i].First());
                 }
+                _PageDescriptor.PreviousEndIndex = _PageDescriptor.EndIndex - _ViewPortRowsCount * (_PageDescriptor.Number );
+                _PageDescriptor.Number++;                
                 _PageDescriptor.StartIndex = _PageDescriptor.EndIndex;
                 _PageDescriptor.EndIndex += BuferSize;
+            
             }
-          
+           else if (VerticalScrollBar.Value / _VerticalScrollValueRatio <= _PageDescriptor.PreviousEndIndex)
+            {
+                List<ColumnInfo> columns = GetColumnsInfo();
+                List<List<string>> StringSource = new List<List<string>>(BuferSize);
+                for (int i = 0; i < columns.Count; i++)
+                {
+
+                    List<string> ColumnItems = new List<string>();
+                    int k = BuferSize - _ViewPortRowsCount * (_PageDescriptor.Number - 1) - _PageDescriptor.PreviousEndIndex;
+                    //  if (_PageDescriptor.Number > 1)
+                    // {
+                    //     k = k - _PageDescriptor.Number + 1;
+                    // }
+                    var items = _ItemsSource.Skip(k).Take(BuferSize - _ViewPortRowsCount + 1);
+                    foreach (var @object in items)
+                    {
+                        PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(@object);
+                        var property = properties.Find(columns[i].Name, false);
+                        if (property != null)
+                        {
+                            if (columns[i].Type == typeof(DateTime))
+                            {
+                                DateTime temp = (DateTime)property.GetValue(@object);
+                                string item = temp.ToString(Resources.DefaultDataFormat);
+                                ColumnItems.Add(item);
+
+                            }
+                            else
+                            {
+                                ColumnItems.Add(property.GetValue(@object).ToString());
+                            }
+                        }
+                        else
+                        {
+                            ColumnItems.Add("");
+                        }
+                    }
+                    List<string> viewPortItems = new List<string>();
+
+                    for (int j = 1; j < _ViewPortRowsCount + 1; j++)
+                    {
+
+                        viewPortItems.Add(_Source[i][j]);
+                    }
+                    var a = _Source[i].First();
+                    // _Source.Clear();
+                    _Source[i].Clear();
+                    _Source[i].Add(a);
+                    _Source[i].AddRange(ColumnItems);
+                    _Source[i].AddRange(viewPortItems);
+                }
+                // _FirstPrintedRowIndex = VerticalScrollBar.Value / _VerticalScrollValueRatio - ((_PageDescriptor.StartIndex - _ViewPortRowsCount) * (_PageDescriptor.Number - 1));
+                _FirstPrintedRowIndex = _PageDescriptor.PreviousEndIndex + 1;
+                _Buffer.Clear();
+                for (int i = 0; i < _Source.Count; i++)
+                {
+                    AddToBufer(_Source[i].First());
+                }
+                _PageDescriptor.PreviousEndIndex -= (BuferSize - _ViewPortRowsCount);
+                _PageDescriptor.Number--;
+                _PageDescriptor.StartIndex -= BuferSize;
+                _PageDescriptor.EndIndex -= BuferSize;
+
+            }
+
             Invalidate();
         }
         private void VerticalScrollBar_VisibleChanged(object sender, EventArgs e)
@@ -1026,7 +1103,10 @@ namespace Parser
         public string Name { get; set; }
     }
     class Page
+       
     {
+        public int ScrollPrevValue { get; set; }
+        public int PreviousEndIndex { get; set; }
         public int Number { get; set; }
         public int StartIndex { get; set; }
         public int EndIndex { get; set; }
