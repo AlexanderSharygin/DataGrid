@@ -21,9 +21,9 @@ namespace Parser
 
         List<List<string>> _Source;
         IEnumerable<object> _ItemsSource;
-        Page _PageDescriptor;
+        Page Page;
         public int BuferSize { get; set; } = 100;
-        int _Page = 1;
+      
         public IEnumerable<object> ItemsSource 
         { get
             { return _ItemsSource; }
@@ -35,6 +35,9 @@ namespace Parser
                 // it seems that you are using too many abstractions over grid columns.
                 // they require you to write a lot of code to maintain them.
                 List<ColumnInfo> ColumnsInfo = GetColumnsInfo();
+                  _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;
+               // UpdateScrolls();
+               // BuferSize += _ViewPortRowsCount;
                 _Source =  GetStringSource(ColumnsInfo);
                 if (ColumnsAutoGeneration)
                 {
@@ -164,7 +167,7 @@ namespace Parser
             HorisontalScrollBar.Value = 0;
             _Brush = new SolidBrush(ForeColor);
             _Pen = new Pen(LineColor, _LineWidth);
-            _PageDescriptor = new Page() { Number = 1, StartIndex = 0, EndIndex = BuferSize };
+            Page = new Page() { Number = 1, StartIndex = 0, EndIndex = BuferSize };
            MouseWheel += DataGridMouseWheel;
             HorisontalScrollBar.MouseWheel += HorizontalScrollMouseWheel;
             Leave += MyDataGrid_LostFocus;
@@ -822,10 +825,26 @@ namespace Parser
       
         private void VScrollBar1_ValueChanged(object sender, EventArgs e)
         {
+          
+            if (Page.OldScrollValue < VerticalScrollBar.Value && Page.Number > 1)
+            {
+                _FirstPrintedRowIndex++;
+            }
+            else 
+            {
+                _FirstPrintedRowIndex = VerticalScrollBar.Value / _VerticalScrollValueRatio - Page.StartIndex;
+                if (Page.OldScrollValue > VerticalScrollBar.Value && Page.Number > 2)
+                {
+                    _FirstPrintedRowIndex += _ViewPortRowsCount;
+                }
+                else if (Page.Number > 1)
+                {
+                    _FirstPrintedRowIndex = VerticalScrollBar.Value / _VerticalScrollValueRatio - Page.StartIndex + _ViewPortRowsCount;
+                    _FirstPrintedRowIndex++;
+                }
+
+            }
             
-            _FirstPrintedRowIndex = VerticalScrollBar.Value / _VerticalScrollValueRatio-(_PageDescriptor.StartIndex-(_ViewPortRowsCount*(_PageDescriptor.Number-1)));
-            if (_PageDescriptor.Number>1)
-           { _FirstPrintedRowIndex++; }
             if (VerticalScrollBar.Value < 0)
             {
                 _FirstPrintedRowIndex = 0;
@@ -844,24 +863,14 @@ namespace Parser
            
 
            
-            if ((VerticalScrollBar.Value / _VerticalScrollValueRatio >= _PageDescriptor.EndIndex-_ViewPortRowsCount*_PageDescriptor.Number))
-            {
-              //  _PageDescriptor.ScrollPrevValue = VerticalScrollBar.Value;
-
-
-
-                List<ColumnInfo> columns = GetColumnsInfo();
-                List<List<string>> StringSource = new List<List<string>>(BuferSize);
+            if ((VerticalScrollBar.Value / _VerticalScrollValueRatio >= Page.EndIndex-_ViewPortRowsCount))
+            {             
+                List<ColumnInfo> columns = GetColumnsInfo();          
                 for (int i = 0; i < columns.Count; i++)
                 {
 
-                    List<string> ColumnItems = new List<string>();
-                    int k = _PageDescriptor.EndIndex -1 - _ViewPortRowsCount * (_PageDescriptor.Number - 1);
-                  if (_PageDescriptor.Number >1)
-                  {
-                       k=k-_PageDescriptor.Number+1;
-                   }
-                    var items = _ItemsSource.Skip(k).Take(BuferSize-_ViewPortRowsCount);
+                    List<string> ColumnItems = new List<string>();                  
+                    var items = _ItemsSource.Skip(Page.EndIndex - 1-_ViewPortRowsCount).Take(BuferSize+_ViewPortRowsCount);
                     foreach (var @object in items)
                     {
                         PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(@object);
@@ -873,58 +882,47 @@ namespace Parser
                                 DateTime temp = (DateTime)property.GetValue(@object);
                                 string item = temp.ToString(Resources.DefaultDataFormat);
                                 ColumnItems.Add(item);
-
                             }
                             else
                             {
-                               ColumnItems.Add(property.GetValue(@object).ToString());
+                                ColumnItems.Add(property.GetValue(@object).ToString());
                             }
                         }
                         else
                         {
-                           ColumnItems.Add("");
+                            ColumnItems.Add("");
                         }
                     }
-                    List<string> viewPortItems = new List<string>();
-
-                    for (int j = _PageDescriptor.EndIndex - _ViewPortRowsCount * _PageDescriptor.Number; j < _PageDescriptor.EndIndex - _ViewPortRowsCount * (_PageDescriptor.Number - 1); j++)
-                    {
-
-                        viewPortItems.Add(_Source[i][j-(_PageDescriptor.StartIndex-_ViewPortRowsCount*(_PageDescriptor.Number-1))]);
-                    }
-                    var a =_Source[i].First();
+                 
+                    var a = _Source[i].First();
                     _Source[i].Clear();
-                    _Source[i].Add(a);
-                    _Source[i].AddRange(viewPortItems);
+                    _Source[i].Add(a);             
                     _Source[i].AddRange(ColumnItems);
-                }
-               // _FirstPrintedRowIndex = VerticalScrollBar.Value / _VerticalScrollValueRatio - ((_PageDescriptor.StartIndex - _ViewPortRowsCount) * (_PageDescriptor.Number - 1));
+                }              
                 _FirstPrintedRowIndex = 1;
                 _Buffer.Clear();
                 for (int  i = 0;  i <_Source.Count;  i++)
                 {
                     AddToBufer(_Source[i].First());
                 }
-                _PageDescriptor.PreviousEndIndex = _PageDescriptor.EndIndex - _ViewPortRowsCount * (_PageDescriptor.Number );
-                _PageDescriptor.Number++;                
-                _PageDescriptor.StartIndex = _PageDescriptor.EndIndex;
-                _PageDescriptor.EndIndex += BuferSize;
+               Page.EventIndex = Page.StartIndex-_ViewPortRowsCount;
+                Page.Number++;                
+                Page.StartIndex = Page.EndIndex;
+                Page.EndIndex += BuferSize;
             
             }
-           else if (VerticalScrollBar.Value / _VerticalScrollValueRatio <= _PageDescriptor.PreviousEndIndex)
+           if (VerticalScrollBar.Value / _VerticalScrollValueRatio +_ViewPortRowsCount  <= Page.StartIndex && Page.OldScrollValue>VerticalScrollBar.Value)
             {
-                List<ColumnInfo> columns = GetColumnsInfo();
-                List<List<string>> StringSource = new List<List<string>>(BuferSize);
+                int k = 0;
+                if (Page.Number > 2)
+                { k = 1; }
+                List<ColumnInfo> columns = GetColumnsInfo();             
                 for (int i = 0; i < columns.Count; i++)
                 {
 
                     List<string> ColumnItems = new List<string>();
-                    int k = BuferSize - _ViewPortRowsCount * (_PageDescriptor.Number - 1) - _PageDescriptor.PreviousEndIndex;
-                    //  if (_PageDescriptor.Number > 1)
-                    // {
-                    //     k = k - _PageDescriptor.Number + 1;
-                    // }
-                    var items = _ItemsSource.Skip(k).Take(BuferSize - _ViewPortRowsCount + 1);
+                    
+                    var items = _ItemsSource.Skip(Page.StartIndex-BuferSize-_ViewPortRowsCount-k).Take(BuferSize+_ViewPortRowsCount*k);
                     foreach (var @object in items)
                     {
                         PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(@object);
@@ -950,32 +948,37 @@ namespace Parser
                     }
                     List<string> viewPortItems = new List<string>();
 
-                    for (int j = 1; j < _ViewPortRowsCount + 1; j++)
-                    {
-
-                        viewPortItems.Add(_Source[i][j]);
-                    }
                     var a = _Source[i].First();
-                    // _Source.Clear();
+                  
                     _Source[i].Clear();
                     _Source[i].Add(a);
                     _Source[i].AddRange(ColumnItems);
                     _Source[i].AddRange(viewPortItems);
                 }
-                // _FirstPrintedRowIndex = VerticalScrollBar.Value / _VerticalScrollValueRatio - ((_PageDescriptor.StartIndex - _ViewPortRowsCount) * (_PageDescriptor.Number - 1));
-                _FirstPrintedRowIndex = _PageDescriptor.PreviousEndIndex + 1;
+              
+            
+               
+                _FirstPrintedRowIndex =BuferSize;
+                if (k == 0)
+                {
+                    _FirstPrintedRowIndex -= _ViewPortRowsCount;
+                }
+                else
+                {
+                  // _FirstPrintedRowIndex--;
+                }
                 _Buffer.Clear();
                 for (int i = 0; i < _Source.Count; i++)
                 {
                     AddToBufer(_Source[i].First());
                 }
-                _PageDescriptor.PreviousEndIndex -= (BuferSize - _ViewPortRowsCount);
-                _PageDescriptor.Number--;
-                _PageDescriptor.StartIndex -= BuferSize;
-                _PageDescriptor.EndIndex -= BuferSize;
+              
+                Page.Number--;
+                Page.StartIndex -= BuferSize;
+                Page.EndIndex -= BuferSize;
 
             }
-
+            Page.OldScrollValue = VerticalScrollBar.Value;
             Invalidate();
         }
         private void VerticalScrollBar_VisibleChanged(object sender, EventArgs e)
@@ -1105,8 +1108,9 @@ namespace Parser
     class Page
        
     {
-        public int ScrollPrevValue { get; set; }
-        public int PreviousEndIndex { get; set; }
+    
+        public int OldScrollValue { get; set; } 
+        public int EventIndex { get; set; }
         public int Number { get; set; }
         public int StartIndex { get; set; }
         public int EndIndex { get; set; }
