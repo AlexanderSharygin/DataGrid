@@ -822,25 +822,26 @@ namespace Parser
             UpdateHorizontalScroll();
             Invalidate();
         }
-      
+        
+        bool IsScrolledDown = false;
         private void VScrollBar1_ValueChanged(object sender, EventArgs e)
         {
-          
-            if (Page.OldScrollValue < VerticalScrollBar.Value && Page.Number > 1)
+            int scrollOffset = 0;
+            if (Page.OldScrollValue < VerticalScrollBar.Value)
             {
                 _FirstPrintedRowIndex++;
-            }
-            else 
-            {
-                _FirstPrintedRowIndex = VerticalScrollBar.Value / _VerticalScrollValueRatio - Page.StartIndex;
-                if (Page.OldScrollValue > VerticalScrollBar.Value && Page.Number > 2)
+                if (Page.Number > 2)
                 {
-                    _FirstPrintedRowIndex += _ViewPortRowsCount;
+                   IsScrolledDown=true;
                 }
-                else if (Page.Number > 1)
+               
+            }
+            else if (Page.OldScrollValue > VerticalScrollBar.Value)
+            {
+                _FirstPrintedRowIndex--;
+                if (Page.Number == 2)
                 {
-                    _FirstPrintedRowIndex = VerticalScrollBar.Value / _VerticalScrollValueRatio - Page.StartIndex + _ViewPortRowsCount;
-                    _FirstPrintedRowIndex++;
+                    IsScrolledDown = false;
                 }
 
             }
@@ -850,7 +851,10 @@ namespace Parser
                 _FirstPrintedRowIndex = 0;
                
             }
-           
+            if (IsScrolledDown)
+            {
+                scrollOffset = 1;
+            }
             if (_Editor != null)
             {
                   
@@ -899,7 +903,9 @@ namespace Parser
                     _Source[i].Add(a);             
                     _Source[i].AddRange(ColumnItems);
                 }              
-                _FirstPrintedRowIndex = 1;
+                _FirstPrintedRowIndex = 1+  (VerticalScrollBar.Value / _VerticalScrollValueRatio)- (Page.EndIndex - _ViewPortRowsCount);
+              
+
                 _Buffer.Clear();
                 for (int  i = 0;  i <_Source.Count;  i++)
                 {
@@ -911,8 +917,9 @@ namespace Parser
                 Page.EndIndex += BuferSize;
             
             }
-           if (VerticalScrollBar.Value / _VerticalScrollValueRatio +_ViewPortRowsCount  <= Page.StartIndex && Page.OldScrollValue>VerticalScrollBar.Value)
+           if (VerticalScrollBar.Value / _VerticalScrollValueRatio +_ViewPortRowsCount +scrollOffset <= Page.StartIndex && Page.OldScrollValue>VerticalScrollBar.Value)
             {
+               scrollOffset=0;
                 int k = 0;
                 if (Page.Number > 2)
                 { k = 1; }
@@ -955,18 +962,27 @@ namespace Parser
                     _Source[i].AddRange(ColumnItems);
                     _Source[i].AddRange(viewPortItems);
                 }
-              
-            
-               
-                _FirstPrintedRowIndex =BuferSize;
-                if (k == 0)
+
+
+
+
+                if (Page.Number <= 2)
                 {
-                    _FirstPrintedRowIndex -= _ViewPortRowsCount;
+                    _FirstPrintedRowIndex = BuferSize - _ViewPortRowsCount;
                 }
                 else
                 {
-                  // _FirstPrintedRowIndex--;
+                    _FirstPrintedRowIndex = BuferSize;
                 }
+               // if (k == 0)
+               // {
+               //     _FirstPrintedRowIndex -= _ViewPortRowsCount;
+               // }
+              //  else
+              //  {
+                  // _FirstPrintedRowIndex--;
+             //
+            //}
                 _Buffer.Clear();
                 for (int i = 0; i < _Source.Count; i++)
                 {
