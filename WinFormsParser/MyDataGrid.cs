@@ -826,10 +826,15 @@ namespace Parser
         bool IsScrolledDown = false;
         private void VScrollBar1_ValueChanged(object sender, EventArgs e)
         {
+            _FirstPrintedRowIndex = VerticalScrollBar.Value / _VerticalScrollValueRatio;
+            if (Page.Number > 1)
+            {
+                _FirstPrintedRowIndex = _FirstPrintedRowIndex- (BuferSize* (Page.Number-1))+_ViewPortRowsCount+1;
+            }
             int scrollOffset = 0;
             if (Page.OldScrollValue < VerticalScrollBar.Value)
             {
-                _FirstPrintedRowIndex++;
+              //  _FirstPrintedRowIndex++;
                 if (Page.Number > 2)
                 {
                    IsScrolledDown=true;
@@ -838,7 +843,7 @@ namespace Parser
             }
             else if (Page.OldScrollValue > VerticalScrollBar.Value)
             {
-                _FirstPrintedRowIndex--;
+                //_FirstPrintedRowIndex--;
                 if (Page.Number == 2)
                 {
                     IsScrolledDown = false;
@@ -903,7 +908,10 @@ namespace Parser
                     _Source[i].Add(a);             
                     _Source[i].AddRange(ColumnItems);
                 }              
-                _FirstPrintedRowIndex = 1+  (VerticalScrollBar.Value / _VerticalScrollValueRatio)- (Page.EndIndex - _ViewPortRowsCount);
+               
+                
+                _FirstPrintedRowIndex = 1;
+               
               
 
                 _Buffer.Clear();
@@ -1127,6 +1135,7 @@ namespace Parser
     
         public int OldScrollValue { get; set; } 
         public int EventIndex { get; set; }
+       public int PrevPageNumber { get; set; }
         public int Number { get; set; }
         public int StartIndex { get; set; }
         public int EndIndex { get; set; }
