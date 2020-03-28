@@ -23,6 +23,8 @@ namespace Parser
         IEnumerable<object> _ItemsSource;
         Page Page;
         public int BuferSize { get; set; } = 100;
+        public event DataChangedHeandler DataChanged;
+        public delegate void DataChangedHeandler(object sender, EventArgs eventArgs);
 
         public IEnumerable<object> ItemsSource
         { get
@@ -46,7 +48,13 @@ namespace Parser
                         Columns.Add(new Column(item.Key, item.Value) { Visible = true });
                     }
                 }
-
+                for (int k = 1; k < _Buffer.Count; k++)
+                {
+                    foreach (var cell in _Buffer[k].Cells)
+                    {
+                        cell.SourceRowIndex = k-1;
+                    }
+                }
             }
         }
 
@@ -127,6 +135,7 @@ namespace Parser
             MouseWheel += DataGridMouseWheel;
             HorisontalScrollBar.MouseWheel += HorizontalScrollMouseWheel;
             Leave += MyDataGrid_LostFocus;
+            
         }
 
 
@@ -275,7 +284,8 @@ namespace Parser
                     Cell temp = new Cell();
                     temp.Body = _Source[index][k];
                     temp.SourceColumnIndex = index;
-                    temp.SourceRowIndex = k;
+                    temp.BuferRowIndex = k;
+                  
                     _Buffer[k].Cells.Add(temp);
                 }
             }
@@ -493,7 +503,43 @@ namespace Parser
         {
             if (!_Editor.CancelChanges && _Editor.IsValidated)
             {
-                _Editor.BufferCell.Body = _Editor.Value;
+                if (_Editor.GetControl().GetType() == typeof(CheckBox))
+                {
+                    CheckBox cb = (CheckBox)_Editor.GetControl();
+                    if (cb.Checked)
+                    {
+                        _Editor.BufferCell.Body = Resources.TrueValue;
+                    }
+                    else
+                    {
+                        _Editor.BufferCell.Body = Resources.FalseValue;
+                    }
+                }
+                else
+                {
+
+                    _Editor.BufferCell.Body = _Editor.Value;
+                }
+                int index = 0;
+
+                var item = _ItemsSource.ElementAt(_Editor.BufferCell.SourceRowIndex);
+                
+                
+                PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(item);
+                var property = properties.Find(_API.Columns[_Editor.BufferCell.SourceColumnIndex].HeaderText, false);
+                if (property != null)
+                {
+                   
+                    property.SetValue(item, Convert.ChangeType(_Editor.Value, property.PropertyType));
+
+
+                }
+                if (DataChanged != null)
+                {
+                    EventArgs eventArgs = new EventArgs();
+                   DataChanged(this, eventArgs);
+                }
+
             }
             else
             {
@@ -536,7 +582,7 @@ namespace Parser
                 {
                     if (_Buffer.First().Cells.Count > 0)
                     {
-                        _Buffer.Sort((a, b) => a.Cells.First().SourceRowIndex.CompareTo(b.Cells.First().SourceRowIndex));
+                        _Buffer.Sort((a, b) => a.Cells.First().BuferRowIndex.CompareTo(b.Cells.First().BuferRowIndex));
                     }
                 }
                 _Buffer.Insert(0, firstRowBufer);
@@ -795,6 +841,18 @@ namespace Parser
                         string itemValue = temp.ToString(Resources.DefaultDataFormat);
                         ColumnItems.Add(itemValue);
                     }
+                    else if (type == typeof(Boolean))
+                    {
+                        bool temp = (bool)property.GetValue(@object);
+                        if (temp)
+                        {
+                            ColumnItems.Add(Resources.TrueValue);
+                        }
+                        else
+                        {
+                            ColumnItems.Add(Resources.FalseValue);
+                        }
+                    }
                     else
                     {
                         ColumnItems.Add(property.GetValue(@object).ToString());
@@ -811,6 +869,9 @@ namespace Parser
         bool IsScrolledDown = false;
         private void VScrollBar1_ValueChanged(object sender, EventArgs e)
         {
+            UpdateColumnsPosition();
+            UpdateHeadersWidth();
+            CalculateTotalTableWidth();
             _FirstPrintedRowIndex = VerticalScrollBar.Value / _VerticalScrollValueRatio;
             if (Page.Number > 1)
             {
@@ -859,13 +920,16 @@ namespace Parser
            
             if ((VerticalScrollBar.Value / _VerticalScrollValueRatio >= Page.EndIndex-_ViewPortRowsCount))
             {
+               
+                int startPoint = 0;
                 Dictionary<string, Type> columns = GetColumnsInfo();
                 int i = 0;
                 foreach (var item in columns)
                 {
 
-                    List<string> ColumnItems = new List<string>();                  
-                   var items = _ItemsSource.Skip(Page.EndIndex - 1-_ViewPortRowsCount).Take(BuferSize+_ViewPortRowsCount);
+                    List<string> ColumnItems = new List<string>();
+                    startPoint = Page.EndIndex - 1 - _ViewPortRowsCount;
+                    var items = _ItemsSource.Skip(Page.EndIndex - 1-_ViewPortRowsCount).Take(BuferSize+_ViewPortRowsCount);
                     ColumnItems = GetColumnItemsFromSource(item.Key, item.Value, items);               
                 
                     var a = _Source[i].First();
@@ -873,6 +937,7 @@ namespace Parser
                     _Source[i].Add(a);             
                     _Source[i].AddRange(ColumnItems);
                     i++;
+                  
                 }             
                
                 
@@ -888,11 +953,20 @@ namespace Parser
                 Page.Number++;                
                 Page.StartIndex = Page.EndIndex;
                 Page.EndIndex += BuferSize;
+                for (int k =0; k< _Buffer.Count; k++)
+                {
+                    foreach (var cell in _Buffer[k].Cells)
+                    {
+                        cell.SourceRowIndex = startPoint-1 + k;
+                    }
+                }
             
             }
            if (VerticalScrollBar.Value / _VerticalScrollValueRatio +_ViewPortRowsCount +scrollOffset <= Page.StartIndex && Page.OldScrollValue>VerticalScrollBar.Value)
             {
-               scrollOffset=0;
+               
+                scrollOffset =0;
+                int startPoint = 0;
                 int i = 0;
                 int k = 0;
                 if (Page.Number > 2)
@@ -903,8 +977,15 @@ namespace Parser
                     
 
                     List<string> ColumnItems = new List<string>();
-                    
-                 var items = _ItemsSource.Skip(Page.StartIndex-BuferSize-_ViewPortRowsCount-k).Take(BuferSize+_ViewPortRowsCount*k);
+                    if (Page.Number <= 2)
+                    {
+                        startPoint = 0;
+                    }
+                    else
+                    {
+                        startPoint = Page.StartIndex - BuferSize - _ViewPortRowsCount - k;
+                    }
+                    var items = _ItemsSource.Skip(Page.StartIndex-BuferSize-_ViewPortRowsCount-k).Take(BuferSize+_ViewPortRowsCount*k);
                     ColumnItems = GetColumnItemsFromSource(item.Key, item.Value, items);
                   
                 
@@ -917,6 +998,7 @@ namespace Parser
                     _Source[i].AddRange(ColumnItems);
                     _Source[i].AddRange(viewPortItems);
                     i++;
+                  
                 }
 
 
@@ -939,6 +1021,13 @@ namespace Parser
                 Page.Number--;
                 Page.StartIndex -= BuferSize;
                 Page.EndIndex -= BuferSize;
+                for (int j = 0; j < _Buffer.Count; j++)
+                {
+                    foreach (var cell in _Buffer[j].Cells)
+                    {
+                        cell.SourceRowIndex = startPoint - 1 + j;
+                    }
+                }
 
             }
             Page.OldScrollValue = VerticalScrollBar.Value;

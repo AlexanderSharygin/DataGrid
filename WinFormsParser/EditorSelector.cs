@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
+using Parser.Properties;
 
 namespace Parser
 {
@@ -19,7 +20,14 @@ namespace Parser
         public Font Font { get; set; }
         public int ColumnIndex { get; set; }
         public Cell BufferCell { get; }     
-        public int Width { get => _Editor.Width; set  { _Width = value; _Editor.Width = _Width; } }        
+        public int Width
+        { get => _Editor.Width;
+            set 
+            { _Width = value; 
+                _Editor.Width = _Width;
+               
+            } 
+        }        
         public int Height 
         {
             get => _Editor.Height; 
@@ -31,9 +39,22 @@ namespace Parser
                 _Editor.Height = _Height; 
             } 
         }     
-        public Point Location { get=> _Editor.Location; set { _Location = value; _Editor.Location = _Location; } }
-        public string OriginalValue { get; set; }      
-        public string Value { get=>_Editor.Text; }
+        public Point Location { get=> _Editor.Location; 
+            set 
+            { _Location = value;
+                _Editor.Location = _Location;
+                if (ColumnType == typeof(Boolean))
+                {
+                    _Editor.Width = _Editor.Height;
+                    _Editor.Location = new Point(_Editor.Location.X + _Width / 2-_Editor.Width/2, _Editor.Location.Y);
+                    BufferCell.Body = "";
+                }
+            } 
+
+        }
+        public string OriginalValue { get; set; }
+       
+        public string Value { get => _Editor.Text; }
         public bool CancelChanges { get; set; } = false;
         public Point DefaultPosition { get; set; }
         public bool Visible { get => _Editor.Visible; set { _Visible = value; _Editor.Visible = _Visible; } }
@@ -93,6 +114,7 @@ namespace Parser
                 _Editor = Editor;
                 }
             }
+
             if (ColumnType == typeof(int))
             {
                 IsValidated = false;               
@@ -114,6 +136,36 @@ namespace Parser
                 Editor.KeyUp += new KeyEventHandler(ValueField_KeyUp);
                 _Editor = Editor;
             }
+
+
+            if (ColumnType == typeof(Boolean))
+            {
+                CheckBox Editor = new CheckBox()
+                {
+                  
+                    AutoSize = false,                         
+                    TabIndex = 1,
+                    Enabled = true
+
+                };
+                Editor.Checked = (BufferCell.Body==Properties.Resources.TrueValue)? true: false;
+                
+                Editor.KeyUp += new KeyEventHandler(ValueField_KeyUp);
+                Editor.CheckedChanged += new EventHandler(CheckedChanged);
+                _Editor = Editor;
+                if (Editor.Checked)
+                {
+                    _Editor.Text = "True";
+                }
+                else
+                {
+                    _Editor.Text = "False";
+                }
+            }
+
+
+
+
             if (ColumnType == typeof(DateTime))
             {
                 DateTimePicker Editor = new DateTimePicker()
@@ -137,7 +189,21 @@ namespace Parser
                 Editor.KeyUp += new KeyEventHandler(ValueField_KeyUp);
                 _Editor = Editor;
             }
-        }      
+        }
+
+        private void CheckedChanged(object sender, EventArgs e)
+        {
+            CheckBox cb = (CheckBox)sender;
+            if (cb.Checked)
+            {
+                _Editor.Text = "True";
+            }
+            else
+            {
+                _Editor.Text = "False";
+            }
+        }
+
         private void IntTypeValidation(object sender, KeyPressEventArgs e)
         {                 
             var PressedButton = e.KeyChar;

@@ -77,6 +77,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataModel.cs" />
+    <Compile Include="DBModel.cs" />
     <Compile Include="EditorSelector.cs" />
     <Compile Include="HeaderCell.cs" />
     <Compile Include="JSONParser.cs">
@@ -85,7 +86,6 @@
     <Compile Include="JSONParser.Designer.cs">
       <DependentUpon>JSONParser.cs</DependentUpon>
     </Compile>
-    <Compile Include="Model1.cs" />
     <Compile Include="MyDataGrid.cs" />
     <Compile Include="MyDataGrid.Designer.cs">
       <DependentUpon>MyDataGrid.cs</DependentUpon>
@@ -103,7 +103,7 @@
     <Compile Include="TypeSelector.Designer.cs">
       <DependentUpon>TypeSelector.cs</DependentUpon>
     </Compile>
-    <Compile Include="Workers.cs" />
+    <Compile Include="Worker.cs" />
     <Compile Include="WorkersSmall.cs" />
     <EmbeddedResource Include="HeaderCell.resx">
       <DependentUpon>HeaderCell.cs</DependentUpon>
@@ -164,6 +164,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Down.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -117,6 +117,15 @@ namespace Parser.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на No.
+        /// </summary>
+        internal static string FalseValue {
+            get {
+                return ResourceManager.GetString("FalseValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Simple-JSON objects parser.
         ///UP/Down arrows - menu navigation.
         ///Space - Adding a field to the ones displayed in the table..
@@ -151,6 +160,15 @@ namespace Parser.Properties {
         internal static string TableMargin {
             get {
                 return ResourceManager.GetString("TableMargin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Yes.
+        /// </summary>
+        internal static string TrueValue {
+            get {
+                return ResourceManager.GetString("TrueValue", resourceCulture);
             }
         }
         

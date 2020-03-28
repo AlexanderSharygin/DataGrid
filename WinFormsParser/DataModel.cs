@@ -11,8 +11,8 @@ using System.Windows.Forms;
 namespace Parser
 {
 
-    
-    class Source 
+
+    class Source
     {
         public ColumnDataTypesList DataTypes { get; set; } = new ColumnDataTypesList();
         public SortDirections _SortDirection = SortDirections.None;
@@ -28,9 +28,9 @@ namespace Parser
         public int SortedColumnIndex { get; set; } = -1;
         public TypeSelector TypeSelector { get; set; } = new TypeSelector();
         public Control EditorControl { get; set; } = new Control();
-        public bool IsEditorOpened { get; set; }       
-        public bool IsEditorUsed  { get; set; }
-        public bool IsTypeSelectorOpened { get; set; } 
+        public bool IsEditorOpened { get; set; }
+        public bool IsEditorUsed { get; set; }
+        public bool IsTypeSelectorOpened { get; set; }
         public ObservableCollection<Column> Columns { get; } = new ObservableCollection<Column>();
         public event PropertyChangedEventHandler PropertyChanged;
         public Source()
@@ -75,12 +75,13 @@ namespace Parser
 
             }
         }
-         
+
     }
     class Cell
     {
         public string Body { get; set; }
         public int SourceColumnIndex { get; set; }
+        public int BuferRowIndex { get; set; }
         public int SourceRowIndex { get; set; }
 
     }
@@ -216,25 +217,26 @@ namespace Parser
 
         }
     }
-    
+
     public enum SortDirections
     {
         ASC,
         DESC,
         None
     }
-    
+
     class ColumnDataTypesList
-    {  
+    {
         internal Dictionary<string, Type> TypesCollection { get; } = new Dictionary<string, Type>();
         public ColumnDataTypesList()
         {
             TypesCollection.Add("String", typeof(String));
             TypesCollection.Add("Integer", typeof(Int32));
             TypesCollection.Add("Date/Time", typeof(DateTime));
+            TypesCollection.Add("Boolean", typeof(Boolean));
         }
-    
-       
+
+
         public string GetKeyByValue(Type t)
         {
             string res = "";

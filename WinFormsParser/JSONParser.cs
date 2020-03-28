@@ -14,16 +14,37 @@ namespace WinFormsParser
     public partial class Show_Button : Form
     {
         List<Dictionary<string, string>> _JSONObjects;
-        List<Worker> _Workers;
-        List<Worker> _DBWorkers;
+       List<Worker> _Workers;
+      
         List<int> prev = new List<int>();
+        DBModel DBData;
         public Show_Button()
         {
             InitializeComponent();
             _JSONObjects = new List<Dictionary<string, string>>();
             _Workers = new List<Worker>();
-           
+            DataTable.DataChanged += new MyDataGrid.DataChangedHeandler(CommitChanges);
+            DBData = new DBModel();
+
+
         }
+        void CommitChanges(object sender, EventArgs eventArgs)
+        {
+
+
+            try
+            {
+                DBData.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("Ошибка при сохранении в БД. Превышено ограничение символов БД или введено недопустимое пустое значение для данного поля", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            
+            }
+
+
+        }
+
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -56,6 +77,7 @@ namespace WinFormsParser
 
         private void LB_FieldsList_MouseClick(object sender, EventArgs e)
         {
+           
             var a = LB_FieldsList.SelectedItems;
             List<string> SelectedItems = new List<string>();
             foreach (var item in a)
@@ -202,13 +224,17 @@ namespace WinFormsParser
 
         private void Button3_Click_1(object sender, EventArgs e)
         {
+           
             DataTable.ColumnsAutoGeneration = true;
-            using (Model1 DBData = new Model1())
-            {
+         
+            
                 var Data = DBData.Workers.Where(k => k.Id < 2000).ToList();
           
-            DataTable.ItemsSource = Data;
-            }
+           
+                DataTable.ItemsSource = Data;
+        
+             
+            
             LB_FieldsList.Items.Clear();
             CB_FieldsList1.Items.Clear();
             CB_FieldsList2.Items.Clear();

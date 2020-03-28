@@ -5,27 +5,19 @@ namespace Parser
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Linq;
 
-    public partial class Model1 : DbContext
+    public partial class DBModel : DbContext
     {
-        public Model1()
-            : base("name=ParserDB")
+        public DBModel()
+            : base("name=DBModel")
         {
         }
 
-        public virtual DbSet<Workers> Workers { get; set; }
-        public virtual DbSet<WorkersSmall> WorkersSmall { get; set; }
+        public virtual DbSet<Worker> Workers { get; set; }
+        public virtual DbSet<WorkersSmall> WorkersSmalls { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Workers>()
-                .Property(e => e.FirstName)
-                .IsFixedLength();
-
-            modelBuilder.Entity<Workers>()
-                .Property(e => e.Prefix)
-                .IsFixedLength();
-
-            modelBuilder.Entity<Workers>()
+            modelBuilder.Entity<Worker>()
                 .Property(e => e.Salary)
                 .HasPrecision(19, 4);
 

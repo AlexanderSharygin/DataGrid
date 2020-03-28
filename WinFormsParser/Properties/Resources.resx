@@ -156,4 +156,10 @@ Space - Adding a field to the ones displayed in the table.</value>
   <data name="DefaultDataFormat" xml:space="preserve">
     <value>yyyy.MM.dd</value>
   </data>
+  <data name="FalseValue" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="TrueValue" xml:space="preserve">
+    <value>Yes</value>
+  </data>
 </root>
