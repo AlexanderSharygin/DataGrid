@@ -24,10 +24,27 @@ namespace WinFormsParser
             _JSONObjects = new List<Dictionary<string, string>>();
             _Workers = new List<Worker>();
             DataTable.DataChanged += new MyDataGrid.DataChangedHeandler(CommitChanges);
+            DataTable.SortingChanged += new MyDataGrid.SortingChangedHeandler(ChangeSorting);
             DBData = new DBModel();
 
 
         }
+
+        private void ChangeSorting(string columnName, string direction)
+        {
+            if (direction == "ASC")
+            {
+                var ab = DBData.Workers.Where(k => k.Id < 2000).OrderBy(k => k.LastName).ToList(); 
+            }
+            var a = DBData.Workers.Where(k => k.Id < 2000).ToList() ;
+          
+            if (direction == "DESC")
+            {
+                DBData.Workers.OrderByDescending(k => columnName);
+            }
+
+        }
+
         void CommitChanges(object sender, EventArgs eventArgs)
         {
 
@@ -224,11 +241,13 @@ namespace WinFormsParser
 
         private void Button3_Click_1(object sender, EventArgs e)
         {
-           
+            
             DataTable.ColumnsAutoGeneration = true;
          
             
                 var Data = DBData.Workers.Where(k => k.Id < 2000).ToList();
+
+     
           
            
                 DataTable.ItemsSource = Data;

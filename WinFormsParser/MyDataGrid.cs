@@ -25,6 +25,8 @@ namespace Parser
         public int BuferSize { get; set; } = 100;
         public event DataChangedHeandler DataChanged;
         public delegate void DataChangedHeandler(object sender, EventArgs eventArgs);
+        public event SortingChangedHeandler SortingChanged;
+       public delegate void SortingChangedHeandler(string columnName, string direction);
 
         public IEnumerable<object> ItemsSource
         { get
@@ -341,6 +343,18 @@ namespace Parser
         {
             if (e.PropertyName == "SortDirection")
             {
+                if (_API.SortedColumnIndex != -1)
+                {
+                    string sortDirection = _API._SortDirection.ToString();
+                    string sortedColumn = _API.Columns[_API.SortedColumnIndex].HeaderText;
+                    if (_API._SortDirection == SortDirections.None)
+                    {
+                        sortDirection = SortDirections.ASC.ToString();
+                        sortedColumn = "Id";
+                    }
+                     SortingChanged?.Invoke(sortedColumn, sortDirection);
+                }
+
                 CustomInvalidate();
             }
         }
