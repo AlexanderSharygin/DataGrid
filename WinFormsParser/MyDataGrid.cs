@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Collections;
+using System.Linq.Expressions;
 
 namespace Parser
 {
@@ -27,13 +28,13 @@ namespace Parser
         public delegate void DataChangedHeandler(object sender, EventArgs eventArgs);
         public event SortingChangedHeandler SortingChanged;
        public delegate void SortingChangedHeandler(string columnName, string direction);
-
+        Type _SourceType;
         public IEnumerable<object> ItemsSource
         { get
             { return _ItemsSource; }
             set
             {
-
+               _SourceType = value.First().GetType();
                 _ItemsSource = value;
 
                 Dictionary<string, Type> columnsInfo = GetColumnsInfo();
@@ -43,7 +44,7 @@ namespace Parser
                 if (ColumnsAutoGeneration)
                 {
                     Columns.Clear();
-                    //  _Buffer.Clear();                 
+                      _Buffer.Clear();                 
 
                     foreach (var item in columnsInfo)
                     {
@@ -345,14 +346,17 @@ namespace Parser
             {
                 if (_API.SortedColumnIndex != -1)
                 {
-                    string sortDirection = _API._SortDirection.ToString();
-                    string sortedColumn = _API.Columns[_API.SortedColumnIndex].HeaderText;
-                    if (_API._SortDirection == SortDirections.None)
-                    {
-                        sortDirection = SortDirections.ASC.ToString();
-                        sortedColumn = "Id";
-                    }
-                     SortingChanged?.Invoke(sortedColumn, sortDirection);
+                    /*  string sortDirection = _API._SortDirection.ToString();
+                      string sortedColumn = _API.Columns[_API.SortedColumnIndex].HeaderText;
+                      if (_API._SortDirection == SortDirections.None)
+                      {
+                          sortDirection = SortDirections.ASC.ToString();
+                          sortedColumn = "Id";
+                      }
+                       SortingChanged?.Invoke(sortedColumn, sortDirection);*/
+                     var aa =  _ItemsSource.OrderBy(_API.Columns[_API.SortedColumnIndex].HeaderText, _SourceType).ToList();
+                
+
                 }
 
                 CustomInvalidate();
@@ -943,8 +947,20 @@ namespace Parser
 
                     List<string> ColumnItems = new List<string>();
                     startPoint = Page.EndIndex - 1 - _ViewPortRowsCount;
-                    var items = _ItemsSource.Skip(Page.EndIndex - 1-_ViewPortRowsCount).Take(BuferSize+_ViewPortRowsCount);
-                    ColumnItems = GetColumnItemsFromSource(item.Key, item.Value, items);               
+                    if (_API.SortedColumnIndex != -1)
+                    {
+
+                        var items = _ItemsSource.OrderBy(_API.Columns[_API.SortedColumnIndex].HeaderText, _SourceType).Skip(Page.EndIndex - 1 - _ViewPortRowsCount).Take(BuferSize + _ViewPortRowsCount);
+                        ColumnItems = GetColumnItemsFromSource(item.Key, item.Value, items);
+
+
+                    }
+                    else
+                    {
+                        var items = _ItemsSource.OrderBy("Id",_SourceType).Skip(Page.EndIndex - 1 - _ViewPortRowsCount).Take(BuferSize + _ViewPortRowsCount);
+                        ColumnItems = GetColumnItemsFromSource(item.Key, item.Value, items);
+                    }
+                             
                 
                     var a = _Source[i].First();
                     _Source[i].Clear();
@@ -1166,6 +1182,60 @@ namespace Parser
 
         }
     }
+    public static class Utility
+    {
+        public static IEnumerable<TEntity> OrderBy<TEntity>(this IEnumerable<TEntity> source, string orderByProperty, Type t)
+        {
+            string command = "OrderBy";
+            var type = t;
+            var property = type.GetProperty(orderByProperty);
+            var parameter = Expression.Parameter(type, "p");
+            var propertyAccess = Expression.MakeMemberAccess(parameter, property);
+            var orderByExpression = Expression.Lambda(propertyAccess, parameter);
+            var resultExpression = Expression.Call(typeof(Queryable), command, new Type[] { type, property.PropertyType },
+                                          source.AsQueryable().Expression, Expression.Quote(orderByExpression));
+            return source.AsQueryable().Provider.CreateQuery<TEntity>(resultExpression);
+        }
+        public static IEnumerable<TEntity> OrderByDescending<TEntity>(this IEnumerable<TEntity> source, string orderByProperty, Type t)
+        {
+            string command = "OrderByDescending";
+            var type = t;
+            var property = type.GetProperty(orderByProperty);
+            var parameter = Expression.Parameter(type, "p");
+            var propertyAccess = Expression.MakeMemberAccess(parameter, property);
+            var orderByExpression = Expression.Lambda(propertyAccess, parameter);
+            var resultExpression = Expression.Call(typeof(Queryable), command, new Type[] { type, property.PropertyType },
+                                          source.AsQueryable().Expression, Expression.Quote(orderByExpression));
+            return source.AsQueryable().Provider.CreateQuery<TEntity>(resultExpression);
+        }
+
+
+        //makes expression for specific prop
+
+
+
+        /* public static Expression<Func<TSource, object>> GetExpression<TSource>(string propertyName)
+         {
+             var param = Expression.Parameter(typeof(TSource), "x");
+             Expression conversion = Expression.Convert(Expression.Property
+             (param, propertyName), typeof(object));   //important to use the Expression.Convert
+             return Expression.Lambda<Func<TSource, object>>(conversion, param);
+         }
+
+         //makes deleget for specific prop
+         public static Func<TSource, object> GetFunc<TSource>(string propertyName)
+         {
+             return GetExpression<TSource>(propertyName).Compile();  //only need compiled expression
+         }
+
+         //OrderBy overload
+         public static IOrderedEnumerable<TSource>
+         OrderBy<TSource>(this IEnumerable<TSource> source, string propertyName)
+         {
+             return source.OrderBy(GetFunc<TSource>(propertyName));
+         }      */
+    }
+
     class ColumnInfo
     {
         public Type Type { get; set; }

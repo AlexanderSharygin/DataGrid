@@ -32,7 +32,7 @@ namespace WinFormsParser
 
         private void ChangeSorting(string columnName, string direction)
         {
-            if (direction == "ASC")
+           /* if (direction == "ASC")
             {
                 var ab = DBData.Workers.Where(k => k.Id < 2000).OrderBy(k => k.LastName).ToList(); 
             }
@@ -42,7 +42,7 @@ namespace WinFormsParser
             {
                 DBData.Workers.OrderByDescending(k => columnName);
             }
-
+            */
         }
 
         void CommitChanges(object sender, EventArgs eventArgs)
@@ -245,7 +245,7 @@ namespace WinFormsParser
             DataTable.ColumnsAutoGeneration = true;
          
             
-                var Data = DBData.Workers.Where(k => k.Id < 2000).ToList();
+                var Data = DBData.Workers.Where(k => k.Id < 2000).AsEnumerable();
 
      
           
