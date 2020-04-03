@@ -10,6 +10,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Collections;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Parser
 {
@@ -28,13 +29,13 @@ namespace Parser
         public delegate void DataChangedHeandler(object sender, EventArgs eventArgs);
         public event SortingChangedHeandler SortingChanged;
        public delegate void SortingChangedHeandler(string columnName, string direction);
-        Type _SourceType;
+       // Type _SourceType;
         public IEnumerable<object> ItemsSource
         { get
             { return _ItemsSource; }
             set
             {
-               _SourceType = value.First().GetType();
+               //_SourceType = value.First().GetType();
                 _ItemsSource = value;
 
                 Dictionary<string, Type> columnsInfo = GetColumnsInfo();
@@ -134,7 +135,7 @@ namespace Parser
             HorisontalScrollBar.Value = 0;
             _Brush = new SolidBrush(ForeColor);
             _Pen = new Pen(LineColor, _LineWidth);
-            Page = new Page() { Number = 1, StartIndex = 0, EndIndex = BuferSize };
+            Page = new Page() { Number = 1, StartIndex = 0, EndIndex = BuferSize, SkipElementsCount=0, TakeElementsCount=BuferSize };
             MouseWheel += DataGridMouseWheel;
             HorisontalScrollBar.MouseWheel += HorizontalScrollMouseWheel;
             Leave += MyDataGrid_LostFocus;
@@ -344,20 +345,8 @@ namespace Parser
         {
             if (e.PropertyName == "SortDirection")
             {
-                if (_API.SortedColumnIndex != -1)
-                {
-                    /*  string sortDirection = _API._SortDirection.ToString();
-                      string sortedColumn = _API.Columns[_API.SortedColumnIndex].HeaderText;
-                      if (_API._SortDirection == SortDirections.None)
-                      {
-                          sortDirection = SortDirections.ASC.ToString();
-                          sortedColumn = "Id";
-                      }
-                       SortingChanged?.Invoke(sortedColumn, sortDirection);*/
-                     var aa =  _ItemsSource.OrderBy(_API.Columns[_API.SortedColumnIndex].HeaderText, _SourceType).ToList();
-                
-
-                }
+               
+                    SortData();       
 
                 CustomInvalidate();
             }
@@ -473,7 +462,7 @@ namespace Parser
                 _API.IsEditorOpened = true;
             }
             CalculateTotalTableWidth();
-            SortBuferRows();
+        //   SortBuferRows();
             Header = new List<HeaderCell>();
             RemoveHeaderFromControls();
             for (int i = 0; i < _API.Columns.Count; i++)
@@ -573,13 +562,69 @@ namespace Parser
             CalculateTotalTableWidth();
             if (_API.SortDirection != SortDirections.None)
             {
-                SortBuferRows();
+                SortData();
+                // SortBuferRows();
             }
             VerticalScrollBar.Maximum = ((_TotalRowsCount - _ViewPortRowsCount) * _VerticalScrollValueRatio) - 1;
             Invalidate();
 
         }
-        private void SortBuferRows()
+        private void SortData()
+        {
+
+            IEnumerable items = _ItemsSource;
+
+            if (_API.SortedColumnIndex != -1)
+            {
+                if (_API.SortDirection == SortDirections.ASC)
+                {
+                    items = _ItemsSource.OrderBy(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(Page.SkipElementsCount).Take(Page.TakeElementsCount).ToList();
+                }
+                else if (_API.SortDirection == SortDirections.DESC)
+                {
+                    items = _ItemsSource.OrderByDescending(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(Page.SkipElementsCount).Take(Page.TakeElementsCount).ToList();
+
+                }
+                else if (_API.SortDirection == SortDirections.None)
+                {
+                    items = _ItemsSource.OrderBy("Id").Skip(Page.SkipElementsCount).Take(Page.TakeElementsCount).ToList();
+                }
+            }
+            else
+            {
+                items = _ItemsSource.OrderByDescending("Id").Skip(Page.SkipElementsCount).Take(Page.TakeElementsCount).ToList();
+            }
+
+            Dictionary<string, Type> columns = GetColumnsInfo();
+            int i = 0;
+            foreach (var item in columns)
+            {
+                List<string> ColumnItems = new List<string>();
+                ColumnItems = GetColumnItemsFromSource(item.Key, item.Value, items);
+                List<string> viewPortItems = new List<string>();
+                var a = _Source[i].First();
+                _Source[i].Clear();
+                _Source[i].Add(a);
+                _Source[i].AddRange(ColumnItems);
+                _Source[i].AddRange(viewPortItems);
+                i++;
+
+            }
+            _Buffer.Clear();
+            for (int j = 0; j < _Source.Count; j++)
+            {
+                AddToBufer(_Source[j].First());
+            }
+            for (int k = 0; k < _Buffer.Count; k++)
+            {
+                foreach (var cell in _Buffer[k].Cells)
+                {
+                    cell.SourceRowIndex = Page.StartIndex - 1 + k;
+                }
+            }
+        }
+
+     /*   private void SortBuferRows()
         {
             if (_Buffer.Count > 0)
             {
@@ -606,7 +651,7 @@ namespace Parser
                 _Buffer.Insert(0, firstRowBufer);
 
             }
-        }
+        }*/
         private void UpdateHeadersWidth()
         {
             for (int i = 0; i < _API.Columns.Count; i++)
@@ -940,28 +985,41 @@ namespace Parser
             {
                
                 int startPoint = 0;
+                int takeCount = 0;
                 Dictionary<string, Type> columns = GetColumnsInfo();
                 int i = 0;
+                startPoint = Page.EndIndex - 1 - _ViewPortRowsCount;
+                takeCount = startPoint + BuferSize + _ViewPortRowsCount;
+                IEnumerable items = _ItemsSource;
+                if (_API.SortedColumnIndex != -1)
+                {
+
+                    if (_API.SortDirection == SortDirections.ASC)
+                    {
+                        items = _ItemsSource.OrderBy(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(Page.EndIndex - 1 - _ViewPortRowsCount).Take(BuferSize + _ViewPortRowsCount);
+                    }
+                    if (_API.SortDirection == SortDirections.DESC)
+                    {
+                        items = _ItemsSource.OrderByDescending(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(Page.EndIndex - 1 - _ViewPortRowsCount).Take(BuferSize + _ViewPortRowsCount);
+                    }
+
+                    else if (_API.SortDirection == SortDirections.None)
+                    {
+                        items = _ItemsSource.OrderByDescending("Id").Skip(Page.EndIndex - 1 - _ViewPortRowsCount).Take(BuferSize + _ViewPortRowsCount);
+                    }
+
+                }
+                else
+                {
+                     items = _ItemsSource.OrderBy("Id").Skip(Page.EndIndex - 1 - _ViewPortRowsCount).Take(BuferSize + _ViewPortRowsCount);
+                  
+                }
                 foreach (var item in columns)
                 {
 
                     List<string> ColumnItems = new List<string>();
-                    startPoint = Page.EndIndex - 1 - _ViewPortRowsCount;
-                    if (_API.SortedColumnIndex != -1)
-                    {
+                    ColumnItems = GetColumnItemsFromSource(item.Key, item.Value, items);
 
-                        var items = _ItemsSource.OrderBy(_API.Columns[_API.SortedColumnIndex].HeaderText, _SourceType).Skip(Page.EndIndex - 1 - _ViewPortRowsCount).Take(BuferSize + _ViewPortRowsCount);
-                        ColumnItems = GetColumnItemsFromSource(item.Key, item.Value, items);
-
-
-                    }
-                    else
-                    {
-                        var items = _ItemsSource.OrderBy("Id",_SourceType).Skip(Page.EndIndex - 1 - _ViewPortRowsCount).Take(BuferSize + _ViewPortRowsCount);
-                        ColumnItems = GetColumnItemsFromSource(item.Key, item.Value, items);
-                    }
-                             
-                
                     var a = _Source[i].First();
                     _Source[i].Clear();
                     _Source[i].Add(a);             
@@ -983,6 +1041,8 @@ namespace Parser
                 Page.Number++;                
                 Page.StartIndex = Page.EndIndex;
                 Page.EndIndex += BuferSize;
+                Page.SkipElementsCount = startPoint;
+                Page.TakeElementsCount = takeCount;
                 for (int k =0; k< _Buffer.Count; k++)
                 {
                     foreach (var cell in _Buffer[k].Cells)
@@ -997,25 +1057,50 @@ namespace Parser
                
                 scrollOffset =0;
                 int startPoint = 0;
+                int endPoint = 0;
                 int i = 0;
                 int k = 0;
                 if (Page.Number > 2)
-                { k = 1; }
+                {
+                    k = 1;
+                }
                 Dictionary<string, Type> columns = GetColumnsInfo();
+                if (Page.Number <= 2)
+                {
+                    startPoint = 0;
+                }
+                else
+                {
+                    startPoint = Page.StartIndex - BuferSize - _ViewPortRowsCount - k;
+                }
+               IEnumerable items = _ItemsSource;
+                if (_API.SortedColumnIndex != -1)
+                {
+                    if (_API.SortDirection == SortDirections.ASC)
+                    {
+                        items = _ItemsSource.OrderBy(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(Page.StartIndex - BuferSize - _ViewPortRowsCount - k).Take(BuferSize + _ViewPortRowsCount * k);
+                    }
+                    else if (_API.SortDirection == SortDirections.ASC)
+                    {
+                        items = _ItemsSource.OrderByDescending(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(Page.StartIndex - BuferSize - _ViewPortRowsCount - k).Take(BuferSize + _ViewPortRowsCount * k);
+                    }
+                    else if (_API.SortDirection == SortDirections.None)
+                    {
+                        items = _ItemsSource.OrderByDescending("Id").Skip(Page.StartIndex - BuferSize - _ViewPortRowsCount - k).Take(BuferSize + _ViewPortRowsCount * k);
+                    }
+                }
+                else
+                {
+                    items = _ItemsSource.OrderBy("Id").Skip(Page.StartIndex - BuferSize - _ViewPortRowsCount - k).Take(BuferSize + _ViewPortRowsCount * k);
+
+                }
+              // var items = _ItemsSource.Skip(Page.StartIndex - BuferSize - _ViewPortRowsCount - k).Take(BuferSize + _ViewPortRowsCount * k);
                 foreach (var item in columns)
                 {
                     
 
                     List<string> ColumnItems = new List<string>();
-                    if (Page.Number <= 2)
-                    {
-                        startPoint = 0;
-                    }
-                    else
-                    {
-                        startPoint = Page.StartIndex - BuferSize - _ViewPortRowsCount - k;
-                    }
-                    var items = _ItemsSource.Skip(Page.StartIndex-BuferSize-_ViewPortRowsCount-k).Take(BuferSize+_ViewPortRowsCount*k);
+                  
                     ColumnItems = GetColumnItemsFromSource(item.Key, item.Value, items);
                   
                 
@@ -1051,6 +1136,8 @@ namespace Parser
                 Page.Number--;
                 Page.StartIndex -= BuferSize;
                 Page.EndIndex -= BuferSize;
+                Page.SkipElementsCount = startPoint;
+                Page.TakeElementsCount = endPoint;
                 for (int j = 0; j < _Buffer.Count; j++)
                 {
                     foreach (var cell in _Buffer[j].Cells)
@@ -1184,10 +1271,13 @@ namespace Parser
     }
     public static class Utility
     {
-        public static IEnumerable<TEntity> OrderBy<TEntity>(this IEnumerable<TEntity> source, string orderByProperty, Type t)
+     
+
+
+        public static IEnumerable<TEntity> OrderBy<TEntity>(this IEnumerable<TEntity> source, string orderByProperty)
         {
             string command = "OrderBy";
-            var type = t;
+            var type = source.First().GetType();
             var property = type.GetProperty(orderByProperty);
             var parameter = Expression.Parameter(type, "p");
             var propertyAccess = Expression.MakeMemberAccess(parameter, property);
@@ -1195,11 +1285,12 @@ namespace Parser
             var resultExpression = Expression.Call(typeof(Queryable), command, new Type[] { type, property.PropertyType },
                                           source.AsQueryable().Expression, Expression.Quote(orderByExpression));
             return source.AsQueryable().Provider.CreateQuery<TEntity>(resultExpression);
+          
         }
-        public static IEnumerable<TEntity> OrderByDescending<TEntity>(this IEnumerable<TEntity> source, string orderByProperty, Type t)
+        public static IEnumerable<TEntity> OrderByDescending<TEntity>(this IEnumerable<TEntity> source, string orderByProperty)
         {
             string command = "OrderByDescending";
-            var type = t;
+            var type = source.First().GetType();
             var property = type.GetProperty(orderByProperty);
             var parameter = Expression.Parameter(type, "p");
             var propertyAccess = Expression.MakeMemberAccess(parameter, property);
@@ -1207,33 +1298,8 @@ namespace Parser
             var resultExpression = Expression.Call(typeof(Queryable), command, new Type[] { type, property.PropertyType },
                                           source.AsQueryable().Expression, Expression.Quote(orderByExpression));
             return source.AsQueryable().Provider.CreateQuery<TEntity>(resultExpression);
-        }
-
-
-        //makes expression for specific prop
-
-
-
-        /* public static Expression<Func<TSource, object>> GetExpression<TSource>(string propertyName)
-         {
-             var param = Expression.Parameter(typeof(TSource), "x");
-             Expression conversion = Expression.Convert(Expression.Property
-             (param, propertyName), typeof(object));   //important to use the Expression.Convert
-             return Expression.Lambda<Func<TSource, object>>(conversion, param);
-         }
-
-         //makes deleget for specific prop
-         public static Func<TSource, object> GetFunc<TSource>(string propertyName)
-         {
-             return GetExpression<TSource>(propertyName).Compile();  //only need compiled expression
-         }
-
-         //OrderBy overload
-         public static IOrderedEnumerable<TSource>
-         OrderBy<TSource>(this IEnumerable<TSource> source, string propertyName)
-         {
-             return source.OrderBy(GetFunc<TSource>(propertyName));
-         }      */
+        }       
+       
     }
 
     class ColumnInfo
@@ -1244,8 +1310,10 @@ namespace Parser
     class Page
        
     {
-    
-       public int OldScrollValue { get; set; }      
+        public int SkipElementsCount { get; set; }
+        public int TakeElementsCount { get; set; }
+
+        public int OldScrollValue { get; set; }      
         public int Number { get; set; }
         public int StartIndex { get; set; }
         public int EndIndex { get; set; }
