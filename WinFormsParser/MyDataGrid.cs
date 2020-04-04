@@ -510,6 +510,47 @@ namespace Parser
         {
             if (!_Editor.CancelChanges && _Editor.IsValidated)
             {
+                Type t = _ItemsSource.First().GetType();
+                var dynamicObject = Activator.CreateInstance(t);
+                PropertyDescriptorCollection objectProperties = TypeDescriptor.GetProperties(dynamicObject);
+                Row bufeRow = _Buffer[_Editor.BufferCell.BuferRowIndex];
+                foreach (Cell cell in bufeRow.Cells)
+                {
+                    var prop = objectProperties.Find(_API.Columns[cell.SourceColumnIndex].HeaderText, false);
+                    if (prop != null)
+                    {
+                        if (prop.PropertyType == typeof(bool))
+                        {
+                         
+                            if (cell.Body == Resources.TrueValue)
+                            {
+                                prop.SetValue(dynamicObject, Convert.ChangeType(true, typeof(bool)));
+                            }
+                            else
+                            {
+                                prop.SetValue(dynamicObject, Convert.ChangeType(false, typeof(bool)));
+                            }
+                        }
+                        else
+                        {
+                            prop.SetValue(dynamicObject, Convert.ChangeType(cell.Body, prop.PropertyType));
+                        }
+                    }
+
+                }
+                var item = _ItemsSource.Select(k => k).Where(k => k.Equals(dynamicObject)).Single();
+                PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(item);
+
+                var property = properties.Find(_API.Columns[_Editor.BufferCell.SourceColumnIndex].HeaderText, false);
+                if (property != null)
+                {
+
+                    property.SetValue(item, Convert.ChangeType(_Editor.Value, property.PropertyType));
+
+
+                }
+              
+
                 if (_Editor.GetControl().GetType() == typeof(CheckBox))
                 {
                     CheckBox cb = (CheckBox)_Editor.GetControl();
@@ -528,23 +569,16 @@ namespace Parser
                     _Editor.BufferCell.Body = _Editor.Value;
                 }
                 int index = 0;
+              //  var item = _ItemsSource.ElementAt(7);
+              //  
+              //  ConstructorInfo ci= t.GetConstructor(new Type[] { });
 
-                var item = _ItemsSource.ElementAt(_Editor.BufferCell.SourceRowIndex);
-                
-                
-                PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(item);
-                var property = properties.Find(_API.Columns[_Editor.BufferCell.SourceColumnIndex].HeaderText, false);
-                if (property != null)
-                {
-                   
-                    property.SetValue(item, Convert.ChangeType(_Editor.Value, property.PropertyType));
-
-
-                }
+             
+                // var dynamicObject = ci.Invoke(new object[] { });
                 if (DataChanged != null)
                 {
                     EventArgs eventArgs = new EventArgs();
-                   DataChanged(this, eventArgs);
+                    DataChanged(this, eventArgs);
                 }
 
             }
