@@ -47,7 +47,7 @@ namespace Parser
                 {
                     _Editor.Width = _Editor.Height;
                     _Editor.Location = new Point(_Editor.Location.X + _Width / 2-_Editor.Width/2, _Editor.Location.Y);
-                    BufferCell.Body = "";
+                  BufferCell.BodyToPrint = "";
                 }
             } 
 

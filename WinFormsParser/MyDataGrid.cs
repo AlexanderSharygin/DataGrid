@@ -538,7 +538,7 @@ namespace Parser
                     }
 
                 }
-                var item = _ItemsSource.Select(k => k).Where(k => k.Equals(dynamicObject)).Single();
+                var item = _ItemsSource.CompareWithObject(dynamicObject);
                 PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(item);
 
                 var property = properties.Find(_API.Columns[_Editor.BufferCell.SourceColumnIndex].HeaderText, false);
@@ -782,8 +782,10 @@ namespace Parser
                                         text = text.Replace("\n", " ");
                                     }
                                     cellBody = text;
+                                    TempCell.BodyToPrint = cellBody;
                                 }
-                                e.Graphics.DrawString(cellBody, this.Font, _Brush, xCounterForText - HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex) + (RowHeight - FontHeight) / 2);
+                                
+                                e.Graphics.DrawString(TempCell.BodyToPrint, this.Font, _Brush, xCounterForText - HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex) + (RowHeight - FontHeight) / 2);
 
                                 e.Graphics.DrawLine(_Pen, -HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex + 1), _TableWidth - HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex + 1));
                                 viewPortRowIndex++;
@@ -1204,7 +1206,10 @@ namespace Parser
                 int xstart = item.XStartPosition;
                 int xend = item.XEndPosition;
                 _Editor.Location = new Point(xstart + _LineWidth, _Editor.Location.Y);
-                _Editor.Width = item.XEndPosition - item.XStartPosition;
+                if (_Editor.GetComponentType() != typeof(CheckBox))
+                {
+                    _Editor.Width = item.XEndPosition - item.XStartPosition;
+                }
                 _Editor.SetFocus();
                
             }
@@ -1332,8 +1337,43 @@ namespace Parser
             var resultExpression = Expression.Call(typeof(Queryable), command, new Type[] { type, property.PropertyType },
                                           source.AsQueryable().Expression, Expression.Quote(orderByExpression));
             return source.AsQueryable().Provider.CreateQuery<TEntity>(resultExpression);
-        }       
-       
+        }
+        public static TEntity CompareWithObject<TEntity>(this IEnumerable<TEntity> source,  TEntity @object)
+        {
+           
+           var resultObject = Activator.CreateInstance(source.First().GetType());
+          
+            foreach (var obj in source)
+            {
+                bool isFinded = true;
+                PropertyDescriptorCollection props = TypeDescriptor.GetProperties(@object);
+                PropertyDescriptorCollection objectProperties = TypeDescriptor.GetProperties(obj);
+                foreach (PropertyDescriptor prop in props)
+                {
+                    var tempProp = objectProperties.Find(prop.Name, false);
+                    var a = tempProp.GetValue(obj);
+                    var b = prop.GetValue(@object);
+                    if (tempProp.GetValue(obj).ToString() != prop.GetValue(@object).ToString())
+                    {
+                        isFinded = false;
+                        break;
+                    }
+                }
+                if (!isFinded)
+                {
+                    continue;
+                }
+                else 
+                {
+                    resultObject = obj;
+                    break;
+                }
+                   
+            }
+          
+            return (TEntity)resultObject;
+        }
+
     }
 
     class ColumnInfo

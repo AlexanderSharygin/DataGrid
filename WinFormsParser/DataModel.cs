@@ -79,7 +79,9 @@ namespace Parser
     }
     class Cell
     {
-        public string Body { get; set; }
+        string _Body;
+        public string Body { get=>_Body; set { _Body = value; BodyToPrint = _Body; } }
+        public string BodyToPrint { get; set; }
         public int SourceColumnIndex { get; set; }
         public int BuferRowIndex { get; set; }
         public int SourceRowIndex { get; set; }
