@@ -23,75 +23,7 @@ namespace Parser
 
         List<List<string>> _Source;
         IEnumerable<object> _ItemsSource;
-        Page Page;
-        public int BuferSize { get; set; } = 100;
-        public event DataChangedHeandler DataChanged;
-        public delegate void DataChangedHeandler(object sender, EventArgs eventArgs);
-        public event SortingChangedHeandler SortingChanged;
-       public delegate void SortingChangedHeandler(string columnName, string direction);
-       // Type _SourceType;
-        public IEnumerable<object> ItemsSource
-        { get
-            { return _ItemsSource; }
-            set
-            {
-               //_SourceType = value.First().GetType();
-                _ItemsSource = value;
-
-                Dictionary<string, Type> columnsInfo = GetColumnsInfo();
-                _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;
-
-                _Source = GetStringSource(columnsInfo);
-                if (ColumnsAutoGeneration)
-                {
-                    Columns.Clear();
-                      _Buffer.Clear();                 
-
-                    foreach (var item in columnsInfo)
-                    {
-                        Columns.Add(new Column(item.Key, item.Value) { Visible = true });
-                    }
-                }
-                for (int k = 1; k < _Buffer.Count; k++)
-                {
-                    foreach (var cell in _Buffer[k].Cells)
-                    {
-                        cell.SourceRowIndex = k-1;
-                    }
-                }
-            }
-        }
-
-        private Dictionary<string, Type> GetColumnsInfo()
-        {
-            Dictionary<string, Type> columns = new Dictionary<string, Type>();
-            var @object = ItemsSource.First();
-            PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(@object);
-            foreach (PropertyDescriptor property in properties)
-            {
-                if (!columns.ContainsKey(property.Name))
-                {
-                    columns.Add(property.Name, property.PropertyType);
-                }
-            }
-
-            return columns;
-
-        }
-        private List<List<string>> GetStringSource(Dictionary<string, Type> columns)
-        {
-            List<List<string>> StringSource = new List<List<string>>(BuferSize);
-            foreach (var item in columns)
-            {
-
-                List<string> ColumnItems = new List<string>();
-              ColumnItems.Add(item.Key);
-                var items = _ItemsSource.Take(BuferSize);
-                ColumnItems.AddRange(GetColumnItemsFromSource(item.Key, item.Value, items));                           
-                StringSource.Add(ColumnItems);
-            }
-            return StringSource;
-        }
+        Page _Page;
         List<Row> _Buffer;
         Source _API;
         EditorSelector _Editor;
@@ -108,6 +40,10 @@ namespace Parser
         Brush _Brush;
         Pen _Pen;
         List<HeaderCell> Header;
+        public int BuferSize { get; set; } = 50;
+        public event DataChangedHeandler DataChanged;
+        public delegate void DataChangedHeandler(object sender, EventArgs eventArgs);    
+        public delegate void SortingChangedHeandler(string columnName, string direction);
         public MyDataGrid()
         {
 
@@ -135,77 +71,12 @@ namespace Parser
             HorisontalScrollBar.Value = 0;
             _Brush = new SolidBrush(ForeColor);
             _Pen = new Pen(LineColor, _LineWidth);
-            Page = new Page() { Number = 1, StartIndex = 0, EndIndex = BuferSize, SkipElementsCount=0, TakeElementsCount=BuferSize };
+            _Page = new Page() { Number = 1, StartIndex = 0, EndIndex = BuferSize, SkipElementsCount = 0, TakeElementsCount = BuferSize };
             MouseWheel += DataGridMouseWheel;
             HorisontalScrollBar.MouseWheel += HorizontalScrollMouseWheel;
             Leave += MyDataGrid_LostFocus;
-            
-        }
 
-
-        private void HorizontalScrollMouseWheel(object sender, MouseEventArgs e)
-        {
-            UpdateColumnsPosition();
-            if (_Editor != null)
-            {
-                var item = _API.Columns.Select(k => k).Where(k => k.Index == _Editor.ColumnIndex).Single();
-                int xstart = item.XStartPosition;
-                _Editor.Location = new Point(xstart + _LineWidth, _Editor.Location.Y);
-            }
-            if (_API.IsTypeSelectorOpened)
-            {
-                var item = _API.Columns.Select(k => k).Where(k => k.Index == _API.TypeSelector.ColumnData.Index).Single();
-                int xstart = item.XStartPosition;
-                _API.TypeSelector.Location = new Point(xstart + 5, _API.TypeSelector.Location.Y);
-            }
         }
-
-        private void RemoveEditorFromControls(bool isDropChanges)
-        {
-            var editorControl = _Editor?.GetControl();
-            if (editorControl != null)
-            {
-                Controls.Remove((Control)editorControl);
-                if (!isDropChanges)
-                {
-                    _Editor.BufferCell.Body = _Editor.OriginalValue;
-                }
-                _Editor = null;
-                _API.IsEditorUsed = false;
-                _API.IsEditorOpened = false;
-            }
-        }
-        private void RemoveTypeSelectorFromControls()
-        {
-            Controls.Remove((Control)_API.TypeSelector);
-        }
-        private void MyDataGrid_LostFocus(object sender, EventArgs e)
-        {
-            RemoveEditorFromControls(true);
-            _Editor = null;
-            CustomInvalidate();
-        }
-
-        private void DataGridMouseWheel(object sender, MouseEventArgs e)
-        {
-            if (e.Delta < 0 && VerticalScrollBar.Value + VerticalScrollBar.SmallChange < VerticalScrollBar.Maximum)
-            {
-                VerticalScrollBar.Value += VerticalScrollBar.SmallChange;
-            }
-            if (e.Delta > 0 && VerticalScrollBar.Value > VerticalScrollBar.Minimum)
-            {
-                if (VerticalScrollBar.Value >= VerticalScrollBar.SmallChange)
-                {
-                    VerticalScrollBar.Value -= VerticalScrollBar.SmallChange;
-                    if (VerticalScrollBar.Value < VerticalScrollBar.SmallChange)
-                    {
-                        VerticalScrollBar.Value = VerticalScrollBar.Minimum;
-                    }
-                }
-
-            }
-        }
-
         internal ObservableCollection<Column> Columns
         {
             get
@@ -240,6 +111,122 @@ namespace Parser
                 UpdateScrolls();
             }
         }
+
+        public IEnumerable<object> ItemsSource
+        { get
+            { return _ItemsSource; }
+            set
+            {             
+                _ItemsSource = value;
+                Dictionary<string, Type> columnsInfo = GetColumnsInfo();
+                _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;
+
+                _Source = GetStringSource(columnsInfo);
+                if (ColumnsAutoGeneration)
+                {
+                    Columns.Clear();                            
+
+                    foreach (var item in columnsInfo)
+                    {
+                        Columns.Add(new Column(item.Key, item.Value) { Visible = true });
+                    }
+                }            
+            }
+        }
+
+        private Dictionary<string, Type> GetColumnsInfo()
+        {
+            Dictionary<string, Type> columns = new Dictionary<string, Type>();
+            var @object = ItemsSource.First();
+            PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(@object);
+            foreach (PropertyDescriptor property in properties)
+            {
+                if (!columns.ContainsKey(property.Name))
+                {
+                    columns.Add(property.Name, property.PropertyType);
+                }
+            }
+
+            return columns;
+
+        }
+        private List<List<string>> GetStringSource(Dictionary<string, Type> columns)
+        {
+            List<List<string>> StringSource = new List<List<string>>(BuferSize);
+            foreach (var item in columns)
+            {
+
+                List<string> ColumnItems = new List<string>();
+                ColumnItems.Add(item.Key);
+                var items = _ItemsSource.Take(BuferSize);
+                ColumnItems.AddRange(GetColumnItemsFromSource(item.Key, item.Value, items));
+                StringSource.Add(ColumnItems);
+            }
+            return StringSource;
+        }   
+    
+        private void HorizontalScrollMouseWheel(object sender, MouseEventArgs e)
+        {
+            UpdateColumnsPosition();
+            if (_Editor != null)
+            {
+                var item = _API.Columns.Select(k => k).Where(k => k.Index == _Editor.ColumnIndex).Single();
+                int xstart = item.XStartPosition;
+                _Editor.Location = new Point(xstart + _LineWidth, _Editor.Location.Y);
+            }
+            if (_API.IsTypeSelectorOpened)
+            {
+                var item = _API.Columns.Select(k => k).Where(k => k.Index == _API.TypeSelector.ColumnData.Index).Single();
+                int xstart = item.XStartPosition;
+                _API.TypeSelector.Location = new Point(xstart + 5, _API.TypeSelector.Location.Y);
+            }
+        }
+
+        private void RemoveEditorFromControls(bool isDropChanges)
+        {
+            var editorControl = _Editor?.GetControl();
+            if (editorControl != null)
+            {
+                Controls.Remove(editorControl);
+                if (!isDropChanges)
+                {
+                    _Editor.BufferCell.Body = _Editor.OriginalValue;
+                }
+                _Editor = null;
+                _API.IsEditorUsed = false;
+                _API.IsEditorOpened = false;
+            }
+        }
+        private void RemoveTypeSelectorFromControls()
+        {
+            Controls.Remove(_API.TypeSelector);
+        }
+        private void MyDataGrid_LostFocus(object sender, EventArgs e)
+        {
+            RemoveEditorFromControls(true);
+            _Editor = null;
+            CustomInvalidate();
+        }
+
+        private void DataGridMouseWheel(object sender, MouseEventArgs e)
+        {
+            if (e.Delta < 0 && VerticalScrollBar.Value + VerticalScrollBar.SmallChange < VerticalScrollBar.Maximum)
+            {
+                VerticalScrollBar.Value += VerticalScrollBar.SmallChange;
+            }
+            if (e.Delta > 0 && VerticalScrollBar.Value > VerticalScrollBar.Minimum)
+            {
+                if (VerticalScrollBar.Value >= VerticalScrollBar.SmallChange)
+                {
+                    VerticalScrollBar.Value -= VerticalScrollBar.SmallChange;
+                    if (VerticalScrollBar.Value < VerticalScrollBar.SmallChange)
+                    {
+                        VerticalScrollBar.Value = VerticalScrollBar.Minimum;
+                    }
+                }
+
+            }
+        }      
         private void RemoveFromBufer()
         {
             string deletedHeaderText = "";
@@ -345,9 +332,7 @@ namespace Parser
         {
             if (e.PropertyName == "SortDirection")
             {
-               
-                    SortData();       
-
+                SortData();
                 CustomInvalidate();
             }
         }
@@ -379,13 +364,8 @@ namespace Parser
                 UpdateScrolls();
                 foreach (var item in Columns)
                 {
-
-
-
                     item.PropertyChanged -= ColumnPropertyChanged;
                     item.PropertyChanged += ColumnPropertyChanged;
-
-
                 }
 
             }
@@ -461,8 +441,7 @@ namespace Parser
                 _Editor.Visible = false;
                 _API.IsEditorOpened = true;
             }
-            CalculateTotalTableWidth();
-        //   SortBuferRows();
+            CalculateTotalTableWidth();     
             Header = new List<HeaderCell>();
             RemoveHeaderFromControls();
             for (int i = 0; i < _API.Columns.Count; i++)
@@ -510,51 +489,42 @@ namespace Parser
         {
             if (!_Editor.CancelChanges && _Editor.IsValidated)
             {
-                Type t = _ItemsSource.First().GetType();
-                var dynamicObject = Activator.CreateInstance(t);
-                PropertyDescriptorCollection objectProperties = TypeDescriptor.GetProperties(dynamicObject);
+                Type sourceObjectsType = _ItemsSource.First().GetType();
+                var tempObject = Activator.CreateInstance(sourceObjectsType);
+                PropertyDescriptorCollection tempObjectProperties = TypeDescriptor.GetProperties(tempObject);
                 Row bufeRow = _Buffer[_Editor.BufferCell.BuferRowIndex];
                 foreach (Cell cell in bufeRow.Cells)
                 {
-                    var prop = objectProperties.Find(_API.Columns[cell.SourceColumnIndex].HeaderText, false);
-                    if (prop != null)
+                    var tempObjectProperty = tempObjectProperties.Find(_API.Columns[cell.SourceColumnIndex].HeaderText, false);
+                    if (tempObjectProperty?.PropertyType == typeof(bool))
                     {
-                        if (prop.PropertyType == typeof(bool))
+                        if (cell.Body == Resources.TrueValue)
                         {
-                         
-                            if (cell.Body == Resources.TrueValue)
-                            {
-                                prop.SetValue(dynamicObject, Convert.ChangeType(true, typeof(bool)));
-                            }
-                            else
-                            {
-                                prop.SetValue(dynamicObject, Convert.ChangeType(false, typeof(bool)));
-                            }
+                            tempObjectProperty.SetValue(tempObject, Convert.ChangeType(true, typeof(bool)));
                         }
                         else
                         {
-                            prop.SetValue(dynamicObject, Convert.ChangeType(cell.Body, prop.PropertyType));
+                            tempObjectProperty.SetValue(tempObject, Convert.ChangeType(false, typeof(bool)));
                         }
                     }
-
+                    else
+                    {
+                        tempObjectProperty?.SetValue(tempObject, Convert.ChangeType(cell.Body, tempObjectProperty.PropertyType));
+                    }
                 }
-                var item = _ItemsSource.CompareWithObject(dynamicObject);
-                PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(item);
+                var sourceObject = _ItemsSource.GetObjectWithMatchingProperties(tempObject);
+                PropertyDescriptorCollection sourceObjectProperties = TypeDescriptor.GetProperties(sourceObject);
 
-                var property = properties.Find(_API.Columns[_Editor.BufferCell.SourceColumnIndex].HeaderText, false);
-                if (property != null)
+                var sourceObjectProperty = sourceObjectProperties.Find(_API.Columns[_Editor.BufferCell.SourceColumnIndex].HeaderText, false);
+                if (sourceObjectProperty != null)
                 {
-
-                    property.SetValue(item, Convert.ChangeType(_Editor.Value, property.PropertyType));
-
-
-                }
-              
+                    sourceObjectProperty.SetValue(sourceObject, Convert.ChangeType(_Editor.Value, sourceObjectProperty.PropertyType));
+                }            
 
                 if (_Editor.GetControl().GetType() == typeof(CheckBox))
                 {
-                    CheckBox cb = (CheckBox)_Editor.GetControl();
-                    if (cb.Checked)
+                    CheckBox control = (CheckBox)_Editor.GetControl();
+                    if (control.Checked)
                     {
                         _Editor.BufferCell.Body = Resources.TrueValue;
                     }
@@ -568,13 +538,7 @@ namespace Parser
 
                     _Editor.BufferCell.Body = _Editor.Value;
                 }
-                int index = 0;
-              //  var item = _ItemsSource.ElementAt(7);
-              //  
-              //  ConstructorInfo ci= t.GetConstructor(new Type[] { });
-
-             
-                // var dynamicObject = ci.Invoke(new object[] { });
+                     
                 if (DataChanged != null)
                 {
                     EventArgs eventArgs = new EventArgs();
@@ -597,7 +561,7 @@ namespace Parser
             if (_API.SortDirection != SortDirections.None)
             {
                 SortData();
-                // SortBuferRows();
+              
             }
             VerticalScrollBar.Maximum = ((_TotalRowsCount - _ViewPortRowsCount) * _VerticalScrollValueRatio) - 1;
             Invalidate();
@@ -605,87 +569,48 @@ namespace Parser
         }
         private void SortData()
         {
-
             IEnumerable items = _ItemsSource;
-
             if (_API.SortedColumnIndex != -1)
             {
                 if (_API.SortDirection == SortDirections.ASC)
                 {
-                    items = _ItemsSource.OrderBy(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(Page.SkipElementsCount).Take(Page.TakeElementsCount).ToList();
+                    items = _ItemsSource.OrderBy(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(_Page.SkipElementsCount).Take(_Page.TakeElementsCount).ToList();
                 }
                 else if (_API.SortDirection == SortDirections.DESC)
                 {
-                    items = _ItemsSource.OrderByDescending(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(Page.SkipElementsCount).Take(Page.TakeElementsCount).ToList();
+                    items = _ItemsSource.OrderByDescending(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(_Page.SkipElementsCount).Take(_Page.TakeElementsCount).ToList();
 
                 }
                 else if (_API.SortDirection == SortDirections.None)
                 {
-                    items = _ItemsSource.OrderBy("Id").Skip(Page.SkipElementsCount).Take(Page.TakeElementsCount).ToList();
+                    items = _ItemsSource.OrderBy(_API.Columns.First().HeaderText).Skip(_Page.SkipElementsCount).Take(_Page.TakeElementsCount).ToList();
                 }
             }
             else
             {
-                items = _ItemsSource.OrderByDescending("Id").Skip(Page.SkipElementsCount).Take(Page.TakeElementsCount).ToList();
+                items = _ItemsSource.OrderBy(_API.Columns.First().HeaderText).Skip(_Page.SkipElementsCount).Take(_Page.TakeElementsCount).ToList();
             }
-
             Dictionary<string, Type> columns = GetColumnsInfo();
-            int i = 0;
+            int index = 0;
             foreach (var item in columns)
             {
                 List<string> ColumnItems = new List<string>();
                 ColumnItems = GetColumnItemsFromSource(item.Key, item.Value, items);
                 List<string> viewPortItems = new List<string>();
-                var a = _Source[i].First();
-                _Source[i].Clear();
-                _Source[i].Add(a);
-                _Source[i].AddRange(ColumnItems);
-                _Source[i].AddRange(viewPortItems);
-                i++;
+                var a = _Source[index].First();
+                _Source[index].Clear();
+                _Source[index].Add(a);
+                _Source[index].AddRange(ColumnItems);
+                _Source[index].AddRange(viewPortItems);
+                index++;
 
             }
             _Buffer.Clear();
             for (int j = 0; j < _Source.Count; j++)
             {
                 AddToBufer(_Source[j].First());
-            }
-            for (int k = 0; k < _Buffer.Count; k++)
-            {
-                foreach (var cell in _Buffer[k].Cells)
-                {
-                    cell.SourceRowIndex = Page.StartIndex - 1 + k;
-                }
-            }
-        }
-
-     /*   private void SortBuferRows()
-        {
-            if (_Buffer.Count > 0)
-            {
-                Row firstRowBufer = new Row();
-                firstRowBufer = _Buffer.First();
-                int sortedIndex = -1;
-                if (_API.SortedColumnIndex != -1 && _API.Columns.Count > 0)
-                {
-                    sortedIndex = GetCellColumnIndexInBufer(_API.Columns.Where(k => k.Index == _API.SortedColumnIndex).Single().HeaderText);
-                }
-                _Buffer.RemoveAt(0);
-                if (_API.SortDirection != SortDirections.None)
-                {
-                    RowComparer u = (_API.SortDirection == SortDirections.ASC) ? new RowComparer(true, sortedIndex, _API.Columns.Where(k => k.Index == _API.SortedColumnIndex).Single().DataType) : new RowComparer(false, sortedIndex, _API.Columns.Where(k => k.Index == _API.SortedColumnIndex).Single().DataType);
-                    _Buffer.Sort(u);
-                }
-                else if (_API.SortDirection == SortDirections.None)
-                {
-                    if (_Buffer.First().Cells.Count > 0)
-                    {
-                        _Buffer.Sort((a, b) => a.Cells.First().BuferRowIndex.CompareTo(b.Cells.First().BuferRowIndex));
-                    }
-                }
-                _Buffer.Insert(0, firstRowBufer);
-
-            }
-        }*/
+            }         
+        }     
         private void UpdateHeadersWidth()
         {
             for (int i = 0; i < _API.Columns.Count; i++)
@@ -701,7 +626,6 @@ namespace Parser
                 }
             }
         }
-
         private int GetCellColumnIndexInBufer(string item)
         {
             int index = -1;
@@ -786,7 +710,6 @@ namespace Parser
                                 }
                                 
                                 e.Graphics.DrawString(TempCell.BodyToPrint, this.Font, _Brush, xCounterForText - HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex) + (RowHeight - FontHeight) / 2);
-
                                 e.Graphics.DrawLine(_Pen, -HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex + 1), _TableWidth - HorisontalScrollBar.Value, RowHeight * (viewPortRowIndex + 1));
                                 viewPortRowIndex++;
                                 bufferRowIndex++;
@@ -803,12 +726,8 @@ namespace Parser
                 e.Graphics.DrawLine(_Pen, _TableWidth - HorisontalScrollBar.Value, 0, _TableWidth - HorisontalScrollBar.Value, 0 + RowHeight * (_ViewPortRowsCount + 1));
                 e.Graphics.DrawLine(_Pen, 0 - HorisontalScrollBar.Value, RowHeight, _TableWidth - HorisontalScrollBar.Value, RowHeight);
 
-            }
+           }
         }
-
-
-
-
         private void UpdateHorizontalScroll()
         {
             var viewportWidth = this.ClientSize.Width - (VerticalScrollBar.Visible ? VerticalScrollBar.Width : 0);
@@ -824,10 +743,6 @@ namespace Parser
                 HorisontalScrollBar.Maximum = 0;
             }
         }
-
-
-
-
         private void UpdateColumnsPosition()
         {
 
@@ -926,8 +841,7 @@ namespace Parser
         }
         private List<string> GetColumnItemsFromSource(string name, Type type, IEnumerable items)
         {
-            List<string> ColumnItems = new List<string>();
-           //var items = _ItemsSource.Skip(Page.EndIndex - 1 - _ViewPortRowsCount).Take(BuferSize + _ViewPortRowsCount);
+            List<string> ColumnItems = new List<string>();          
             foreach (var @object in items)
             {
                 PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(@object);
@@ -936,13 +850,13 @@ namespace Parser
                 {
                     if (type == typeof(DateTime))
                     {
-                        DateTime temp = (DateTime)property.GetValue(@object);
+                        DateTime temp = (DateTime)property?.GetValue(@object);
                         string itemValue = temp.ToString(Resources.DefaultDataFormat);
                         ColumnItems.Add(itemValue);
                     }
                     else if (type == typeof(Boolean))
                     {
-                        bool temp = (bool)property.GetValue(@object);
+                        bool temp = (bool)property?.GetValue(@object);
                         if (temp)
                         {
                             ColumnItems.Add(Resources.TrueValue);
@@ -972,165 +886,132 @@ namespace Parser
             UpdateHeadersWidth();
             CalculateTotalTableWidth();
             _FirstPrintedRowIndex = VerticalScrollBar.Value / _VerticalScrollValueRatio;
-            if (Page.Number > 1)
+            if (_Page.Number > 1)
             {
-                _FirstPrintedRowIndex = _FirstPrintedRowIndex- (BuferSize* (Page.Number-1))+_ViewPortRowsCount+1;
+                _FirstPrintedRowIndex = _FirstPrintedRowIndex- (BuferSize* (_Page.Number-1))+_ViewPortRowsCount+1;
             }
             int scrollOffset = 0;
-            if (Page.OldScrollValue < VerticalScrollBar.Value)
+            if (_Page.OldScrollValue < VerticalScrollBar.Value)
             {
               //  _FirstPrintedRowIndex++;
-                if (Page.Number > 2)
+                if (_Page.Number > 2)
                 {
                    IsScrolledDown=true;
                 }
                
             }
-            else if (Page.OldScrollValue > VerticalScrollBar.Value)
+            else if (_Page.OldScrollValue > VerticalScrollBar.Value)
             {
                 //_FirstPrintedRowIndex--;
-                if (Page.Number == 2)
+                if (_Page.Number == 2)
                 {
                     IsScrolledDown = false;
                 }
-
-            }
-            
+            }            
             if (VerticalScrollBar.Value < 0)
             {
-                _FirstPrintedRowIndex = 0;
-               
+                _FirstPrintedRowIndex = 0;               
             }
             if (IsScrolledDown)
             {
                 scrollOffset = 1;
             }
             if (_Editor != null)
-            {
-                  
-                _Editor.Location = new Point(_Editor.Location.X, _Editor.DefaultPosition.Y - _FirstPrintedRowIndex * RowHeight);
-                
-
-                _Editor.SetFocus();
-              
-            }
-           
-
-           
-            if ((VerticalScrollBar.Value / _VerticalScrollValueRatio >= Page.EndIndex-_ViewPortRowsCount))
-            {
-               
+            {                  
+                _Editor.Location = new Point(_Editor.Location.X, _Editor.DefaultPosition.Y - _FirstPrintedRowIndex * RowHeight);               
+                _Editor.SetFocus();              
+            }                   
+            if ((VerticalScrollBar.Value / _VerticalScrollValueRatio >= _Page.EndIndex-_ViewPortRowsCount))
+            {               
                 int startPoint = 0;
                 int takeCount = 0;
                 Dictionary<string, Type> columns = GetColumnsInfo();
                 int i = 0;
-                startPoint = Page.EndIndex - 1 - _ViewPortRowsCount;
+                startPoint = _Page.EndIndex - 1 - _ViewPortRowsCount;
                 takeCount = startPoint + BuferSize + _ViewPortRowsCount;
                 IEnumerable items = _ItemsSource;
                 if (_API.SortedColumnIndex != -1)
                 {
-
                     if (_API.SortDirection == SortDirections.ASC)
                     {
-                        items = _ItemsSource.OrderBy(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(Page.EndIndex - 1 - _ViewPortRowsCount).Take(BuferSize + _ViewPortRowsCount);
+                        items = _ItemsSource.OrderBy(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(_Page.EndIndex - 1 - _ViewPortRowsCount).Take(BuferSize + _ViewPortRowsCount);
                     }
                     if (_API.SortDirection == SortDirections.DESC)
                     {
-                        items = _ItemsSource.OrderByDescending(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(Page.EndIndex - 1 - _ViewPortRowsCount).Take(BuferSize + _ViewPortRowsCount);
+                        items = _ItemsSource.OrderByDescending(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(_Page.EndIndex - 1 - _ViewPortRowsCount).Take(BuferSize + _ViewPortRowsCount);
                     }
-
                     else if (_API.SortDirection == SortDirections.None)
                     {
-                        items = _ItemsSource.OrderByDescending("Id").Skip(Page.EndIndex - 1 - _ViewPortRowsCount).Take(BuferSize + _ViewPortRowsCount);
+                        items = _ItemsSource.OrderBy(_API.Columns.First().HeaderText).Skip(_Page.EndIndex - 1 - _ViewPortRowsCount).Take(BuferSize + _ViewPortRowsCount);
                     }
-
                 }
                 else
                 {
-                     items = _ItemsSource.OrderBy("Id").Skip(Page.EndIndex - 1 - _ViewPortRowsCount).Take(BuferSize + _ViewPortRowsCount);
-                  
+                    items = _ItemsSource.OrderBy(_API.Columns.First().HeaderText).Skip(_Page.EndIndex - 1 - _ViewPortRowsCount).Take(BuferSize + _ViewPortRowsCount);
                 }
                 foreach (var item in columns)
                 {
-
                     List<string> ColumnItems = new List<string>();
                     ColumnItems = GetColumnItemsFromSource(item.Key, item.Value, items);
-
                     var a = _Source[i].First();
                     _Source[i].Clear();
                     _Source[i].Add(a);             
                     _Source[i].AddRange(ColumnItems);
-                    i++;
-                  
-                }             
-               
-                
-                _FirstPrintedRowIndex = 1;            
-              
-
+                    i++;                  
+                }                         
+                _FirstPrintedRowIndex = 1;                        
                 _Buffer.Clear();
                 for (int  j = 0;  j <_Source.Count;  j++)
                 {
                     AddToBufer(_Source[j].First());
-                }
-              
-                Page.Number++;                
-                Page.StartIndex = Page.EndIndex;
-                Page.EndIndex += BuferSize;
-                Page.SkipElementsCount = startPoint;
-                Page.TakeElementsCount = takeCount;
-                for (int k =0; k< _Buffer.Count; k++)
-                {
-                    foreach (var cell in _Buffer[k].Cells)
-                    {
-                        cell.SourceRowIndex = startPoint-1 + k;
-                    }
-                }
-            
+                }              
+                _Page.Number++;                
+                _Page.StartIndex = _Page.EndIndex;
+                _Page.EndIndex += BuferSize;
+                _Page.SkipElementsCount = startPoint;
+                _Page.TakeElementsCount = takeCount;                     
             }
-           if (VerticalScrollBar.Value / _VerticalScrollValueRatio +_ViewPortRowsCount +scrollOffset <= Page.StartIndex && Page.OldScrollValue>VerticalScrollBar.Value)
-            {
-               
+           if (VerticalScrollBar.Value / _VerticalScrollValueRatio +_ViewPortRowsCount +scrollOffset <= _Page.StartIndex && _Page.OldScrollValue>VerticalScrollBar.Value)
+            {               
                 scrollOffset =0;
                 int startPoint = 0;
                 int endPoint = 0;
                 int i = 0;
                 int k = 0;
-                if (Page.Number > 2)
+                if (_Page.Number > 2)
                 {
                     k = 1;
                 }
                 Dictionary<string, Type> columns = GetColumnsInfo();
-                if (Page.Number <= 2)
+                if (_Page.Number <= 2)
                 {
                     startPoint = 0;
                 }
                 else
                 {
-                    startPoint = Page.StartIndex - BuferSize - _ViewPortRowsCount - k;
+                    startPoint = _Page.StartIndex - BuferSize - _ViewPortRowsCount - k;
                 }
                IEnumerable items = _ItemsSource;
                 if (_API.SortedColumnIndex != -1)
                 {
                     if (_API.SortDirection == SortDirections.ASC)
                     {
-                        items = _ItemsSource.OrderBy(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(Page.StartIndex - BuferSize - _ViewPortRowsCount - k).Take(BuferSize + _ViewPortRowsCount * k);
+                        items = _ItemsSource.OrderBy(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(_Page.StartIndex - BuferSize - _ViewPortRowsCount - k).Take(BuferSize + _ViewPortRowsCount * k);
                     }
                     else if (_API.SortDirection == SortDirections.ASC)
                     {
-                        items = _ItemsSource.OrderByDescending(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(Page.StartIndex - BuferSize - _ViewPortRowsCount - k).Take(BuferSize + _ViewPortRowsCount * k);
+                        items = _ItemsSource.OrderByDescending(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(_Page.StartIndex - BuferSize - _ViewPortRowsCount - k).Take(BuferSize + _ViewPortRowsCount * k);
                     }
                     else if (_API.SortDirection == SortDirections.None)
                     {
-                        items = _ItemsSource.OrderByDescending("Id").Skip(Page.StartIndex - BuferSize - _ViewPortRowsCount - k).Take(BuferSize + _ViewPortRowsCount * k);
+                        items = _ItemsSource.OrderBy(_API.Columns.First().HeaderText).Skip(_Page.StartIndex - BuferSize - _ViewPortRowsCount - k).Take(BuferSize + _ViewPortRowsCount * k);
                     }
                 }
                 else
                 {
-                    items = _ItemsSource.OrderBy("Id").Skip(Page.StartIndex - BuferSize - _ViewPortRowsCount - k).Take(BuferSize + _ViewPortRowsCount * k);
+                    items = _ItemsSource.OrderBy(_API.Columns.First().HeaderText).Skip(_Page.StartIndex - BuferSize - _ViewPortRowsCount - k).Take(BuferSize + _ViewPortRowsCount * k);
 
-                }
-              // var items = _ItemsSource.Skip(Page.StartIndex - BuferSize - _ViewPortRowsCount - k).Take(BuferSize + _ViewPortRowsCount * k);
+                }           
                 foreach (var item in columns)
                 {
                     
@@ -1148,14 +1029,9 @@ namespace Parser
                     _Source[i].Add(a);
                     _Source[i].AddRange(ColumnItems);
                     _Source[i].AddRange(viewPortItems);
-                    i++;
-                  
+                    i++;                  
                 }
-
-
-
-
-                if (Page.Number <= 2)
+                if (_Page.Number <= 2)
                 {
                     _FirstPrintedRowIndex = BuferSize - _ViewPortRowsCount;
                 }
@@ -1169,21 +1045,13 @@ namespace Parser
                     AddToBufer(_Source[j].First());
                 }
               
-                Page.Number--;
-                Page.StartIndex -= BuferSize;
-                Page.EndIndex -= BuferSize;
-                Page.SkipElementsCount = startPoint;
-                Page.TakeElementsCount = endPoint;
-                for (int j = 0; j < _Buffer.Count; j++)
-                {
-                    foreach (var cell in _Buffer[j].Cells)
-                    {
-                        cell.SourceRowIndex = startPoint - 1 + j;
-                    }
-                }
-
+                _Page.Number--;
+                _Page.StartIndex -= BuferSize;
+                _Page.EndIndex -= BuferSize;
+                _Page.SkipElementsCount = startPoint;
+                _Page.TakeElementsCount = endPoint;             
             }
-            Page.OldScrollValue = VerticalScrollBar.Value;
+            _Page.OldScrollValue = VerticalScrollBar.Value;
             Invalidate();
         }
         private void VerticalScrollBar_VisibleChanged(object sender, EventArgs e)
@@ -1216,12 +1084,8 @@ namespace Parser
             if (_API.IsTypeSelectorOpened)
             {
                 var item = _API.Columns.Select(k => k).Where(k => k.Index == _API.TypeSelector.ColumnData.Index).Single();
-               int xstart = item.XStartPosition;
-               
-               _API.TypeSelector.Location = new Point(xstart + 5, _API.TypeSelector.Location.Y);
-
-              
-
+               int xstart = item.XStartPosition;               
+               _API.TypeSelector.Location = new Point(xstart + 5, _API.TypeSelector.Location.Y);            
             }
             Invalidate();
         }
@@ -1268,8 +1132,7 @@ namespace Parser
                             editor.OriginalValue= _Buffer[BuferRowIndex].Cells[BuferColumnIndex].Body;
                             editor.Font = this.Font;
                             editor.Width = item.XEndPosition - item.XStartPosition;
-                            editor.DefaultPosition = new Point(ColumnXStart + _LineWidth, _RowHeight * BuferRowIndex + _LineWidth);
-                         
+                            editor.DefaultPosition = new Point(ColumnXStart + _LineWidth, _RowHeight * BuferRowIndex + _LineWidth);                         
                             var viewportheight = this.Height;
                             if (HorisontalScrollBar.Visible)
                             {
@@ -1286,10 +1149,7 @@ namespace Parser
                             }
                             if (editor.Location.Y + editor.Height > viewportheight && _TotalRowsCount - BuferRowIndex<=1)
                             {
-                                 editor.Location = new Point(editor.Location.X, editor.Location.Y - editor.Height+RowHeight-_LineWidth);
-                                
-                               
-
+                                 editor.Location = new Point(editor.Location.X, editor.Location.Y - editor.Height+RowHeight-_LineWidth);                                                             
                             }
                             editor.ColumnIndex = item.Index;
                             _Editor = editor;                          
@@ -1308,90 +1168,8 @@ namespace Parser
 
         }
     }
-    public static class Utility
-    {
-     
-
-
-        public static IEnumerable<TEntity> OrderBy<TEntity>(this IEnumerable<TEntity> source, string orderByProperty)
-        {
-            string command = "OrderBy";
-            var type = source.First().GetType();
-            var property = type.GetProperty(orderByProperty);
-            var parameter = Expression.Parameter(type, "p");
-            var propertyAccess = Expression.MakeMemberAccess(parameter, property);
-            var orderByExpression = Expression.Lambda(propertyAccess, parameter);
-            var resultExpression = Expression.Call(typeof(Queryable), command, new Type[] { type, property.PropertyType },
-                                          source.AsQueryable().Expression, Expression.Quote(orderByExpression));
-            return source.AsQueryable().Provider.CreateQuery<TEntity>(resultExpression);
-          
-        }
-        public static IEnumerable<TEntity> OrderByDescending<TEntity>(this IEnumerable<TEntity> source, string orderByProperty)
-        {
-            string command = "OrderByDescending";
-            var type = source.First().GetType();
-            var property = type.GetProperty(orderByProperty);
-            var parameter = Expression.Parameter(type, "p");
-            var propertyAccess = Expression.MakeMemberAccess(parameter, property);
-            var orderByExpression = Expression.Lambda(propertyAccess, parameter);
-            var resultExpression = Expression.Call(typeof(Queryable), command, new Type[] { type, property.PropertyType },
-                                          source.AsQueryable().Expression, Expression.Quote(orderByExpression));
-            return source.AsQueryable().Provider.CreateQuery<TEntity>(resultExpression);
-        }
-        public static TEntity CompareWithObject<TEntity>(this IEnumerable<TEntity> source,  TEntity @object)
-        {
-           
-           var resultObject = Activator.CreateInstance(source.First().GetType());
-          
-            foreach (var obj in source)
-            {
-                bool isFinded = true;
-                PropertyDescriptorCollection props = TypeDescriptor.GetProperties(@object);
-                PropertyDescriptorCollection objectProperties = TypeDescriptor.GetProperties(obj);
-                foreach (PropertyDescriptor prop in props)
-                {
-                    var tempProp = objectProperties.Find(prop.Name, false);
-                    var a = tempProp.GetValue(obj);
-                    var b = prop.GetValue(@object);
-                    if (tempProp.GetValue(obj).ToString() != prop.GetValue(@object).ToString())
-                    {
-                        isFinded = false;
-                        break;
-                    }
-                }
-                if (!isFinded)
-                {
-                    continue;
-                }
-                else 
-                {
-                    resultObject = obj;
-                    break;
-                }
-                   
-            }
-          
-            return (TEntity)resultObject;
-        }
-
-    }
-
-    class ColumnInfo
-    {
-        public Type Type { get; set; }
-        public string Name { get; set; }
-    }
-    class Page
-       
-    {
-        public int SkipElementsCount { get; set; }
-        public int TakeElementsCount { get; set; }
-
-        public int OldScrollValue { get; set; }      
-        public int Number { get; set; }
-        public int StartIndex { get; set; }
-        public int EndIndex { get; set; }
-    }
+   
+  
 
 }
 

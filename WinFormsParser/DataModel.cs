@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 
@@ -84,7 +85,7 @@ namespace Parser
         public string BodyToPrint { get; set; }
         public int SourceColumnIndex { get; set; }
         public int BuferRowIndex { get; set; }
-        public int SourceRowIndex { get; set; }
+     
 
     }
     class Row
@@ -253,5 +254,82 @@ namespace Parser
             return res;
         }
     }
+    
+    class Page
+
+    {
+        public int SkipElementsCount { get; set; }
+        public int TakeElementsCount { get; set; }
+
+        public int OldScrollValue { get; set; }
+        public int Number { get; set; }
+        public int StartIndex { get; set; }
+        public int EndIndex { get; set; }
+    }
+    public static class Utility
+    {
+        public static IEnumerable<TEntity> OrderBy<TEntity>(this IEnumerable<TEntity> source, string orderByProperty)
+        {
+            string command = "OrderBy";
+            var type = source.First().GetType();
+            var property = type.GetProperty(orderByProperty);
+            var parameter = Expression.Parameter(type, "p");
+            var propertyAccess = Expression.MakeMemberAccess(parameter, property);
+            var orderByExpression = Expression.Lambda(propertyAccess, parameter);
+            var resultExpression = Expression.Call(typeof(Queryable), command, new Type[] { type, property.PropertyType },
+                                          source.AsQueryable().Expression, Expression.Quote(orderByExpression));
+            return source.AsQueryable().Provider.CreateQuery<TEntity>(resultExpression);
+
+        }
+        public static IEnumerable<TEntity> OrderByDescending<TEntity>(this IEnumerable<TEntity> source, string orderByProperty)
+        {
+            string command = "OrderByDescending";
+            var type = source.First().GetType();
+            var property = type.GetProperty(orderByProperty);
+            var parameter = Expression.Parameter(type, "p");
+            var propertyAccess = Expression.MakeMemberAccess(parameter, property);
+            var orderByExpression = Expression.Lambda(propertyAccess, parameter);
+            var resultExpression = Expression.Call(typeof(Queryable), command, new Type[] { type, property.PropertyType },
+                                          source.AsQueryable().Expression, Expression.Quote(orderByExpression));
+            return source.AsQueryable().Provider.CreateQuery<TEntity>(resultExpression);
+        }      
+        public static TEntity GetObjectWithMatchingProperties<TEntity>(this IEnumerable<TEntity> source, TEntity @object)
+        {
+
+            var resultObject = Activator.CreateInstance(source.First().GetType());
+
+            foreach (var obj in source)
+            {
+                bool isFinded = true;
+                PropertyDescriptorCollection props = TypeDescriptor.GetProperties(@object);
+                PropertyDescriptorCollection objectProperties = TypeDescriptor.GetProperties(obj);
+                foreach (PropertyDescriptor prop in props)
+                {
+                    var tempProp = objectProperties.Find(prop.Name, false);
+                    var a = tempProp.GetValue(obj);
+                    var b = prop.GetValue(@object);
+                    if (tempProp.GetValue(obj).ToString() != prop.GetValue(@object).ToString())
+                    {
+                        isFinded = false;
+                        break;
+                    }
+                }
+                if (!isFinded)
+                {
+                    continue;
+                }
+                else
+                {
+                    resultObject = obj;
+                    break;
+                }
+
+            }
+
+            return (TEntity)resultObject;
+        }
+
+    }
+
 
 }

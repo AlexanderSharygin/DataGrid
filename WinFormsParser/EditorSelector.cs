@@ -15,7 +15,7 @@ namespace Parser
         private bool _Visible;
         private Control _Editor;
         private string DataFormat;
-      public  bool IsMultilain;
+        public  bool IsMultilain;
         public bool IsValidated { get; private set; } = true;
         public Font Font { get; set; }
         public int ColumnIndex { get; set; }
@@ -47,7 +47,7 @@ namespace Parser
                 {
                     _Editor.Width = _Editor.Height;
                     _Editor.Location = new Point(_Editor.Location.X + _Width / 2-_Editor.Width/2, _Editor.Location.Y);
-                  BufferCell.BodyToPrint = "";
+                    BufferCell.BodyToPrint = "";
                 }
             } 
 
@@ -294,11 +294,7 @@ namespace Parser
                 Closed = true;
                 CancelChanges = true;
                 _Editor.Visible = false;
-            }            
-           
-          
-
-
+            }                         
         } 
     }
 }
