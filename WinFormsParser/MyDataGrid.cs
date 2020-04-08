@@ -477,8 +477,10 @@ namespace Parser
 
                 Controls.Add(_Editor.GetControl());
                 _API.EditorControl = _Editor.GetControl();
-                _API.IsEditorUsed = true;
-                _Editor.Visible = true;
+                _API.IsEditorUsed = true;                
+               
+                    _Editor.Visible = true;
+                
                 _Editor.SetFocus();
                 _Editor.GetControl().Leave += Editor_Leave;
             }
@@ -817,10 +819,29 @@ namespace Parser
                 if (HorisontalScrollBar.Visible)
                 {
                     viewportheight = viewportheight - HorisontalScrollBar.Height;
+                    if (_Editor.Location.Y > (_ViewPortRowsCount+1)*RowHeight)
+                    {
+
+                        _Editor.Visible = false;
+                    }
+                }
+                if (!HorisontalScrollBar.Visible)
+                {
+                 
+                    if (_Editor.Location.Y > _ViewPortRowsCount * RowHeight)
+                    {
+
+                        _Editor.Visible = true;
+                    }
                 }
                 var item = _API.Columns.Select(k => k).Where(k => k.Index == _Editor.ColumnIndex).Single();
                 int xstart = item.XStartPosition;
+                int xend = item.XEndPosition;
                 _Editor.Location = new Point(xstart + _LineWidth, _Editor.Location.Y);
+                if (_Editor.GetComponentType() == typeof(CheckBox))
+                {
+                    _Editor.Location = new Point(_Editor.Location.X + (xend - xstart) / 2 - _Editor.GetControl().Width / 2, _Editor.Location.Y);
+                }
                 if (_Editor.Location.Y + _Editor.Height > _TotalRowsCount * _RowHeight && _Editor.Location.Y + _Editor.Height > this.Height)
                 {
 
@@ -920,7 +941,11 @@ namespace Parser
             int scrollOffset = 0;
             if (_Page.OldScrollValue < VerticalScrollBar.Value)
             {
-              //  _FirstPrintedRowIndex++;
+                //  _FirstPrintedRowIndex++;
+                if (_Editor != null)
+                {
+                    _Editor.ScrollCounter++;
+                }
                 if (_Page.Number > 2)
                 {
                    IsScrolledDown=true;
@@ -930,6 +955,10 @@ namespace Parser
             else if (_Page.OldScrollValue > VerticalScrollBar.Value)
             {
                 //_FirstPrintedRowIndex--;
+                if (_Editor != null)
+                {
+                    _Editor.ScrollCounter--;
+                }
                 if (_Page.Number == 2)
                 {
                     IsScrolledDown = false;
@@ -974,7 +1003,8 @@ namespace Parser
                 _Page.StartIndex = _Page.EndIndex;
                 _Page.EndIndex += BuferSize;
                 _Page.SkipElementsCount = startPoint;
-                _Page.TakeElementsCount = takeCount;                     
+                _Page.TakeElementsCount = takeCount;
+               
             }
            if (VerticalScrollBar.Value / _VerticalScrollValueRatio +_ViewPortRowsCount +scrollOffset <= _Page.StartIndex && _Page.OldScrollValue>VerticalScrollBar.Value)
             {               
@@ -1035,14 +1065,37 @@ namespace Parser
                 _Page.StartIndex -= BuferSize;
                 _Page.EndIndex -= BuferSize;
                 _Page.SkipElementsCount = startPoint;
-                _Page.TakeElementsCount = endPoint;             
+                _Page.TakeElementsCount = endPoint;
+               
             }
 
             if (_Editor != null)
-            {            
-               
-                _Editor.Location = new Point(_Editor.Location.X, _Editor.DefaultPosition.Y - _FirstPrintedRowIndex * RowHeight);
-                _Editor.SetFocus();
+            {
+                var item = _API.Columns.Select(u => u).Where(u => u.Index == _Editor.ColumnIndex).Single();
+                int xstart = item.XStartPosition;
+                int xend = item.XEndPosition;
+
+                if (_Editor.GetComponentType() != typeof(CheckBox))
+                {
+                    _Editor.Location = new Point(xstart + _LineWidth, _Editor.Location.Y);
+                    _Editor.Width = item.XEndPosition - item.XStartPosition;
+                 
+                }
+                _Editor.Location = new Point(xstart + _LineWidth, _Editor.DefaultPosition.Y - _Editor.ScrollCounter * RowHeight);
+                if (_Editor.GetComponentType() == typeof(CheckBox))
+                {
+                    _Editor.Location = new Point(_Editor.Location.X+(xend-xstart)/2-_Editor.GetControl().Width/2, _Editor.Location.Y);
+                }
+                    _Editor.SetFocus();
+                if (_Editor.Location.Y > (_ViewPortRowsCount + 1) * RowHeight)
+                {
+                    _Editor.Visible = false;
+                }
+                else
+                {
+                    _Editor.Visible = true;
+                }
+
             }
             _Page.OldScrollValue = VerticalScrollBar.Value;
             Invalidate();
@@ -1071,6 +1124,10 @@ namespace Parser
                 {
                     _Editor.Width = item.XEndPosition - item.XStartPosition;
                 }
+                if (_Editor.GetComponentType() == typeof(CheckBox))
+                {
+                    _Editor.Location = new Point(_Editor.Location.X + (xend - xstart) / 2 - _Editor.GetControl().Width / 2, _Editor.Location.Y);
+                }
                 _Editor.SetFocus();
                
             }
@@ -1091,8 +1148,9 @@ namespace Parser
             var HitPointY = e.Location.Y;
             int BuferRowIndex;
             int BuferColumnIndex;
-         
-            if (HitPointY / RowHeight < _Buffer.Count)
+            
+
+            if (HitPointY  < (_ViewPortRowsCount+1 ) * RowHeight)
             {
                 int ColumnXEnd = 0;
                 foreach (var item in _API.Columns)
@@ -1132,6 +1190,10 @@ namespace Parser
                                 viewportheight = viewportheight - HorisontalScrollBar.Height;
                             }                           
                             editor.Location = new Point(ColumnXStart + _LineWidth, _RowHeight * BuferRowIndex + _LineWidth-_FirstPrintedRowIndex*RowHeight);
+                            if (editor.GetComponentType() == typeof(CheckBox))
+                            {
+                                editor.Location = new Point(ColumnXStart + _LineWidth + (ColumnXEnd + _LineWidth - ColumnXStart) / 2 - editor.GetControl().Width / 2, editor.Location.Y);
+                            }
                             if (editor.IsMultilain)
                             {
                                 editor.Height = RowHeight * 3 - _LineWidth;
@@ -1145,7 +1207,8 @@ namespace Parser
                                  editor.Location = new Point(editor.Location.X, editor.Location.Y - editor.Height+RowHeight-_LineWidth);                                                             
                             }
                             editor.ColumnIndex = item.Index;
-                            _Editor = editor;                          
+                            _Editor = editor;
+                            _Editor.ScrollCounter = _FirstPrintedRowIndex;
                             break;
                         }
                     }
