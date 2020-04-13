@@ -538,37 +538,37 @@ namespace Parser
                     }
 
                 }
-              //  var item = _ItemsSource.Select(k => k).Where(k => k.Equals(dynamicObject)).Single();
-              //  PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(item);
+                var item = _ItemsSource.Select(k => k).Where(k => k.Equals(dynamicObject)).Single();
+                PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(item);
 
-               // var property = properties.Find(_API.Columns[_Editor.BufferCell.SourceColumnIndex].HeaderText, false);
-              //  if (property != null)
-              //  {
+                var property = properties.Find(_API.Columns[_Editor.BufferCell.SourceColumnIndex].HeaderText, false);
+                if (property != null)
+                {
 
-              //      property.SetValue(item, Convert.ChangeType(_Editor.Value, property.PropertyType));
+                    property.SetValue(item, Convert.ChangeType(_Editor.Value, property.PropertyType));
 
 
-              //  }
+                }
               
 
-              //  if (_Editor.GetControl().GetType() == typeof(CheckBox))
-              //  {
-              //      CheckBox cb = (CheckBox)_Editor.GetControl();
-             //       if (cb.Checked)
-              //      {
-              //          _Editor.BufferCell.Body = Resources.TrueValue;
-               //     }
-              /////      else
-              //      {
-               //         _Editor.BufferCell.Body = Resources.FalseValue;
-              //      }
-              //  }
-              //  else
-              //  {
+                if (_Editor.GetControl().GetType() == typeof(CheckBox))
+                {
+                    CheckBox cb = (CheckBox)_Editor.GetControl();
+                    if (cb.Checked)
+                    {
+                        _Editor.BufferCell.Body = Resources.TrueValue;
+                    }
+                    else
+                    {
+                        _Editor.BufferCell.Body = Resources.FalseValue;
+                    }
+                }
+                else
+                {
 
-              ////      _Editor.BufferCell.Body = _Editor.Value;
-              //  }
-             //   int index = 0;
+                    _Editor.BufferCell.Body = _Editor.Value;
+                }
+                int index = 0;
               //  var item = _ItemsSource.ElementAt(7);
               //  
               //  ConstructorInfo ci= t.GetConstructor(new Type[] { });
