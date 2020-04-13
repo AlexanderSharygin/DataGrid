@@ -15,7 +15,9 @@ namespace Parser
         private bool _Visible;
         private Control _Editor;
         private string DataFormat;
-      public  bool IsMultilain;
+        public  bool IsMultilain;
+     
+        public int ScrollCounter { get; set; }
         public bool IsValidated { get; private set; } = true;
         public Font Font { get; set; }
         public int ColumnIndex { get; set; }
@@ -46,8 +48,8 @@ namespace Parser
                 if (ColumnType == typeof(Boolean))
                 {
                     _Editor.Width = _Editor.Height;
-                    _Editor.Location = new Point(_Editor.Location.X + _Width / 2-_Editor.Width/2, _Editor.Location.Y);
-                    BufferCell.Body = "";
+                  
+                    BufferCell.BodyToPrint = "";
                 }
             } 
 
@@ -153,6 +155,7 @@ namespace Parser
                 Editor.KeyUp += new KeyEventHandler(ValueField_KeyUp);
                 Editor.CheckedChanged += new EventHandler(CheckedChanged);
                 _Editor = Editor;
+               
                 if (Editor.Checked)
                 {
                     _Editor.Text = "True";
@@ -161,6 +164,7 @@ namespace Parser
                 {
                     _Editor.Text = "False";
                 }
+              
             }
 
 
@@ -294,11 +298,7 @@ namespace Parser
                 Closed = true;
                 CancelChanges = true;
                 _Editor.Visible = false;
-            }            
-           
-          
-
-
+            }                         
         } 
     }
 }

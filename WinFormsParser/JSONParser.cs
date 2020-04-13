@@ -23,43 +23,20 @@ namespace WinFormsParser
             InitializeComponent();
             _JSONObjects = new List<Dictionary<string, string>>();
             _Workers = new List<Worker>();
-            DataTable.DataChanged += new MyDataGrid.DataChangedHeandler(CommitChanges);
-            DataTable.SortingChanged += new MyDataGrid.SortingChangedHeandler(ChangeSorting);
-            DBData = new DBModel();
-
-
-        }
-
-        private void ChangeSorting(string columnName, string direction)
-        {
-           /* if (direction == "ASC")
-            {
-                var ab = DBData.Workers.Where(k => k.Id < 2000).OrderBy(k => k.LastName).ToList(); 
-            }
-            var a = DBData.Workers.Where(k => k.Id < 2000).ToList() ;
-          
-            if (direction == "DESC")
-            {
-                DBData.Workers.OrderByDescending(k => columnName);
-            }
-            */
-        }
+            DataTable.DataChanged += new MyDataGrid.DataChangedHeandler(CommitChanges);       
+            DBData = new DBModel();            
+        }   
 
         void CommitChanges(object sender, EventArgs eventArgs)
         {
-
-
             try
             {
                 DBData.SaveChanges();
             }
             catch (Exception e)
             {
-                MessageBox.Show("Ошибка при сохранении в БД. Превышено ограничение символов БД или введено недопустимое пустое значение для данного поля", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            
+                MessageBox.Show("Ошибка при сохранении в БД. Превышено ограничение символов БД или введено недопустимое пустое значение для данного поля", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);            
             }
-
-
         }
 
 
@@ -78,8 +55,7 @@ namespace WinFormsParser
             {
                 PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(worker);
                 foreach (PropertyDescriptor property in properties)
-                {
-                    ColumnInfo Column = new ColumnInfo();
+                {                
                     string item = property.Name;
                     if (!fields.Contains(item))
                     {
