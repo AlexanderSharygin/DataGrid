@@ -40,6 +40,7 @@ namespace Parser
         Brush _Brush;
         Pen _Pen;
         List<HeaderCell> Header;
+        public int TotalRowCount { get=>_TotalRowsCount; set=> _TotalRowsCount=value; }
         public int BuferSize { get; set; } = 50;
         public event DataChangedHeandler DataChanged;
         public delegate void DataChangedHeandler(object sender, EventArgs eventArgs);
@@ -118,6 +119,10 @@ namespace Parser
             set
             {
                 _ItemsSource = value;
+                if (_TotalRowsCount == 0)
+                {
+                    _TotalRowsCount = _ItemsSource.Count();
+                }
                 Dictionary<string, Type> columnsInfo = GetColumnsInfo();
                 _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;
 
@@ -137,7 +142,7 @@ namespace Parser
         private Dictionary<string, Type> GetColumnsInfo()
         {
             Dictionary<string, Type> columns = new Dictionary<string, Type>();
-            var @object = ItemsSource.First();
+            var @object = _ItemsSource.FirstOrDefault();
             PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(@object);
             foreach (PropertyDescriptor property in properties)
             {
@@ -153,12 +158,13 @@ namespace Parser
         private List<List<string>> GetStringSource(Dictionary<string, Type> columns)
         {
             List<List<string>> StringSource = new List<List<string>>(BuferSize);
+            var items = _ItemsSource.Take(BuferSize).ToList();
             foreach (var item in columns)
             {
 
                 List<string> ColumnItems = new List<string>();
                 ColumnItems.Add(item.Key);
-                var items = _ItemsSource.Take(BuferSize);
+             
                 ColumnItems.AddRange(GetColumnItemsFromSource(item.Key, item.Value, items));
                 StringSource.Add(ColumnItems);
             }
@@ -296,7 +302,7 @@ namespace Parser
         {
             if (_API.Columns.Count > 0)
             {
-                _TotalRowsCount = _ItemsSource.Count();
+                
                 _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;
                 if (_TableWidth > this.Width)
                 {
@@ -902,27 +908,32 @@ namespace Parser
         }
 
         bool IsScrolledDown = false;
-        private IEnumerable TooggleSorting(int skipCount, int takeCount)
+        private List<object> TooggleSorting(int skipCount, int takeCount)
         {
-            IEnumerable items = _ItemsSource;
+            // IEnumerable items = _ItemsSource;
+            List<object> items = new List<object>();
             if (_API.SortedColumnIndex != -1)
             {
                 if (_API.SortDirection == SortDirections.ASC)
                 {
-                    items = _ItemsSource.OrderBy(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(skipCount).Take(takeCount);
+                    items = _ItemsSource.OrderBy(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(skipCount).Take(takeCount).ToList();
+                  
                 }
                 if (_API.SortDirection == SortDirections.DESC)
                 {
-                    items = _ItemsSource.OrderByDescending(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(skipCount).Take(takeCount);
+                   items = _ItemsSource.OrderByDescending(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(skipCount).Take(takeCount).ToList();
+                   
                 }
                 else if (_API.SortDirection == SortDirections.None)
                 {
-                    items = _ItemsSource.OrderBy(_API.Columns.First().HeaderText).Skip(skipCount).Take(takeCount);
+                    items = _ItemsSource.OrderBy(_API.Columns.First().HeaderText).Skip(skipCount).Take(takeCount).ToList();
+                   
                 }
             }
             else
             {
-                items = _ItemsSource.OrderBy(_API.Columns.First().HeaderText).Skip(skipCount).Take(takeCount);
+                 items = _ItemsSource.OrderBy(_API.Columns.First().HeaderText).Skip(skipCount).Take(takeCount).ToList();
+               
             }
             return items;
         }

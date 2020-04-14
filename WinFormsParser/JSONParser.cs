@@ -221,12 +221,12 @@ namespace WinFormsParser
             DataTable.ColumnsAutoGeneration = true;
          
             
-                var Data = DBData.Workers.Where(k => k.Id < 2000).AsEnumerable();
-
+                var Data = DBData.Workers.AsEnumerable();
+            DataTable.TotalRowCount = DBData.Workers.Count();
      
           
            
-                DataTable.ItemsSource = Data;
+               DataTable.ItemsSource = Data;
         
              
             
