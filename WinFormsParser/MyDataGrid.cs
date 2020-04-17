@@ -22,7 +22,29 @@ namespace Parser
     {
 
         List<List<string>> _Source;
-        IEnumerable<object> _ItemsSource;
+        IQueryable<object> _ItemsSource;
+        public IEnumerable<object> ItemsSource
+        {
+            get
+            { return _ItemsSource; }
+            set
+            {
+                _ItemsSource = value.AsQueryable();               
+                _TotalRowsCount = _ItemsSource.Count();              
+                Dictionary<string, Type> columnsInfo = GetColumnsInfo();
+                _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;
+                _Source = GetStringSource(columnsInfo);
+                if (ColumnsAutoGeneration)
+                {
+                    Columns.Clear();
+
+                    foreach (var item in columnsInfo)
+                    {
+                        Columns.Add(new Column(item.Key, item.Value) { Visible = true });
+                    }
+                }
+            }
+        }
         Page _Page;
         List<Row> _Buffer;
         Source _API;
@@ -113,31 +135,7 @@ namespace Parser
             }
         }
 
-        public IEnumerable<object> ItemsSource
-        { get
-            { return _ItemsSource; }
-            set
-            {
-                _ItemsSource = value;
-                if (_TotalRowsCount == 0)
-                {
-                    _TotalRowsCount = _ItemsSource.Count();
-                }
-                Dictionary<string, Type> columnsInfo = GetColumnsInfo();
-                _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;
-
-                _Source = GetStringSource(columnsInfo);
-                if (ColumnsAutoGeneration)
-                {
-                    Columns.Clear();
-
-                    foreach (var item in columnsInfo)
-                    {
-                        Columns.Add(new Column(item.Key, item.Value) { Visible = true });
-                    }
-                }
-            }
-        }
+       
 
         private Dictionary<string, Type> GetColumnsInfo()
         {
@@ -158,7 +156,7 @@ namespace Parser
         private List<List<string>> GetStringSource(Dictionary<string, Type> columns)
         {
             List<List<string>> StringSource = new List<List<string>>(BuferSize);
-            var items = _ItemsSource.Take(BuferSize).ToList();
+            var items = _ItemsSource.Take(BuferSize).AsQueryable();
             foreach (var item in columns)
             {
 
@@ -867,8 +865,9 @@ namespace Parser
             UpdateHorizontalScroll();
             Invalidate();
         }
-        private List<string> GetColumnItemsFromSource(string name, Type type, IEnumerable items)
+        private List<string> GetColumnItemsFromSource(string name, Type type, IQueryable items)
         {
+            
             List<string> ColumnItems = new List<string>();
             foreach (var @object in items)
             {
@@ -908,34 +907,38 @@ namespace Parser
         }
 
         bool IsScrolledDown = false;
-        private List<object> TooggleSorting(int skipCount, int takeCount)
+        private IQueryable<object> TooggleSorting(int skipCount, int takeCount)
         {
-            // IEnumerable items = _ItemsSource;
-            List<object> items = new List<object>();
+            if (skipCount < 0)
+            {
+                skipCount = 0;
+            }
+            
             if (_API.SortedColumnIndex != -1)
             {
                 if (_API.SortDirection == SortDirections.ASC)
                 {
-                    items = _ItemsSource.OrderBy(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(skipCount).Take(takeCount).ToList();
-                  
+                   var items = _ItemsSource.OrderBy(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(skipCount).Take(takeCount).AsQueryable();
+                    return items;
                 }
                 if (_API.SortDirection == SortDirections.DESC)
                 {
-                   items = _ItemsSource.OrderByDescending(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(skipCount).Take(takeCount).ToList();
-                   
+                  var items = _ItemsSource.OrderByDescending(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(skipCount).Take(takeCount).AsQueryable();
+                    return items;
                 }
+              
                 else if (_API.SortDirection == SortDirections.None)
                 {
-                    items = _ItemsSource.OrderBy(_API.Columns.First().HeaderText).Skip(skipCount).Take(takeCount).ToList();
-                   
+                  var  items = _ItemsSource.OrderBy(_API.Columns.First().HeaderText).Skip(skipCount).Take(takeCount).AsQueryable();
+                    return items;
                 }
             }
             else
             {
-                 items = _ItemsSource.OrderBy(_API.Columns.First().HeaderText).Skip(skipCount).Take(takeCount).ToList();
-               
+               var  items = _ItemsSource.OrderBy(_API.Columns.First().HeaderText).Skip(skipCount).Take(takeCount).AsQueryable();
+                return items;
             }
-            return items;
+            return _ItemsSource;
         }
     
 

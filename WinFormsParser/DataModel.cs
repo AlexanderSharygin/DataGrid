@@ -268,7 +268,7 @@ namespace Parser
     }
     public static class Utility
     {
-        public static IEnumerable<TEntity> OrderBy<TEntity>(this IEnumerable<TEntity> source, string orderByProperty)
+        public static IQueryable<TEntity> OrderBy<TEntity>(this IQueryable<TEntity> source, string orderByProperty)
         {
             string command = "OrderBy";
             var type = source.First().GetType();
@@ -281,7 +281,7 @@ namespace Parser
             return source.AsQueryable().Provider.CreateQuery<TEntity>(resultExpression);
 
         }
-        public static IEnumerable<TEntity> OrderByDescending<TEntity>(this IEnumerable<TEntity> source, string orderByProperty)
+        public static IQueryable<TEntity> OrderByDescending<TEntity>(this IQueryable<TEntity> source, string orderByProperty)
         {
             string command = "OrderByDescending";
             var type = source.First().GetType();

@@ -110,7 +110,7 @@ namespace WinFormsParser
         {
 
             DataTable.ColumnsAutoGeneration = false;
-            DataTable.ItemsSource = _Workers;
+            DataTable.ItemsSource = _Workers.AsQueryable();
             List<string> AggregatedObjectsFields = GetAggregatedFields();
 
             foreach (var item in AggregatedObjectsFields)
@@ -195,7 +195,7 @@ namespace WinFormsParser
         {
             DataTable.ColumnsAutoGeneration = true;
 
-            DataTable.ItemsSource = _Workers;
+            DataTable.ItemsSource = _Workers.AsEnumerable();
             LB_FieldsList.Items.Clear();
             foreach (var item in DataTable.Columns)
             {
@@ -222,7 +222,7 @@ namespace WinFormsParser
          
             
                 var Data = DBData.Workers.AsEnumerable();
-            DataTable.TotalRowCount = DBData.Workers.Count();
+           // DataTable.TotalRowCount = DBData.Workers.Count();
      
           
            
