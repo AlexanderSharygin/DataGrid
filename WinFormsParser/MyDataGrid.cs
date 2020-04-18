@@ -23,6 +23,7 @@ namespace Parser
 
         List<List<string>> _Source;
         IQueryable<object> _ItemsSource;
+        List<Page> _Pages = new List<Page>();
         public IEnumerable<object> ItemsSource
         {
             get
@@ -30,9 +31,36 @@ namespace Parser
             set
             {
                 _ItemsSource = value.AsQueryable();               
-                _TotalRowsCount = _ItemsSource.Count();              
+                _TotalRowsCount = _ItemsSource.Count();
+                int pagesCount = (int)Math.Ceiling(Convert.ToDecimal(_TotalRowsCount / BuferSize));
+
+                
                 Dictionary<string, Type> columnsInfo = GetColumnsInfo();
                 _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;
+                for (int i = 0; i < pagesCount; i++)
+                {
+                    Page temp = new Page();
+                    temp.Number = i + 1;
+                    temp.StartIndex = i * BuferSize;
+                    temp.EndIndex = temp.StartIndex + BuferSize;
+
+                  
+                    if (temp.Number == 1)
+                    {
+                        temp.SkipElementsCount = 0;
+                        temp.TakeElementsCount = BuferSize;
+                    }
+                    if (temp.Number > 1)
+                    {
+                        
+                        int startPoint = _Pages[i-1].EndIndex - _ViewPortRowsCount;
+                        int takeCount = startPoint + BuferSize + _ViewPortRowsCount - 1;
+                        temp.SkipElementsCount = startPoint;
+                        temp.TakeElementsCount = takeCount;
+                    }
+                    _Pages.Add(temp);
+
+                }
                 _Source = GetStringSource(columnsInfo);
                 if (ColumnsAutoGeneration)
                 {
@@ -948,6 +976,13 @@ namespace Parser
             UpdateHeadersWidth();
             CalculateTotalTableWidth();
             _FirstPrintedRowIndex = VerticalScrollBar.Value / _VerticalScrollValueRatio;
+            int kk = 0;
+            if (_Page.OldScrollValue > VerticalScrollBar.Value)
+            {
+               kk = 1;
+            }
+            var pa = _Pages.Where(k=>k.EndIndex>=(VerticalScrollBar.Value / _VerticalScrollValueRatio)+_ViewPortRowsCount+kk).FirstOrDefault();
+            int aaaa = pa.Number;
             if (_Page.Number > 1)
             {
                 _FirstPrintedRowIndex = _FirstPrintedRowIndex- (BuferSize* (_Page.Number-1))+_ViewPortRowsCount+1;
