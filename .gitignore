@@ -328,7 +328,4 @@ ASALocalRun/
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
 WinFormsParser/App.config
-*.config
-WinFormsParser/App.config
-WinFormsParser/App.config
-WinFormsParser/App.config
+
