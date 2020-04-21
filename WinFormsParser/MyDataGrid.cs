@@ -34,7 +34,7 @@ namespace Parser
             {
                 _ItemsSource = value.AsQueryable();               
                 _TotalRowsCount = _ItemsSource.Count();
-                int pagesCount = (int)Math.Ceiling(Convert.ToDecimal(_TotalRowsCount / BuferSize));
+                int pagesCount = (int)(Math.Ceiling(Convert.ToDecimal(_TotalRowsCount / BuferSize)));
 
                 
                 Dictionary<string, Type> columnsInfo = GetColumnsInfo();
@@ -109,7 +109,7 @@ namespace Parser
         Pen _Pen;
         List<HeaderCell> Header;
         public int TotalRowCount { get=>_TotalRowsCount; set=> _TotalRowsCount=value; }
-        public int BuferSize { get; set; } = 500;
+        public int BuferSize { get; set; } = 50;
         public event DataChangedHeandler DataChanged;
         public delegate void DataChangedHeandler(object sender, EventArgs eventArgs);
         public delegate void SortingChangedHeandler(string columnName, string direction);
@@ -366,7 +366,7 @@ namespace Parser
                     VerticalScrollBar.Visible = true;
                 }
                 VerticalScrollBar.Minimum = 0;
-                VerticalScrollBar.Maximum = ((_TotalRowsCount - _ViewPortRowsCount) * _VerticalScrollValueRatio) - 1;
+                VerticalScrollBar.Maximum = ((_TotalRowsCount- _ViewPortRowsCount) * _VerticalScrollValueRatio) - 1;
                 VerticalScrollBar.SmallChange = _VerticalScrollValueRatio;
                 VerticalScrollBar.LargeChange = _VerticalScrollValueRatio;
                 UpdateHorizontalScroll();
@@ -1054,10 +1054,11 @@ namespace Parser
 
            
              if ((VerticalScrollBar.Value / _VerticalScrollValueRatio >= selectedPage.EndIndex-_ViewPortRowsCount))
-            {
-                selectedPage = _Page;
+            {             
+                selectedPage = _Pages.Where(k => k.DownScrollValue <= (VerticalScrollBar.Value / _VerticalScrollValueRatio)).LastOrDefault();
                 Dictionary<string, Type> columns = GetColumnsInfo();
-                var items = TooggleSorting(selectedPage.EndIndex - 1 - _ViewPortRowsCount, BuferSize + _ViewPortRowsCount);
+               var printedPage = _Pages.Select(k => k).Where(k => k.Number == selectedPage.Number-1).Single();
+                var items = TooggleSorting(printedPage.EndIndex - 1 - _ViewPortRowsCount, BuferSize + _ViewPortRowsCount);
                 int i = 0;
                 foreach (var item in columns)
                 {
@@ -1074,14 +1075,12 @@ namespace Parser
                 for (int j = 0; j < _Source.Count; j++)
                 {
                     AddToBufer(_Source[j].First());
-                }
-                _CuurentPageNumber++;
-            _Page = _Pages.Select(k=>k).Where(k=>k.Number==_Page.Number+1).Single();
-            //    _Page =_Pages.Where(k => k.DownScrollValue <= (VerticalScrollBar.Value / _VerticalScrollValueRatio)).LastOrDefault();
-                //    _Page = selectedPage;
+                }            
+                _CuurentPageNumber = selectedPage.Number;       
+               _Page = selectedPage;
             }
-            
-         
+
+
             if (VerticalScrollBar.Value / _VerticalScrollValueRatio +_ViewPortRowsCount +scrollOffset <=selectedPage.StartIndex && _OldScrollValue>VerticalScrollBar.Value)
             {
                 scrollOffset =0;            
