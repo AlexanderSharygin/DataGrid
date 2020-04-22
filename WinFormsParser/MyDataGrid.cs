@@ -1078,10 +1078,12 @@ namespace Parser
                 }            
                 _CuurentPageNumber = selectedPage.Number;       
                _Page = selectedPage;
+                CalculateTotalTableWidth();
+                UpdateHeadersWidth();
             }
 
 
-            if (VerticalScrollBar.Value / _VerticalScrollValueRatio +_ViewPortRowsCount +scrollOffset <=selectedPage.StartIndex && _OldScrollValue>VerticalScrollBar.Value)
+            if (VerticalScrollBar.Value / _VerticalScrollValueRatio +_ViewPortRowsCount +scrollOffset <=selectedPage.StartIndex-1 && _OldScrollValue>VerticalScrollBar.Value)
             {
                 scrollOffset =0;            
                 
@@ -1090,8 +1092,18 @@ namespace Parser
                 {
                     k = 1;
                 }
-                Dictionary<string, Type> columns = GetColumnsInfo();          
-                var items = TooggleSorting(selectedPage.StartIndex - BuferSize - _ViewPortRowsCount - k, BuferSize + _ViewPortRowsCount * k);
+                Dictionary<string, Type> columns = GetColumnsInfo();
+                selectedPage = _Pages.Where(s => s.UpScrollValue > (VerticalScrollBar.Value / _VerticalScrollValueRatio)).FirstOrDefault();
+                var printedPage = selectedPage;
+                _CuurentPageNumber = selectedPage.Number;
+             //   if (_CuurentPageNumber > 1)
+             //  {
+              //      printedPage = _Pages.Select(kk => kk).Where(kk => kk.Number == selectedPage.Number - 1).Single();
+              //  }
+               
+               
+             
+                var items = TooggleSorting(printedPage.EndIndex - BuferSize - _ViewPortRowsCount - k, BuferSize + _ViewPortRowsCount * k);
                 int index = 0;
                 foreach (var item in columns)
                 {
@@ -1112,25 +1124,30 @@ namespace Parser
                     _Source[index].AddRange(viewPortItems);
                     index++;                  
                 }
-                if (_CuurentPageNumber <= 2)
+                if (_CuurentPageNumber < 2)
                 {
-                    _FirstPrintedRowIndex = BuferSize - _ViewPortRowsCount;
+                    _FirstPrintedRowIndex = BuferSize - _ViewPortRowsCount-1;
                 }
                 else
                 {
-                    _FirstPrintedRowIndex = BuferSize;
-                }             
+                    _FirstPrintedRowIndex = BuferSize-1;
+                }
+                if (VerticalScrollBar.Value == 0)
+                {
+                    _FirstPrintedRowIndex = 0;
+
+                }
                 _Buffer.Clear();
                 for (int j = 0; j < _Source.Count; j++)
                 {
                     AddToBufer(_Source[j].First());
                 }
 
-                _CuurentPageNumber--;
-               // _Page = selectedPage;
-                _Page = _Pages.Select(s => s).Where(s => s.Number == _Page.Number - 1).Single();
-
-
+              //  selectedPage = printedPage;
+                _CuurentPageNumber = selectedPage.Number;
+                _Page = selectedPage;
+                CalculateTotalTableWidth();
+                UpdateHeadersWidth();
             }
 
             if (_Editor != null)
@@ -1161,7 +1178,9 @@ namespace Parser
                 }
 
             }
-            _OldScrollValue = VerticalScrollBar.Value;      
+          
+            _OldScrollValue = VerticalScrollBar.Value;
+           
             Invalidate();
         }
         private void VerticalScrollBar_VisibleChanged(object sender, EventArgs e)
