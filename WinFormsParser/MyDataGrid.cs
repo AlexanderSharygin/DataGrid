@@ -207,7 +207,7 @@ namespace Parser
         private List<List<string>> GetStringSource(Dictionary<string, Type> columns)
         {
             List<List<string>> StringSource = new List<List<string>>(BuferSize);
-            var items = _ItemsSource.Take(BuferSize).AsQueryable();
+            var items = _ItemsSource.Take(BuferSize).ToList();
             foreach (var item in columns)
             {
 
@@ -626,7 +626,7 @@ namespace Parser
         }
         private void SortData()
         {
-           var items = TooggleSorting(_Page.SkipElementsCount, _Page.TakeElementsCount);
+           var items = TooggleSorting(_Page.SkipElementsCount, _Page.TakeElementsCount).ToList();
            /* IEnumerable items = _ItemsSource;
             if (_API.SortedColumnIndex != -1)
             {
@@ -916,7 +916,7 @@ namespace Parser
             UpdateHorizontalScroll();
             Invalidate();
         }
-        private List<string> GetColumnItemsFromSource(string name, Type type, IQueryable items)
+       /* private List<string> GetColumnItemsFromSource(string name, Type type, IQueryable items)
         {
             
             List<string> ColumnItems = new List<string>();
@@ -955,7 +955,55 @@ namespace Parser
                 }
             }
             return ColumnItems;
+        }*/
+        private List<string> GetColumnItemsFromSource(string name, Type type, List<object>items)
+        {
+
+            List<string> ColumnItems = new List<string>();
+            foreach (var @object in items)
+            {
+                PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(@object);
+                var property = properties.Find(name, false);
+                if (property != null)
+                {
+                    if (type == typeof(DateTime))
+                    {
+                        DateTime temp = (DateTime)property?.GetValue(@object);
+                        string itemValue = temp.ToString(Resources.DefaultDataFormat);
+                        ColumnItems.Add(itemValue);
+                    }
+                    else if (type == typeof(Boolean))
+                    {
+                        bool temp = (bool)property?.GetValue(@object);
+                        if (temp)
+                        {
+                            ColumnItems.Add(Resources.TrueValue);
+                        }
+                        else
+                        {
+                            ColumnItems.Add(Resources.FalseValue);
+                        }
+                    }
+                    else
+                    {
+                        ColumnItems.Add(property.GetValue(@object).ToString());
+                    }
+                }
+                else
+                {
+                    ColumnItems.Add("");
+                }
+            }
+            return ColumnItems;
         }
+
+
+
+
+
+
+
+      
 
         bool IsScrolledDown = false;
         private IQueryable<object> TooggleSorting(int skipCount, int takeCount)
@@ -1058,8 +1106,9 @@ namespace Parser
                 selectedPage = _Pages.Where(k => k.DownScrollValue <= (VerticalScrollBar.Value / _VerticalScrollValueRatio)).LastOrDefault();
                 Dictionary<string, Type> columns = GetColumnsInfo();
                var printedPage = _Pages.Select(k => k).Where(k => k.Number == selectedPage.Number-1).Single();
-                var items = TooggleSorting(printedPage.EndIndex - 1 - _ViewPortRowsCount, BuferSize + _ViewPortRowsCount);
+                var items = TooggleSorting(printedPage.EndIndex - 1 - _ViewPortRowsCount, BuferSize + _ViewPortRowsCount).ToList();
                 int i = 0;
+          
                 foreach (var item in columns)
                 {
                     List<string> ColumnItems = new List<string>();
@@ -1103,7 +1152,7 @@ namespace Parser
                
                
              
-                var items = TooggleSorting(printedPage.EndIndex - BuferSize - _ViewPortRowsCount - k, BuferSize + _ViewPortRowsCount * k);
+                var items = TooggleSorting(printedPage.EndIndex - BuferSize - _ViewPortRowsCount - k, BuferSize + _ViewPortRowsCount * k).ToList();
                 int index = 0;
                 foreach (var item in columns)
                 {

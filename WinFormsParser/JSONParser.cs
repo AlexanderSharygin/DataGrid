@@ -221,7 +221,7 @@ namespace WinFormsParser
             DataTable.ColumnsAutoGeneration = true;
          
             
-                var Data = DBData.Workers.Take(20000).AsEnumerable();
+                var Data = DBData.Workers.AsEnumerable();
            // DataTable.TotalRowCount = DBData.Workers.Count();
      
           
