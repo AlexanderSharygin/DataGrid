@@ -59,7 +59,7 @@ namespace Parser
                         
                         int startPoint = _Pages[i-1].EndIndex - _ViewPortRowsCount;
                       
-                        int takeCount = startPoint + BuferSize + _ViewPortRowsCount - 1;
+                        int takeCount = BuferSize + _ViewPortRowsCount - 1;
                         temp.SkipElementsCount = startPoint;
                         temp.TakeElementsCount = takeCount;
                         if (temp.Number == 2)
@@ -626,28 +626,7 @@ namespace Parser
         }
         private void SortData()
         {
-           var items = TooggleSorting(_Page.SkipElementsCount, _Page.TakeElementsCount).ToList();
-           /* IEnumerable items = _ItemsSource;
-            if (_API.SortedColumnIndex != -1)
-            {
-                if (_API.SortDirection == SortDirections.ASC)
-                {
-                    items = _ItemsSource.OrderBy(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(_Page.SkipElementsCount).Take(_Page.TakeElementsCount).ToList();
-                }
-                else if (_API.SortDirection == SortDirections.DESC)
-                {
-                    items = _ItemsSource.OrderByDescending(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(_Page.SkipElementsCount).Take(_Page.TakeElementsCount).ToList();
-
-                }
-                else if (_API.SortDirection == SortDirections.None)
-                {
-                    items = _ItemsSource.OrderBy(_API.Columns.First().HeaderText).Skip(_Page.SkipElementsCount).Take(_Page.TakeElementsCount).ToList();
-                }
-            }
-            else
-            {
-                items = _ItemsSource.OrderBy(_API.Columns.First().HeaderText).Skip(_Page.SkipElementsCount).Take(_Page.TakeElementsCount).ToList();
-            }*/
+           var items = TooggleSorting(_Page.SkipElementsCount, _Page.TakeElementsCount).ToList();         
             Dictionary<string, Type> columns = GetColumnsInfo();
             int index = 0;
             foreach (var item in columns)
@@ -1106,7 +1085,8 @@ namespace Parser
                 selectedPage = _Pages.Where(k => k.DownScrollValue <= (VerticalScrollBar.Value / _VerticalScrollValueRatio)).LastOrDefault();
                 Dictionary<string, Type> columns = GetColumnsInfo();
                var printedPage = _Pages.Select(k => k).Where(k => k.Number == selectedPage.Number-1).Single();
-                var items = TooggleSorting(printedPage.EndIndex - 1 - _ViewPortRowsCount, BuferSize + _ViewPortRowsCount).ToList();
+
+             var items = TooggleSorting(printedPage.EndIndex - 1 - _ViewPortRowsCount, BuferSize + _ViewPortRowsCount).ToList();
                 int i = 0;
           
                 foreach (var item in columns)
