@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -10,12 +11,12 @@ using Parser;
 
 namespace WinFormsParser
 {
-   
+
     public partial class Show_Button : Form
     {
         List<Dictionary<string, string>> _JSONObjects;
-       List<Worker> _Workers;
-      
+        List<Worker> _Workers;
+
         List<int> prev = new List<int>();
         DBModel DBData;
         public Show_Button()
@@ -23,9 +24,9 @@ namespace WinFormsParser
             InitializeComponent();
             _JSONObjects = new List<Dictionary<string, string>>();
             _Workers = new List<Worker>();
-            DataTable.DataChanged += new MyDataGrid.DataChangedHeandler(CommitChanges);       
-            DBData = new DBModel();            
-        }   
+            DataTable.DataChanged += new MyDataGrid.DataChangedHeandler(CommitChanges);
+            DBData = new DBModel();
+        }
 
         void CommitChanges(object sender, EventArgs eventArgs)
         {
@@ -35,7 +36,7 @@ namespace WinFormsParser
             }
             catch (Exception e)
             {
-                MessageBox.Show("Ошибка при сохранении в БД. Превышено ограничение символов БД или введено недопустимое пустое значение для данного поля", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);            
+                MessageBox.Show("Ошибка при сохранении в БД. Превышено ограничение символов БД или введено недопустимое пустое значение для данного поля", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -44,7 +45,7 @@ namespace WinFormsParser
         {
             var inputText = File.ReadAllText("Files\\Data.txt");
             _Workers = JSONParser.CreateObjects<Worker>(inputText);
-         
+
 
         }
         private List<string> GetAggregatedFields()
@@ -55,7 +56,7 @@ namespace WinFormsParser
             {
                 PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(worker);
                 foreach (PropertyDescriptor property in properties)
-                {                
+                {
                     string item = property.Name;
                     if (!fields.Contains(item))
                     {
@@ -70,7 +71,7 @@ namespace WinFormsParser
 
         private void LB_FieldsList_MouseClick(object sender, EventArgs e)
         {
-           
+
             var a = LB_FieldsList.SelectedItems;
             List<string> SelectedItems = new List<string>();
             foreach (var item in a)
@@ -217,19 +218,11 @@ namespace WinFormsParser
 
         private void Button3_Click_1(object sender, EventArgs e)
         {
-            
+
             DataTable.ColumnsAutoGeneration = true;
-         
-            
-                var Data = DBData.Workers.AsEnumerable();
-           // DataTable.TotalRowCount = DBData.Workers.Count();
-     
-          
-           
-               DataTable.ItemsSource = Data;
-        
-             
-            
+            var Data = DBData.Workers.AsEnumerable();          
+            DataTable.ItemsSource = Data;
+            DataTable.PrivateKeyColumn ="Id";    
             LB_FieldsList.Items.Clear();
             CB_FieldsList1.Items.Clear();
             CB_FieldsList2.Items.Clear();

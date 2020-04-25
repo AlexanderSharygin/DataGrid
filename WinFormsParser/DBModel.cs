@@ -17,7 +17,7 @@ namespace Parser
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Worker>()
+            modelBuilder.Entity<Worker>().HasKey(s=>s.Id)
                 .Property(e => e.Salary)
                 .HasPrecision(19, 4);
 
@@ -32,6 +32,7 @@ namespace Parser
             modelBuilder.Entity<WorkersSmall>()
                 .Property(e => e.Salary)
                 .HasPrecision(19, 4);
+          
         }
     }
 }

@@ -295,12 +295,13 @@ namespace Parser
                                           source.AsQueryable().Expression, Expression.Quote(orderByExpression));
             return source.AsQueryable().Provider.CreateQuery<TEntity>(resultExpression);
         }      
-        public static TEntity GetObjectWithMatchingProperties<TEntity>(this IEnumerable<TEntity> source, TEntity @object)
+        public static TEntity GetObjectWithMatchingProperties<TEntity>(this IQueryable<TEntity> source, TEntity @object)
         {
+            List<TEntity> listSource = source.ToList();
+            var resultObject = Activator.CreateInstance(listSource.First().GetType());
 
-            var resultObject = Activator.CreateInstance(source.First().GetType());
-
-            foreach (var obj in source)
+            
+            foreach (var obj in listSource)
             {
                 bool isFinded = true;
                 PropertyDescriptorCollection props = TypeDescriptor.GetProperties(@object);

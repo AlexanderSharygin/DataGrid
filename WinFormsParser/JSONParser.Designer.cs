@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Show_Button));
             this.GB_Fields = new System.Windows.Forms.GroupBox();
             this.LB_FieldsList = new System.Windows.Forms.ListBox();
             this.GB_Table = new System.Windows.Forms.GroupBox();
@@ -99,17 +98,18 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.DataTable.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.DataTable.BuferSize = 50;
             this.DataTable.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.DataTable.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+          //  this.DataTable.ItemsSource = null;
             this.DataTable.LineColor = System.Drawing.Color.Black;
             this.DataTable.Location = new System.Drawing.Point(24, 25);
             this.DataTable.Margin = new System.Windows.Forms.Padding(0);
             this.DataTable.Name = "DataTable";
+            this.DataTable.PrivateKeyColumn = null;
             this.DataTable.RowHeight = 18;
             this.DataTable.Size = new System.Drawing.Size(532, 556);
-        //    this.DataTable.Source = ((object)(resources.GetObject("DataTable.Source")));
             this.DataTable.TabIndex = 1;
-          
             // 
             // Add
             // 
