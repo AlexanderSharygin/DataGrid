@@ -31,7 +31,7 @@
             this.GB_Fields = new System.Windows.Forms.GroupBox();
             this.LB_FieldsList = new System.Windows.Forms.ListBox();
             this.GB_Table = new System.Windows.Forms.GroupBox();
-            this.DataTable = new Parser.MyDataGrid();
+            this._DataTable = new Parser.MyDataGrid();
             this.Add = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.Remove = new System.Windows.Forms.Button();
@@ -84,7 +84,7 @@
             this.GB_Table.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.GB_Table.Controls.Add(this.DataTable);
+            this.GB_Table.Controls.Add(this._DataTable);
             this.GB_Table.Location = new System.Drawing.Point(210, 12);
             this.GB_Table.Name = "GB_Table";
             this.GB_Table.Size = new System.Drawing.Size(559, 592);
@@ -94,22 +94,22 @@
             // 
             // DataTable
             // 
-            this.DataTable.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this._DataTable.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.DataTable.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.DataTable.BuferSize = 50;
-            this.DataTable.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.DataTable.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this._DataTable.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this._DataTable.BuferSize = 50;
+            this._DataTable.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this._DataTable.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
           //  this.DataTable.ItemsSource = null;
-            this.DataTable.LineColor = System.Drawing.Color.Black;
-            this.DataTable.Location = new System.Drawing.Point(24, 25);
-            this.DataTable.Margin = new System.Windows.Forms.Padding(0);
-            this.DataTable.Name = "DataTable";
-            this.DataTable.PrivateKeyColumn = null;
-            this.DataTable.RowHeight = 18;
-            this.DataTable.Size = new System.Drawing.Size(532, 556);
-            this.DataTable.TabIndex = 1;
+            this._DataTable.LineColor = System.Drawing.Color.Black;
+            this._DataTable.Location = new System.Drawing.Point(24, 25);
+            this._DataTable.Margin = new System.Windows.Forms.Padding(0);
+            this._DataTable.Name = "DataTable";
+            this._DataTable.PrivateKeyColumn = null;
+            this._DataTable.RowHeight = 18;
+            this._DataTable.Size = new System.Drawing.Size(532, 556);
+            this._DataTable.TabIndex = 1;
             // 
             // Add
             // 
@@ -119,7 +119,7 @@
             this.Add.TabIndex = 3;
             this.Add.Text = "Добавить все";
             this.Add.UseVisualStyleBackColor = true;
-            this.Add.Click += new System.EventHandler(this.Button1_Click);
+            this.Add.Click += new System.EventHandler(this.AddAll_Button_Click);
             // 
             // button2
             // 
@@ -129,7 +129,7 @@
             this.button2.TabIndex = 4;
             this.button2.Text = "Sort";
             this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.Button2_Click);
+            this.button2.Click += new System.EventHandler(this.ChangeSorting_Button_Click);
             // 
             // Remove
             // 
@@ -139,7 +139,7 @@
             this.Remove.TabIndex = 5;
             this.Remove.Text = "Remove";
             this.Remove.UseVisualStyleBackColor = true;
-            this.Remove.Click += new System.EventHandler(this.Remove_Click);
+            this.Remove.Click += new System.EventHandler(this.RemoveByNameButton_Click);
             // 
             // CB_FieldsList1
             // 
@@ -225,7 +225,7 @@
             this.button1.TabIndex = 12;
             this.button1.Text = "Remove";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.Button1_Click_1);
+            this.button1.Click += new System.EventHandler(this.RemoveByIndex_Button_Click);
             // 
             // label4
             // 
@@ -261,7 +261,7 @@
             this.button3.TabIndex = 11;
             this.button3.Text = "Автогенрация";
             this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.Button3_Click_1);
+            this.button3.Click += new System.EventHandler(this.Autogeneration_Button_Click);
             // 
             // Show_Button
             // 
@@ -276,7 +276,7 @@
             this.Controls.Add(this.GB_Fields);
             this.Name = "Show_Button";
             this.Text = "JSONParser";
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Load += new System.EventHandler(this.Application_Load);
             this.GB_Fields.ResumeLayout(false);
             this.GB_Table.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
@@ -293,7 +293,7 @@
         private System.Windows.Forms.GroupBox GB_Fields;
         private System.Windows.Forms.ListBox LB_FieldsList;
         private System.Windows.Forms.GroupBox GB_Table;
-        private Parser.MyDataGrid DataTable;
+        private Parser.MyDataGrid _DataTable;
         private System.Windows.Forms.Button Add;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button Remove;

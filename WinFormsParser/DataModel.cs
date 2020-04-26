@@ -11,12 +11,13 @@ using System.Windows.Forms;
 
 namespace Parser
 {
-
-
     class Source
     {
-        public ColumnDataTypesList DataTypes { get; set; } = new ColumnDataTypesList();
+        #region Fields
         public SortDirections _SortDirection = SortDirections.None;
+        #endregion
+        #region Props
+        public ColumnTypesList DataTypes { get; set; } = new ColumnTypesList();     
         public SortDirections SortDirection
         {
             get => _SortDirection;
@@ -33,23 +34,29 @@ namespace Parser
         public bool IsEditorUsed { get; set; }
         public bool IsTypeSelectorOpened { get; set; }
         public ObservableCollection<Column> Columns { get; } = new ObservableCollection<Column>();
-        public event PropertyChangedEventHandler PropertyChanged;
+        #endregion
+        #region Events
+        public event PropertyChangedEventHandler Event_PropertyChanged;
+        #endregion
+        #region Constructors
         public Source()
         {
             Columns.CollectionChanged += ColumnsChannge;
         }
+        #endregion
+        #region EvemtHandlers
         private void OnPropertyChanged([CallerMemberName]string prop = "")
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
+            Event_PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
         }
         private void ColumnsChannge(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Remove)
             {
                 int index = 0;
-                foreach (var item in Columns)
+                foreach (var column in Columns)
                 {
-                    item.Index = index;
+                    column.Index = index;
                     index++;
 
                 }
@@ -61,9 +68,9 @@ namespace Parser
             {
                 int newIndex = e.NewStartingIndex;
                 int columnsCount = 0;
-                foreach (var item in Columns)
+                foreach (var column in Columns)
                 {
-                    if (item.Index == Columns[newIndex].Index)
+                    if (column.Index == Columns[newIndex].Index)
                     {
                         columnsCount++;
                     }
@@ -76,7 +83,7 @@ namespace Parser
 
             }
         }
-
+        #endregion
     }
     class Cell
     {
@@ -84,21 +91,17 @@ namespace Parser
         public string Body { get=>_Body; set { _Body = value; BodyToPrint = _Body; } }
         public string BodyToPrint { get; set; }
         public int SourceColumnIndex { get; set; }
-        public int BuferRowIndex { get; set; }
-     
-
-    }
-    class Row
-    {
-        public List<Cell> Cells { get; set; } = new List<Cell>();
-
-    }
+        public int BuferRowIndex { get; set; }     
+    }   
+  
     internal class Column
     {
+        #region Fields
         string _HeaderText;
         bool _Visible;
         Type _DataType;
-        public bool IsSignedToPropertyChange { get; set; }
+        #endregion
+        #region Props
         public int Index { get; set; }
         public int Width { get; set; }
         public Type DataType
@@ -135,23 +138,26 @@ namespace Parser
                 Width = (Width > HeaderText.Length) ? Width : HeaderText.Length;
             }
         }
+        #endregion
 
-
+        #region Events
         public event PropertyChangedEventHandler PropertyChanged;
-
+        private void OnPropertyChanged([CallerMemberName]string prop = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
+        }
+        #endregion
+        #region Constructors
         public Column(string headerText, Type type)
         {
             _HeaderText = headerText;
             Index = 0;
             Width = 1;
-
             DataType = type;
             SetDefaultDataFormat();
         }
-        private void OnPropertyChanged([CallerMemberName]string prop = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
-        }
+        #endregion
+        #region Methods
         private void SetDefaultDataFormat()
         {
             if (DataType == typeof(DateTime))
@@ -163,64 +169,22 @@ namespace Parser
                 DataFormat = "";
             }
         }
+        #endregion
     }
-    class RowComparer : IComparer<Row>
+    class Row
     {
-        bool _Direction;
-        int _ColumnIndex;
-        Type _Type;
-        public RowComparer(bool direction, int index, Type t)
-        {
-            _Direction = direction;
-            _ColumnIndex = index;
-            _Type = t;
-        }
-        public int Compare(Row x, Row y)
-        {
-            object xValue = null;
-            object yValue = null;
-            if (x.Cells[_ColumnIndex].Body != Resources.UndefinedFieldText)
-            {
-                try
-                {
-                    xValue = Convert.ChangeType(x.Cells[_ColumnIndex].Body, _Type);
-                }
-                catch
-                {
-                    xValue = null;
-                }
-            }
-            if (y.Cells[_ColumnIndex].Body != Resources.UndefinedFieldText)
-            {
-                try
-                {
-                    yValue = Convert.ChangeType(y.Cells[_ColumnIndex].Body, _Type);
-                }
-                catch
-                {
-                    yValue = null;
-                }
-            }
-
-            int dir = (_Direction) ? 1 : -1;
-
-            if (xValue != null && xValue is IComparable)
-            {
-
-                return (xValue as IComparable).CompareTo(yValue) * ((_Direction) ? 1 : -1);
-            }
-            if (yValue != null && xValue is IComparable)
-            {
-                return (yValue as IComparable).CompareTo(xValue) * ((_Direction) ? 1 : -1);
-            }
-            else
-            {
-                return (x.Cells[_ColumnIndex].Body as string).CompareTo(y.Cells[_ColumnIndex].Body as string) * ((_Direction) ? 1 : -1);
-            }
-
-        }
+        public List<Cell> Cells { get; set; } = new List<Cell>();
     }
-
+    class Page
+    {
+        public int SkipElementsCount { get; set; }
+        public int TakeElementsCount { get; set; }
+        public int Number { get; set; }
+        public int StartIndex { get; set; }
+        public int EndIndex { get; set; }
+        public int DownScrollValue { get; set; }
+        public int UpScrollValue { get; set; }
+    }
     public enum SortDirections
     {
         ASC,
@@ -228,48 +192,35 @@ namespace Parser
         None
     }
 
-    class ColumnDataTypesList
+    class ColumnTypesList
     {
         internal Dictionary<string, Type> TypesCollection { get; } = new Dictionary<string, Type>();
-        public ColumnDataTypesList()
+        public ColumnTypesList()
         {
             TypesCollection.Add("String", typeof(String));
             TypesCollection.Add("Integer", typeof(Int32));
             TypesCollection.Add("Date/Time", typeof(DateTime));
             TypesCollection.Add("Boolean", typeof(Boolean));
         }
-
-
         public string GetKeyByValue(Type t)
         {
-            string res = "";
+            string key = "";
             foreach (var item in TypesCollection)
             {
                 if (item.Value == t)
                 {
-                    res = item.Key;
+                    key = item.Key;
                     break;
                 }
             }
-            return res;
+            return key;
         }
     }
     
-    class Page
-
-    {
-        public int SkipElementsCount { get; set; }
-        public int TakeElementsCount { get; set; }
-
-        public int OldScrollValue { get; set; }
-        public int Number { get; set; }
-        public int StartIndex { get; set; }
-        public int EndIndex { get; set; }
-        public int DownScrollValue { get; set; }
-        public int UpScrollValue { get; set; }
-    }
+  
     public static class Utility
     {
+        #region Sorting
         public static IQueryable<TEntity> OrderBy<TEntity>(this IQueryable<TEntity> source, string orderByProperty)
         {
             string command = "OrderBy";
@@ -294,24 +245,23 @@ namespace Parser
             var resultExpression = Expression.Call(typeof(Queryable), command, new Type[] { type, property.PropertyType },
                                           source.AsQueryable().Expression, Expression.Quote(orderByExpression));
             return source.AsQueryable().Provider.CreateQuery<TEntity>(resultExpression);
-        }      
-        public static TEntity GetObjectWithMatchingProperties<TEntity>(this IQueryable<TEntity> source, TEntity @object)
+        }
+        #endregion
+        public static TEntity GetObjectWithEqualProperties<TEntity>(this IQueryable<TEntity> source, TEntity objectToCompare)
         {
             List<TEntity> listSource = source.ToList();
-            var resultObject = Activator.CreateInstance(listSource.First().GetType());
-
-            
-            foreach (var obj in listSource)
+            var resultObject = Activator.CreateInstance(listSource.First().GetType());            
+            foreach (var item in listSource)
             {
                 bool isFinded = true;
-                PropertyDescriptorCollection props = TypeDescriptor.GetProperties(@object);
-                PropertyDescriptorCollection objectProperties = TypeDescriptor.GetProperties(obj);
-                foreach (PropertyDescriptor prop in props)
+                PropertyDescriptorCollection propertiesOfObject = TypeDescriptor.GetProperties(objectToCompare);
+                PropertyDescriptorCollection propertiesOfCollectionItem = TypeDescriptor.GetProperties(item);
+                foreach (PropertyDescriptor prop in propertiesOfObject)
                 {
-                    var tempProp = objectProperties.Find(prop.Name, false);
-                    var a = tempProp.GetValue(obj);
-                    var b = prop.GetValue(@object);
-                    if (tempProp.GetValue(obj).ToString() != prop.GetValue(@object).ToString())
+                    var tempProp = propertiesOfCollectionItem.Find(prop.Name, false);
+                    var tempPropValue = tempProp.GetValue(item);
+                    var objectPropValue = prop.GetValue(objectToCompare);
+                    if (tempProp.GetValue(item).ToString() != prop.GetValue(objectToCompare).ToString())
                     {
                         isFinded = false;
                         break;
@@ -323,12 +273,10 @@ namespace Parser
                 }
                 else
                 {
-                    resultObject = obj;
+                    resultObject = item;
                     break;
                 }
-
             }
-
             return (TEntity)resultObject;
         }
 

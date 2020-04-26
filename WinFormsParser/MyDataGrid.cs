@@ -126,7 +126,7 @@ namespace Parser
             _Source = new List<List<string>>();
             _Buffer = new List<Row>();
             _API = new Source();
-            _API.PropertyChanged += APIPropertyChanged;
+            _API.Event_PropertyChanged += APIPropertyChanged;
             Columns.CollectionChanged += ColumnsCollectionChanged;
         
             ResizeRedraw = true;
@@ -597,7 +597,7 @@ namespace Parser
                     }
                 }
                 var data = TooggleSorting(_Page.SkipElementsCount, _Page.TakeElementsCount).AsQueryable();
-                var sourceObject = data.GetObjectWithMatchingProperties(tempObject);
+                var sourceObject = data.GetObjectWithEqualProperties(tempObject);
                 PropertyDescriptorCollection sourceObjectProperties = TypeDescriptor.GetProperties(sourceObject);
 
                 var sourceObjectProperty = sourceObjectProperties.Find(_API.Columns[_Editor.BufferCell.SourceColumnIndex].HeaderText, false);
