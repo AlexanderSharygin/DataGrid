@@ -43,18 +43,17 @@ namespace WinFormsParser
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            var inputText = File.ReadAllText("Files\\Data.txt");
-            _Workers = JSONParser.CreateObjects<Worker>(inputText);
+           var inputText = File.ReadAllText("Files\\Data.txt");
+           _Workers = JSONParser.CreateObjects<Worker>(inputText);
 
 
         }
-        private List<string> GetAggregatedFields()
+        private List<string> GetAggregatedFields<T>() where T: new()
         {
-
+            T obj = new T();
             List<string> fields = new List<string>();
-            foreach (var worker in _Workers)
-            {
-                PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(worker);
+           
+                PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(obj);
                 foreach (PropertyDescriptor property in properties)
                 {
                     string item = property.Name;
@@ -63,7 +62,7 @@ namespace WinFormsParser
                         fields.Add(item);
                     }
 
-                }
+                
             }
             return fields;
         }
@@ -111,8 +110,10 @@ namespace WinFormsParser
         {
 
             DataTable.ColumnsAutoGeneration = false;
-            DataTable.ItemsSource = _Workers.AsQueryable();
-            List<string> AggregatedObjectsFields = GetAggregatedFields();
+           
+            DataTable.ItemsSource = DBData.Workers.AsEnumerable();
+            DataTable.PrivateKeyColumn = "Id";
+            List<string> AggregatedObjectsFields = new List<string>() { "Id", "FirstName", "LastName", "Prefix", "Position", "BirthDate", "Notes", "Address", "StateID", "Salary", "IsAlcoholic"};
 
             foreach (var item in AggregatedObjectsFields)
             {
@@ -161,17 +162,28 @@ namespace WinFormsParser
         }
         private void Remove_Click(object sender, EventArgs e)
         {
-            DataTable.RemoveColumnByName(CB_FieldsList2.SelectedItem.ToString());
+           bool isDeleted =  DataTable.RemoveColumnByName(CB_FieldsList2.SelectedItem.ToString());
+            if (!isDeleted)
+            {
+                MessageBox.Show("Нельзя удалить первичный ключ");
+            }
             LB_FieldsList.Items.Remove(CB_FieldsList2.SelectedItem.ToString());
             UpdateUI();
         }
         private void Button1_Click_1(object sender, EventArgs e)
         {
             string temp = DataTable.Columns[(int)NU_FieldsIndexes.Value].HeaderText;
-            DataTable.Columns.RemoveAt(DataTable.Columns[(int)NU_FieldsIndexes.Value].Index);
-            LB_FieldsList.Items.Remove(temp);
-            temp = "";
-            UpdateUI();
+            if (temp != DataTable.PrivateKeyColumn)
+            {
+                DataTable.Columns.RemoveAt(DataTable.Columns[(int)NU_FieldsIndexes.Value].Index);
+                LB_FieldsList.Items.Remove(temp);
+                temp = "";
+                UpdateUI();
+            }
+            else
+            {
+                MessageBox.Show("Нельзя удалить первичный ключ");
+            }
 
         }
         private void UpdateUI()
@@ -196,7 +208,7 @@ namespace WinFormsParser
         {
             DataTable.ColumnsAutoGeneration = true;
 
-            DataTable.ItemsSource = _Workers.AsEnumerable();
+            var Data = DBData.Workers.AsEnumerable();
             LB_FieldsList.Items.Clear();
             foreach (var item in DataTable.Columns)
             {
@@ -220,9 +232,10 @@ namespace WinFormsParser
         {
 
             DataTable.ColumnsAutoGeneration = true;
-            var Data = DBData.Workers.AsEnumerable();          
-            DataTable.ItemsSource = Data;
-            DataTable.PrivateKeyColumn ="Id";    
+           var Data = DBData.Workers.AsEnumerable();          
+          DataTable.ItemsSource = Data;
+          //  DataTable.ItemsSource = _Workers;
+           DataTable.PrivateKeyColumn ="Id";    
             LB_FieldsList.Items.Clear();
             CB_FieldsList1.Items.Clear();
             CB_FieldsList2.Items.Clear();
@@ -255,10 +268,11 @@ namespace WinFormsParser
         public string LastName { get; set; }
         public string Prefix { get; set; }
         public string Position { get; set; }
-        public DateTime BirthDate { get; set; }
-        public DateTime HireDate { get; set; }
+        public DateTime BirthDate { get; set; }       
         public string Notes { get; set; }
         public string Address { get; set; }
         public int StateID { get; set; }
+     //   public int Salary { get; set; }
+      //  public bool IsAlcoholic { get; set; }
     }
 }

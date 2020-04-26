@@ -33,13 +33,17 @@ namespace Parser
             { return _ItemsSource; }
             set
             {
-                _ItemsSource = value.AsQueryable();    
-                
+                _ItemsSource = value.AsQueryable();
+                _Pages.Clear();
+              //  _Buffer.Clear();
+            
                 _TotalRowsCount = _ItemsSource.Count();
                 int pagesCount = (int)(Math.Ceiling(Convert.ToDecimal(_TotalRowsCount / BuferSize)));
-
-                
-                Dictionary<string, Type> columnsInfo = GetColumnsInfo();
+                if (pagesCount == 0)
+                {
+                    pagesCount = 1;
+                }
+                    Dictionary<string, Type> columnsInfo = GetColumnsInfo();
                 _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;
                 for (int i = 0; i < pagesCount; i++)
                 {
@@ -335,16 +339,26 @@ namespace Parser
                 }
             }
         }
-        public void RemoveColumnByName(string columnName)
+        public bool RemoveColumnByName(string columnName)
         {
+            bool res = true;
             for (int i = 0; i < _API.Columns.Count; i++)
             {
                 if (_API.Columns[i].HeaderText == columnName)
                 {
-                    _API.Columns.RemoveAt(i);
-                    break;
+                    if (_API.Columns[i].HeaderText != PrivateKeyColumn)
+                    {
+                        _API.Columns.RemoveAt(i);
+                        break;
+
+                    }
+                    else
+                    {
+                        res = false;
+                    }
                 }
             }
+            return res;
         }
         private void UpdateScrolls()
         {
@@ -363,11 +377,12 @@ namespace Parser
                 if (_TotalRowsCount > _ViewPortRowsCount)
                 {
                     VerticalScrollBar.Visible = true;
-                }
+             
                 VerticalScrollBar.Minimum = 0;
                 VerticalScrollBar.Maximum = ((_TotalRowsCount- _ViewPortRowsCount) * _VerticalScrollValueRatio) - 1;
                 VerticalScrollBar.SmallChange = _VerticalScrollValueRatio;
                 VerticalScrollBar.LargeChange = _VerticalScrollValueRatio;
+                }
                 UpdateHorizontalScroll();
                 HorisontalScrollBar.Value = 0;
 
@@ -405,7 +420,20 @@ namespace Parser
             _Editor = null;
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
-                AddToBufer(Columns.Last().HeaderText);
+                if (_Buffer.Count > 0)
+                {
+                    var columnsInBuffer = _Buffer.First().Cells.Select(k => k.Body).ToList();
+
+                    if (columnsInBuffer.IndexOf(Columns.Last().HeaderText) == -1)
+                    {
+
+                        AddToBufer(Columns.Last().HeaderText);
+                    }
+                }
+                else
+                {
+                    AddToBufer(Columns.Last().HeaderText);
+                }
                 for (int i = 0; i < _API.Columns.Count; i++)
                 {
                     var a = _Buffer.First().Cells.Select(k => k.Body).ToList();
@@ -1021,7 +1049,7 @@ namespace Parser
                selectedPage = _Page;
             }
 
-            int aaaa = selectedPage.Number;
+         
             if (_CuurentPageNumber > 1)           
             {
                 _FirstPrintedRowIndex = _FirstPrintedRowIndex- (BuferSize* (_CuurentPageNumber - 1))+_ViewPortRowsCount+1;
