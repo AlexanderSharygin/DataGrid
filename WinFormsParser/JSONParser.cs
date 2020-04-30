@@ -133,29 +133,29 @@ namespace WinFormsParser
         }
         private void RemoveByNameButton_Click(object sender, EventArgs e)
         {
-            bool isDeleted = _DataTable.RemoveColumnByName(CB_FieldsList2.SelectedItem.ToString());
+            bool isDeleted = _DataTable.RemoveColumn(CB_FieldsList2.SelectedItem.ToString());
             if (!isDeleted)
             {
                 MessageBox.Show("Нельзя удалить первичный ключ");
             }
-            LB_FieldsList.Items.Remove(CB_FieldsList2.SelectedItem.ToString());
-            UpdateUI();
+            else
+            {
+                LB_FieldsList.Items.Remove(CB_FieldsList2.SelectedItem.ToString());
+                UpdateUI();
+            }
         }
         private void RemoveByIndex_Button_Click(object sender, EventArgs e)
         {
-            string columnNameToDelete = _DataTable.Columns[(int)NU_FieldsIndexes.Value].HeaderText;
-            if (columnNameToDelete != _DataTable.PrivateKeyColumn)
-            {
-                _DataTable.Columns.RemoveAt(_DataTable.Columns[(int)NU_FieldsIndexes.Value].Index);
-                LB_FieldsList.Items.Remove(columnNameToDelete);
-                columnNameToDelete = "";
-                UpdateUI();
-            }
-            else
+            bool isDeleted = _DataTable.RemoveColumn((int)NU_FieldsIndexes.Value);
+            if (!isDeleted)
             {
                 MessageBox.Show("Нельзя удалить первичный ключ");
             }
-
+            else
+            {
+                LB_FieldsList.Items.RemoveAt((int)NU_FieldsIndexes.Value);
+                UpdateUI();
+            }
         }
         private void UpdateUI()
         {
