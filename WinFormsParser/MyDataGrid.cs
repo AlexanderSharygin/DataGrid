@@ -11,12 +11,11 @@ using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 
-using System.Data.Entity.Core.Metadata.Edm;
 
 namespace Parser
 {
 
-    [System.ComponentModel.DesignerCategory("Code")]
+   /// [System.ComponentModel.DesignerCategory("Code")]
 
 
     public partial class MyDataGrid : UserControl
@@ -46,6 +45,9 @@ namespace Parser
         List<HeaderCell> _Header;
         bool _ViewPortIsScrolledDown = false;
        CancellationTokenSource _CancellationTokenSource;
+        bool IsCompleted = false;
+     
+      
         #endregion
 
         #region Props
@@ -397,7 +399,7 @@ namespace Parser
         private void SortData()
         {
             CancellationTokenSource cts = new CancellationTokenSource();
-            var sortedItems = TooggleSorting(_CurrentPage.SkipElementsCount, _CurrentPage.TakeElementsCount, cts.Token).ToList();
+            var sortedItems = TooggleSorting(_CurrentPage.SkipElementsCount, _CurrentPage.TakeElementsCount).ToList();
             Dictionary<string, Type> columns = GetColumnsInfo();
             int index = 0;
             foreach (var item in columns)
@@ -553,14 +555,15 @@ namespace Parser
             await Task.Run(() =>
             {
                 try
-              {
-                   list = Sorting(skipCount, takeCount, token).ToList();
-             }
-               catch (OperationCanceledException ex)
-               {
-                   
-              }
-            }, token);       
+                {
+                    Thread.Sleep(500);
+                    list = TooggleSorting(skipCount, takeCount).ToList();
+                }             
+                catch 
+                { 
+                }
+            }, token);
+            IsCompleted = true;
             return list;
           
            
@@ -568,62 +571,11 @@ namespace Parser
 
 
         }
-        private IQueryable<object> Sorting(int skipCount, int takeCount, CancellationToken token)
-        {
-           
-              Thread.Sleep(100);
-                if (skipCount < 0)
-                {
-                    skipCount = 0;
-                }
-           
-                if (_API.SortedColumnIndex != -1)
-                {
-                    if (_API.SortDirection == SortDirections.ASC)
-                    {
-
-                        var items = _ItemsSource.OrderBy(_API.Columns[_API.SortedColumnIndex].HeaderText).AsParallel().AsOrdered().WithCancellation(token).Skip(skipCount).Take(takeCount).AsQueryable();
-                        return items;
-
-                    }
-                    if (_API.SortDirection == SortDirections.DESC)
-                    {
-
-                        var items = _ItemsSource.OrderByDescending(_API.Columns[_API.SortedColumnIndex].HeaderText).AsParallel().AsOrdered().WithCancellation(token).Skip(skipCount).Take(takeCount).AsQueryable();
-                        return items;
-
-                    }
-
-                    else if (_API.SortDirection == SortDirections.None)
-                    {
-
-                        var sortedColumn = _API.Columns.Select(k => k).Where(k => k.HeaderText == PrivateKeyColumn).FirstOrDefault();
-                        var items = _ItemsSource.OrderBy(sortedColumn.HeaderText).AsParallel().AsOrdered().WithCancellation(token).Skip(skipCount).Take(takeCount).AsQueryable();
-                        return items;
-                    }
-                }
-                else
-                {
-
-                   
-                    var sortedColumn = _API.Columns.Select(k => k).Where(k => k.HeaderText == PrivateKeyColumn).FirstOrDefault();
-                    var items = _ItemsSource.OrderBy(sortedColumn.HeaderText).AsParallel().AsOrdered().WithCancellation(token).Skip(skipCount).Take(takeCount).AsQueryable();
-                    return items;
-
-                }
       
-           
-           
-            return _ItemsSource;
-        }
 
-
-        private IQueryable<object> TooggleSorting(int skipCount, int takeCount, CancellationToken token)
+        private IQueryable<object> TooggleSorting(int skipCount, int takeCount)
         {
-            if (token.IsCancellationRequested)
-            {
-                return null;
-            }
+           
             if (skipCount < 0)
             {
                 skipCount = 0;
@@ -888,8 +840,8 @@ namespace Parser
                         tempObjectProperty?.SetValue(tempObject, Convert.ChangeType(cell.Body, tempObjectProperty.PropertyType));
                     }
                 }
-                CancellationTokenSource cts = new CancellationTokenSource();
-                var sourceeData = TooggleSorting(_CurrentPage.SkipElementsCount, _CurrentPage.TakeElementsCount, cts.Token).AsQueryable();
+              
+                var sourceeData = TooggleSorting(_CurrentPage.SkipElementsCount, _CurrentPage.TakeElementsCount).AsQueryable();
                 var sourceObject = sourceeData.GetObjectWithEqualProperties(tempObject);
                 PropertyDescriptorCollection sourceObjectProperties = TypeDescriptor.GetProperties(sourceObject);
                 var sourceObjectProperty = sourceObjectProperties.Find(_API.Columns[_Editor.BufferCell.SourceColumnIndex].HeaderText, false);
@@ -1072,6 +1024,10 @@ namespace Parser
 
                     var b = _API.Columns.Where(k => k.Index == i).Select(k => k).Single();
                     int bufferRowIndex = _FirstPrintedRowIndex + 1;
+                    if (bufferRowIndex < 0)
+                    {
+                        bufferRowIndex = 1;
+                    }
                     int viewPortRowIndex = 1;
                     if (b.Visible)
                     {
@@ -1222,8 +1178,12 @@ namespace Parser
             }
 
         }
+     
+
         private async void VScrollBar1_ValueChanged(object sender, EventArgs e)
         {
+            bool isNeedInvalidation = true;
+            IsCompleted = false;
             UpdateColumnsPosition();
             UpdateHeadersWidth();
             RecalculateTotalTableWidth();
@@ -1272,11 +1232,17 @@ namespace Parser
                    
                 }
                 _CancellationTokenSource = new CancellationTokenSource();
-             
+                List<object> items = new List<object>();
                 try
                 {
-
-                  var items = await AsyncToggleSorting(printedPage.EndIndex - 1 - _ViewPortRowsCount, BuferSize + _ViewPortRowsCount, _CancellationTokenSource.Token);
+                    if (selectedPage.Number - _CurrentPage.Number > 1)
+                    {                        
+                         items = await AsyncToggleSorting(printedPage.EndIndex - 1 - _ViewPortRowsCount, BuferSize + _ViewPortRowsCount, _CancellationTokenSource.Token);
+                    }
+                    else
+                    {
+                         items = TooggleSorting(printedPage.EndIndex - 1 - _ViewPortRowsCount, BuferSize + _ViewPortRowsCount).ToList();
+                    }
                     if (items.Count != 0)
                     {
                         int index = 0;
@@ -1296,7 +1262,11 @@ namespace Parser
                         _CurrentPage = selectedPage;
                         RecalculateTotalTableWidth();
                         UpdateHeadersWidth();
-
+                        isNeedInvalidation = true;
+                    }
+                    else
+                    {
+                        isNeedInvalidation = false;
                     }
                 }
                 catch
@@ -1323,45 +1293,68 @@ namespace Parser
                     _CancellationTokenSource.Cancel();
                 }
                 _CancellationTokenSource = new CancellationTokenSource();
-                var items = await AsyncToggleSorting(printedPage.EndIndex - BuferSize - _ViewPortRowsCount - nextPageCounter, BuferSize + _ViewPortRowsCount * nextPageCounter, _CancellationTokenSource.Token);
-                if (items != null)
+                try
                 {
-                    int index = 0;
-                    foreach (var item in columns)
+                    List<object> items = new List<object>();
+                    if (_CurrentPage.Number - selectedPage.Number > 1)
                     {
-                        List<string> ColumnItems = new List<string>();
-                        ColumnItems = GetColumnItemsFromSource(item.Key, item.Value, items);
-                        List<string> viewPortItems = new List<string>();
-                        var a = _Source[index].First();
-                        _Source[index].Clear();
-                        _Source[index].Add(a);
-                        _Source[index].AddRange(ColumnItems);
-                        _Source[index].AddRange(viewPortItems);
-                        index++;
-                    }
-                    if (_CuurentPageNumber < 2)
-                    {
-                        _FirstPrintedRowIndex = BuferSize - _ViewPortRowsCount - 1;
+
+                       items = await AsyncToggleSorting(printedPage.EndIndex - BuferSize - _ViewPortRowsCount - nextPageCounter, BuferSize + _ViewPortRowsCount * nextPageCounter, _CancellationTokenSource.Token);
                     }
                     else
                     {
-                        _FirstPrintedRowIndex = BuferSize - 1;
+                        items = TooggleSorting(printedPage.EndIndex - BuferSize - _ViewPortRowsCount - nextPageCounter, BuferSize + _ViewPortRowsCount * nextPageCounter).ToList();
                     }
-                    if (VerticalScrollBar.Value == 0)
+                    if (items.Count != 0)
                     {
-                        _FirstPrintedRowIndex = 0;
+                        int index = 0;
+                        foreach (var item in columns)
+                        {
+                            List<string> ColumnItems = new List<string>();
+                            ColumnItems = GetColumnItemsFromSource(item.Key, item.Value, items);
+                            List<string> viewPortItems = new List<string>();
+                            var a = _Source[index].First();
+                            _Source[index].Clear();
+                            _Source[index].Add(a);
+                            _Source[index].AddRange(ColumnItems);
+                            _Source[index].AddRange(viewPortItems);
+                            index++;
+                        }
+                        if (_CuurentPageNumber < 2)
+                        {
+                            _FirstPrintedRowIndex = BuferSize - _ViewPortRowsCount - 1;
+                        }
+                        else
+                        {
+                            _FirstPrintedRowIndex = BuferSize - 1;
+                        }
+                        if (VerticalScrollBar.Value == 0)
+                        {
+                            _FirstPrintedRowIndex = 0;
+
+                        }                        
+                        UpdateBufferAfterScroll();
+                        _CuurentPageNumber = selectedPage.Number;
+                        _CurrentPage = selectedPage;
+                        RecalculateTotalTableWidth();
+                        UpdateHeadersWidth();
+                        isNeedInvalidation = true;
 
                     }
-                    UpdateBufferAfterScroll();
-                    _CuurentPageNumber = selectedPage.Number;
-                    _CurrentPage = selectedPage;
-                    RecalculateTotalTableWidth();
-                    UpdateHeadersWidth();
-                 
+                    else
+                    {
+                        isNeedInvalidation = false;
+                    }
+                }
+                catch
+                {
                 }
             }
             _OldScrollValue = VerticalScrollBar.Value;
-            Invalidate();
+            if (isNeedInvalidation)
+            {              
+                Invalidate();
+            }
         }
         #endregion
 
