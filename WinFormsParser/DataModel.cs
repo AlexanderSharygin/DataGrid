@@ -223,22 +223,13 @@ namespace Parser
         #region Sorting
         public static IQueryable<TEntity> OrderBy<TEntity>(this IQueryable<TEntity> source, string orderByProperty)
         {
-            Type type;
-           
-            string command = "OrderBy";
-            try
-            {
-                type = source.FirstOrDefault().GetType();
-            }           
-            catch
-            {
-                return source;
-            }
-            var property = type.GetProperty(orderByProperty);
-            var parameter = Expression.Parameter(type, "p");
+                   
+            string command = "OrderBy";                     
+            var property = source.ElementType.GetProperty(orderByProperty);
+            var parameter = Expression.Parameter(source.ElementType, "p");
             var propertyAccess = Expression.MakeMemberAccess(parameter, property);
             var orderByExpression = Expression.Lambda(propertyAccess, parameter);
-            var resultExpression = Expression.Call(typeof(Queryable), command, new Type[] { type, property.PropertyType },
+            var resultExpression = Expression.Call(typeof(Queryable), command, new Type[] { source.ElementType, property.PropertyType },
                                               source.AsQueryable().Expression, Expression.Quote(orderByExpression));
                 return source.AsQueryable().Provider.CreateQuery<TEntity>(resultExpression);
             
@@ -247,25 +238,17 @@ namespace Parser
         }
         public static IQueryable<TEntity> OrderByDescending<TEntity>(this IQueryable<TEntity> source, string orderByProperty)
         {
-            Type type;
-            string command = "OrderByDescending";
-                try
-                {
-                    type = source.FirstOrDefault().GetType();
-                }
-                catch
-                {
-                    return source;
-                }
-                var property = type.GetProperty(orderByProperty);
-            var parameter = Expression.Parameter(type, "p");
+          
+            string command = "OrderByDescending";          
+            var property = source.ElementType.GetProperty(orderByProperty);
+            var parameter = Expression.Parameter(source.ElementType, "p");
             var propertyAccess = Expression.MakeMemberAccess(parameter, property);
             var orderByExpression = Expression.Lambda(propertyAccess, parameter);
-            var resultExpression = Expression.Call(typeof(Queryable), command, new Type[] { type, property.PropertyType },
+            var resultExpression = Expression.Call(typeof(Queryable), command, new Type[] { source.ElementType, property.PropertyType },
                                           source.AsQueryable().Expression, Expression.Quote(orderByExpression));
             return source.AsQueryable().Provider.CreateQuery<TEntity>(resultExpression);
-            
-          
+
+
         }
         #endregion
         public static TEntity GetObjectWithEqualProperties<TEntity>(this IQueryable<TEntity> source, TEntity objectToCompare)

@@ -44,21 +44,60 @@ namespace Parser
         Pen _Pen;
         List<HeaderCell> _Header;
         bool _ViewPortIsScrolledDown = false;
-       CancellationTokenSource _CancellationTokenSource;
-        bool IsCompleted = false;
+       CancellationTokenSource _CancellationTokenSource;    
      
       
         #endregion
 
         #region Props
         public string PrivateKeyColumn { get; set; }
-        public IEnumerable<object> ItemsSource
+        public  IEnumerable<object> ItemsSource
         {
             get
             { return _ItemsSource; }
             set
             {
                 _ItemsSource = value.AsQueryable();
+                
+              //  _Pages.Clear();
+              //  _TotalRowsCount =  _ItemsSource.Count();
+              //  int pagesCount = (int)(Math.Ceiling(Convert.ToDecimal(_TotalRowsCount / BuferSize)));
+              //  if (pagesCount == 0)
+              //  {
+              //      pagesCount = 1;
+              //  }
+                Dictionary<string, Type> columnsInfo = GetColumnsInfo();
+                _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;
+             //   for (int i = 0; i < pagesCount; i++)
+              //  {
+             //       _Pages.Add(CreateNewPage(i));
+             //   }
+                _Source = GetStringDataSource(columnsInfo);
+                GetCount();
+                //   _CurrentPage = _Pages.FirstOrDefault();
+                if (ColumnsAutoGeneration)
+                {
+                    Columns.Clear();
+                    foreach (var item in columnsInfo)
+                    {
+                        Columns.Add(new Column(item.Key, item.Value) { Visible = true });
+                    }
+                }
+
+             
+               
+               
+
+            
+
+
+
+        }
+        }
+
+        private async void GetCount()
+        {
+            await Task.Factory.StartNew(()=> {
                 _Pages.Clear();
                 _TotalRowsCount = _ItemsSource.Count();
                 int pagesCount = (int)(Math.Ceiling(Convert.ToDecimal(_TotalRowsCount / BuferSize)));
@@ -72,17 +111,24 @@ namespace Parser
                 {
                     _Pages.Add(CreateNewPage(i));
                 }
-                _Source = GetStringDataSource(columnsInfo);
                 _CurrentPage = _Pages.FirstOrDefault();
-                if (ColumnsAutoGeneration)
+                if (_TotalRowsCount > _ViewPortRowsCount + 1)
                 {
-                    Columns.Clear();
-                    foreach (var item in columnsInfo)
-                    {
-                        Columns.Add(new Column(item.Key, item.Value) { Visible = true });
-                    }
+
+                 
+                    VerticalScrollBar.Invoke((MethodInvoker)(()=>VerticalScrollBar.Visible = true));
                 }
-            }
+                else
+                {
+                    VerticalScrollBar.Invoke((MethodInvoker)(() => VerticalScrollBar.Visible = false));
+                }
+                if (VerticalScrollBar.Value < 0)
+                {
+                    VerticalScrollBar.Invoke((MethodInvoker)(() =>  VerticalScrollBar.Minimum = 0));
+                    VerticalScrollBar.Invoke((MethodInvoker)(() => VerticalScrollBar.Value = 0));                   
+                }
+                VerticalScrollBar.Invoke((MethodInvoker)(() =>  VerticalScrollBar.Maximum = ((_TotalRowsCount - _ViewPortRowsCount) * _VerticalScrollValueRatio) - 1));
+            });
         }
         public int BuferSize { get; set; } = 50;
         internal ObservableCollection<Column> Columns
@@ -198,9 +244,8 @@ namespace Parser
         }
         private Dictionary<string, Type> GetColumnsInfo()
         {
-            Dictionary<string, Type> columns = new Dictionary<string, Type>();
-            var sourceObject = _ItemsSource.FirstOrDefault();
-            PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(sourceObject);
+            Dictionary<string, Type> columns = new Dictionary<string, Type>();               
+            PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(_ItemsSource.ElementType);
             foreach (PropertyDescriptor property in properties)
             {
                 if (!columns.ContainsKey(property.Name))
@@ -557,13 +602,15 @@ namespace Parser
                 try
                 {
                     Thread.Sleep(500);
-                    list = TooggleSorting(skipCount, takeCount).ToList();
+                    
+                    list = TooggleSorting(skipCount, takeCount)?.ToList();
                 }             
-                catch 
-                { 
-                }
+               catch (Exception ex)
+             {
+                    
+               }
             }, token);
-            IsCompleted = true;
+         
             return list;
           
            
@@ -585,26 +632,26 @@ namespace Parser
             {
                 if (_API.SortDirection == SortDirections.ASC)
                 {
-                    var items = _ItemsSource.OrderBy(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(skipCount).Take(takeCount).AsQueryable();
+                    var items = _ItemsSource?.OrderBy(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(skipCount).Take(takeCount).AsQueryable();
                     return items;
                 }
                 if (_API.SortDirection == SortDirections.DESC)
                 {
-                    var items = _ItemsSource.OrderByDescending(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(skipCount).Take(takeCount).AsQueryable();
+                    var items = _ItemsSource?.OrderByDescending(_API.Columns[_API.SortedColumnIndex].HeaderText).Skip(skipCount).Take(takeCount).AsQueryable();
                     return items;
                 }
 
                 else if (_API.SortDirection == SortDirections.None)
                 {
                     var sortedColumn = _API.Columns.Select(k => k).Where(k => k.HeaderText == PrivateKeyColumn).FirstOrDefault();
-                    var items = _ItemsSource.OrderBy(sortedColumn.HeaderText).Skip(skipCount).Take(takeCount).AsQueryable();
+                    var items = _ItemsSource?.OrderBy(sortedColumn.HeaderText).Skip(skipCount).Take(takeCount).AsQueryable();
                     return items;
                 }
             }
             else
             {
                 var sortedColumn = _API.Columns.Select(k => k).Where(k => k.HeaderText == PrivateKeyColumn).FirstOrDefault();
-                var items = _ItemsSource.OrderBy(sortedColumn.HeaderText).Skip(skipCount).Take(takeCount).AsQueryable();
+                var items = _ItemsSource?.OrderBy(sortedColumn.HeaderText).Skip(skipCount).Take(takeCount).AsQueryable();
                 return items;
             }
             return _ItemsSource;
@@ -1183,7 +1230,7 @@ namespace Parser
         private async void VScrollBar1_ValueChanged(object sender, EventArgs e)
         {
             bool isNeedInvalidation = true;
-            IsCompleted = false;
+           
             UpdateColumnsPosition();
             UpdateHeadersWidth();
             RecalculateTotalTableWidth();
