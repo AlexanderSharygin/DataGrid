@@ -73,6 +73,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Module_PublicAPI.cs" />
+    <Compile Include="Module_AsyncMethods.cs" />
     <Compile Include="DataModel.cs" />
     <Compile Include="DBModel.cs" />
     <Compile Include="EditorSelector.cs" />
@@ -83,6 +85,7 @@
     <Compile Include="JSONParser.Designer.cs">
       <DependentUpon>JSONParser.cs</DependentUpon>
     </Compile>
+    <Compile Include="Module_Scroll-Resize.cs" />
     <Compile Include="MyDataGrid.cs" />
     <Compile Include="MyDataGrid.Designer.cs">
       <DependentUpon>MyDataGrid.cs</DependentUpon>
