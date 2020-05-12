@@ -2,28 +2,34 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace Parser
+
+
 {
+
+
+
     [System.ComponentModel.DesignerCategory("Code")]
-  
+
     public class HeaderCell : Control
     {
-        #region Fields
-        int _CellMinMargin = 2;      
+
+        int _CellMinMargin = 2;
         Source _API;
         TypeSelector _TypeSelector = new TypeSelector();
         private IContainer _Components = null;
-        #endregion
-        #region Props
-        internal Column ColumnData { get; }                
-        public string HeaderText { get; set; }       
+
+
+        internal Column ColumnData { get; }
+        public string HeaderText { get; set; }
         internal List<HeaderCell> NeighborCells { get; set; } = new List<HeaderCell>();
         public bool IsToMoving { get; set; } = false;
-        #endregion
 
-        #region Constructors
+
+
         internal HeaderCell(Column ColumnData, Source api)
         {
             this.SuspendLayout();
@@ -35,7 +41,7 @@ namespace Parser
             this.ResumeLayout(false);
             this.ColumnData = ColumnData;
             HeaderText = ColumnData.HeaderText;
-            _Components = new Container();                        
+            _Components = new Container();
             _TypeSelector.Visible = false;
             _TypeSelector.Font = this.Font;
             Controls.Add(_TypeSelector);
@@ -45,8 +51,8 @@ namespace Parser
             _TypeSelector.Items = _API.DataTypes;
             _TypeSelector.SelectedItem = _API.DataTypes.GetKeyByValue(ColumnData.DataType);
         }
-        #endregion
-        #region EventsHandlers
+
+
         private void TypeSelector_VisibleChanged(object sender, EventArgs e)
         {
             var control = (TypeSelector)(sender);
@@ -118,9 +124,9 @@ namespace Parser
             }
 
         }
-        #endregion
 
-        #region Methods
+
+
         protected override void Dispose(bool disposing)
         {
             if (disposing && (_Components != null))
@@ -128,10 +134,10 @@ namespace Parser
                 _Components.Dispose();
             }
             base.Dispose(disposing);
-        }           
+        }
         public void ToggleSortDirection()
         {
-         
+
             switch (_API.SortDirection)
             {
                 case SortDirections.DESC: _API.SortDirection = SortDirections.None; break;
@@ -152,7 +158,7 @@ namespace Parser
             points[1] = new Point(this.Width - 7, this.Height / 2 - a);
             points[2] = new Point(this.Width - 12, this.Height / 2 + a);
             e.Graphics.FillPolygon(new SolidBrush(Color.Black), points);
-        }        
+        }
         private void TypeSelectorShow(MouseEventArgs e)
         {
             Parent.Controls.Remove(_API.TypeSelector);
@@ -180,7 +186,7 @@ namespace Parser
                         a.BringToFront();
                     }
                 }
-                
+
 
             }
         }
@@ -201,7 +207,7 @@ namespace Parser
                 BackColor = Parent.BackColor;
                 IsToMoving = false;
             }
-        }      
+        }
         private void MoveOrChangeSorting(MouseEventArgs e)
         {
             bool movingMode = false;
@@ -241,9 +247,42 @@ namespace Parser
                 Parent.Invalidate();
             }
         }
-        #endregion
-      
+
+
 
     }
+    partial class MyDataGrid
+    {
 
+      
+        private void RemoveHeaderFromControls()
+        {
+            for (int i = 0; i < Controls.Count; i++)
+            {
+                Control item = Controls[i];
+                if (item.GetType() == typeof(HeaderCell))
+                {
+                    Controls.Remove((Control)item);
+                    i--;
+                }
+            }
+            _Header.Clear();
+        }
+
+        private void UpdateHeadersWidth()
+        {
+            for (int i = 0; i < _API.Columns.Count; i++)
+            {
+                var column = _API.Columns.Where(k => k.Index == i).Select(k => k).Single();
+                if (column.Visible)
+                {
+                    var headers = _Header.Select(k => k).Where(k => k.ColumnData.Equals(column)).ToList();
+                    foreach (var item in headers)
+                    {
+                        item.Width = (int)(_LineWidth * 2 + _CellMinMargin + column.Width * (int)this.Font.Size + _CellMinMargin);
+                    }
+                }
+            }
+        }
+    }
 }

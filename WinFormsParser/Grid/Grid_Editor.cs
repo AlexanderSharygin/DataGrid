@@ -1,23 +1,111 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
+using System.Linq;
 using System.Windows.Forms;
-using Parser.Properties;
 
 namespace Parser
 {
-    class EditorSelector 
+
+    partial class MyDataGrid
     {
-        #region Fields
+        private void RemoveEditorFromControls(bool isDropChanges)
+        {
+            var editorControl = _Editor?.GetControl();
+            if (editorControl != null)
+            {
+                Controls.Remove(editorControl);
+                if (!isDropChanges)
+                {
+                    _Editor.BufferCell.Body = _Editor.OriginalValue;
+                }
+                _Editor = null;
+                _API.IsEditorUsed = false;
+                _API.IsEditorOpened = false;
+            }
+        }
+        private void Editor_Leave(object sender, EventArgs e)
+        {
+            if (!_Editor.CancelChanges && _Editor.IsValidated && _Editor.Value != _Editor.OriginalValue)
+            {
+                Type sourceObjectsType = _ItemsSource.First().GetType();
+                var tempObject = Activator.CreateInstance(sourceObjectsType);
+                PropertyDescriptorCollection tempObjectProperties = TypeDescriptor.GetProperties(tempObject);
+                Row bufeRow = _Buffer[_Editor.BufferCell.BuferRowIndex];
+                foreach (Cell cell in bufeRow.Cells)
+                {
+                    var tempObjectProperty = tempObjectProperties.Find(_API.Columns[cell.SourceColumnIndex].HeaderText, false);
+                    if (tempObjectProperty?.PropertyType == typeof(bool))
+                    {
+                        tempObjectProperty.SetValue(tempObject, Convert.ChangeType(ConvertBuuferValueToBoolView(cell), typeof(bool)));
+                    }
+                    else
+                    {
+                        tempObjectProperty?.SetValue(tempObject, Convert.ChangeType(cell.Body, tempObjectProperty.PropertyType));
+                    }
+                }
+
+                var sourceeData = TooggleSorting(_CurrentPage.SkipElementsCount, _CurrentPage.TakeElementsCount).AsQueryable();
+                var sourceObject = sourceeData.GetObjectWithEqualProperties(tempObject);
+                PropertyDescriptorCollection sourceObjectProperties = TypeDescriptor.GetProperties(sourceObject);
+                var sourceObjectProperty = sourceObjectProperties.Find(_API.Columns[_Editor.BufferCell.SourceColumnIndex].HeaderText, false);
+                if (sourceObjectProperty != null)
+                {
+                    sourceObjectProperty.SetValue(sourceObject, Convert.ChangeType(_Editor.Value, sourceObjectProperty.PropertyType));
+                }
+                if (_Editor.GetControl().GetType() == typeof(CheckBox))
+                {
+                    SetBoolValueInBuffer();
+                }
+                else
+                {
+                    _Editor.BufferCell.Body = _Editor.Value;
+                }
+                if (DataChanged != null)
+                {
+                    EventArgs eventArgs = new EventArgs();
+                    DataChanged(this, eventArgs);
+                }
+            }
+            else
+            {
+                if (_Editor.GetControl().GetType() == typeof(CheckBox))
+                {
+                    SetBoolValueInBuffer();
+                }
+                else
+                {
+                    _Editor.BufferCell.Body = _Editor.OriginalValue;
+                }
+            }
+            _API.IsEditorOpened = false;
+            if (_Editor.Closed)
+            {
+                _API.IsEditorUsed = false;
+            }
+            UpdateColumnsPosition();
+            UpdateHeadersWidth();
+            RecalculateTotalTableWidth();
+            if (_API.SortDirection != SortDirections.None && (_API.SortedColumnIndex == _Editor.ColumnIndex && _Editor.OriginalValue != _Editor.Value))
+            {
+                SortData();
+            }
+            VerticalScrollBar.Maximum = ((_TotalRowsCount - _ViewPortRowsCount) * _VerticalScrollValueRatio) - 1;
+            Invalidate();
+        }
+    }
+        class Editor
+    {
+      
         private Type _ColumnType;
         private int _Width;
         private int _Height;
         private Point _Location;
         private bool _Visible;
         private Control _Editor;
-        private string _DataTimeFormat;
-        #endregion
-        #region Props
+        private string _DataTimeFormat;    
+      
         public bool IsMultilain { get; set; }
         public int ScrollCounter { get; set; }
         public bool IsValidated { get; private set; } = true;
@@ -61,16 +149,16 @@ namespace Parser
         public Point DefaultPosition { get; set; }
         public bool Visible { get => _Editor.Visible; set { _Visible = value; _Editor.Visible = _Visible; } }
         public bool Closed { get; set; } = false;
-        #endregion
-        #region Constructors
-        public EditorSelector(Cell cell, Type type, string dataFormat)
+    
+      
+        public Editor(Cell cell, Type type, string dataFormat)
         {
             BufferCell = cell;
             _ColumnType = type;
             _DataTimeFormat = dataFormat;
         }
-        #endregion
-        #region Methods
+       
+     
         public Type GetComponentType()
         {
             return _Editor.GetType();
@@ -179,9 +267,9 @@ namespace Parser
                 _Editor = editor;
             }
         }
-        #endregion
+      
 
-        #region EventsHandlers
+  
         private void CheckedChanged(object sender, EventArgs e)
         {
             CheckBox editor = (CheckBox)sender;
@@ -278,7 +366,7 @@ namespace Parser
                 _Editor.Visible = false;
             }                         
         }
-        #endregion
+      
     }
 
 }

@@ -8,7 +8,7 @@ namespace Parser
 {
     partial class MyDataGrid
     {
-        #region Public
+       
         public void ChangeSorting(string columnName, SortDirections sortDirection)
         {
             RemoveEditorFromControls(false);
@@ -57,6 +57,6 @@ namespace Parser
             }
             return res;
         }
-        #endregion
+     
     }
 }

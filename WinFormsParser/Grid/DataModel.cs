@@ -13,10 +13,10 @@ namespace Parser
 {
     class Source
     {
-        #region Fields
+      
         public SortDirections _SortDirection = SortDirections.None;
-        #endregion
-        #region Props
+      
+     
         public ColumnTypesList DataTypes { get; set; } = new ColumnTypesList();     
         public SortDirections SortDirection
         {
@@ -34,17 +34,14 @@ namespace Parser
         public bool IsEditorUsed { get; set; }
         public bool IsTypeSelectorOpened { get; set; }
         public ObservableCollection<Column> Columns { get; } = new ObservableCollection<Column>();
-        #endregion
-        #region Events
+      
         public event PropertyChangedEventHandler Event_PropertyChanged;
-        #endregion
-        #region Constructors
+      
         public Source()
         {
             Columns.CollectionChanged += ColumnsChannge;
         }
-        #endregion
-        #region EvemtHandlers
+       
         private void OnPropertyChanged([CallerMemberName]string prop = "")
         {
             Event_PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
@@ -83,7 +80,7 @@ namespace Parser
 
             }
         }
-        #endregion
+      
     }
     class Cell
     {
@@ -96,12 +93,11 @@ namespace Parser
   
     internal class Column
     {
-        #region Fields
+      
         string _HeaderText;
         bool _Visible;
         Type _DataType;
-        #endregion
-        #region Props
+      
         public int Index { get; set; }
         public int Width { get; set; }
         public Type DataType
@@ -138,16 +134,14 @@ namespace Parser
                 Width = (Width > HeaderText.Length) ? Width : HeaderText.Length;
             }
         }
-        #endregion
+     
 
-        #region Events
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged([CallerMemberName]string prop = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
         }
-        #endregion
-        #region Constructors
+     
         public Column(string headerText, Type type)
         {
             _HeaderText = headerText;
@@ -156,8 +150,7 @@ namespace Parser
             DataType = type;
             SetDefaultDataFormat();
         }
-        #endregion
-        #region Methods
+       
         private void SetDefaultDataFormat()
         {
             if (DataType == typeof(DateTime))
@@ -169,7 +162,7 @@ namespace Parser
                 DataFormat = "";
             }
         }
-        #endregion
+     
     }
     class Row
     {
@@ -218,73 +211,6 @@ namespace Parser
     }
     
   
-    public static class Utility
-    {
-        #region Sorting
-        public static IQueryable<TEntity> OrderBy<TEntity>(this IQueryable<TEntity> source, string orderByProperty)
-        {
-                   
-            string command = "OrderBy";                     
-            var property = source.ElementType.GetProperty(orderByProperty);
-            var parameter = Expression.Parameter(source.ElementType, "p");
-            var propertyAccess = Expression.MakeMemberAccess(parameter, property);
-            var orderByExpression = Expression.Lambda(propertyAccess, parameter);
-            var resultExpression = Expression.Call(typeof(Queryable), command, new Type[] { source.ElementType, property.PropertyType },
-                                              source.AsQueryable().Expression, Expression.Quote(orderByExpression));
-                return source.AsQueryable().Provider.CreateQuery<TEntity>(resultExpression);
-            
-           
-
-        }
-        public static IQueryable<TEntity> OrderByDescending<TEntity>(this IQueryable<TEntity> source, string orderByProperty)
-        {
-          
-            string command = "OrderByDescending";          
-            var property = source.ElementType.GetProperty(orderByProperty);
-            var parameter = Expression.Parameter(source.ElementType, "p");
-            var propertyAccess = Expression.MakeMemberAccess(parameter, property);
-            var orderByExpression = Expression.Lambda(propertyAccess, parameter);
-            var resultExpression = Expression.Call(typeof(Queryable), command, new Type[] { source.ElementType, property.PropertyType },
-                                          source.AsQueryable().Expression, Expression.Quote(orderByExpression));
-            return source.AsQueryable().Provider.CreateQuery<TEntity>(resultExpression);
-
-
-        }
-        #endregion
-        public static TEntity GetObjectWithEqualProperties<TEntity>(this IQueryable<TEntity> source, TEntity objectToCompare)
-        {
-            List<TEntity> listSource = source.ToList();
-            var resultObject = Activator.CreateInstance(listSource.First().GetType());            
-            foreach (var item in listSource)
-            {
-                bool isFinded = true;
-                PropertyDescriptorCollection propertiesOfObject = TypeDescriptor.GetProperties(objectToCompare);
-                PropertyDescriptorCollection propertiesOfCollectionItem = TypeDescriptor.GetProperties(item);
-                foreach (PropertyDescriptor prop in propertiesOfObject)
-                {
-                    var tempProp = propertiesOfCollectionItem.Find(prop.Name, false);
-                    var tempPropValue = tempProp.GetValue(item);
-                    var objectPropValue = prop.GetValue(objectToCompare);
-                    if (tempProp.GetValue(item).ToString() != prop.GetValue(objectToCompare).ToString())
-                    {
-                        isFinded = false;
-                        break;
-                    }
-                }
-                if (!isFinded)
-                {
-                    continue;
-                }
-                else
-                {
-                    resultObject = item;
-                    break;
-                }
-            }
-            return (TEntity)resultObject;
-        }
-
-    }
 
 
 }

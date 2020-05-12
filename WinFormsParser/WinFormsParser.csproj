@@ -73,22 +73,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Module_PublicAPI.cs" />
-    <Compile Include="Module_AsyncMethods.cs" />
-    <Compile Include="DataModel.cs" />
-    <Compile Include="DBModel.cs" />
-    <Compile Include="EditorSelector.cs" />
-    <Compile Include="HeaderCell.cs" />
+    <Compile Include="Grid\DataModelExtensions.cs" />
+    <Compile Include="Grid\Grid_Sorting.cs" />
+    <Compile Include="Grid\Grid_PublicAPI.cs" />
+    <Compile Include="Grid\DataModel.cs" />
+    <Compile Include="DBContext\DBModel.cs" />
+    <Compile Include="Grid\Grid_Editor.cs" />
+    <Compile Include="Grid\Grid_HeaderCell.cs" />
     <Compile Include="JSONParser.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="JSONParser.Designer.cs">
       <DependentUpon>JSONParser.cs</DependentUpon>
     </Compile>
-    <Compile Include="Module_Scroll-Resize.cs" />
-    <Compile Include="MyDataGrid.cs" />
-    <Compile Include="MyDataGrid.Designer.cs">
-      <DependentUpon>MyDataGrid.cs</DependentUpon>
+    <Compile Include="Grid\Grid_UI_Scroll-Resize.cs" />
+    <Compile Include="Grid\Grid_MainCode.cs" />
+    <Compile Include="Grid\Grid_MainCode.Designer.cs">
+      <DependentUpon>Grid_MainCode.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -97,29 +98,29 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
-    <Compile Include="TypeSelector.cs">
+    <Compile Include="Grid\Grid_TypeSelector.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="TypeSelector.Designer.cs">
-      <DependentUpon>TypeSelector.cs</DependentUpon>
+    <Compile Include="Grid\Grid_TypeSelector.Designer.cs">
+      <DependentUpon>Grid_TypeSelector.cs</DependentUpon>
     </Compile>
-    <Compile Include="Worker.cs" />
-    <Compile Include="WorkersSmall.cs" />
-    <EmbeddedResource Include="HeaderCell.resx">
-      <DependentUpon>HeaderCell.cs</DependentUpon>
+    <Compile Include="DBContext\Worker.cs" />
+    <Compile Include="DBContext\WorkersSmall.cs" />
+    <EmbeddedResource Include="Grid\Grid_HeaderCell.resx">
+      <DependentUpon>Grid_HeaderCell.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="JSONParser.resx">
       <DependentUpon>JSONParser.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MyDataGrid.resx">
-      <DependentUpon>MyDataGrid.cs</DependentUpon>
+    <EmbeddedResource Include="Grid\Grid_MainCode.resx">
+      <DependentUpon>Grid_MainCode.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="TypeSelector.resx">
-      <DependentUpon>TypeSelector.cs</DependentUpon>
+    <EmbeddedResource Include="Grid\Grid_TypeSelector.resx">
+      <DependentUpon>Grid_TypeSelector.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\DataSources\JSONParser.datasource" />

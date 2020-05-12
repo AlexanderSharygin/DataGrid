@@ -2,15 +2,27 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Parser
 {
     partial class MyDataGrid 
     {
+        private void HorisontalScrollBar_Scroll(object sender, ScrollEventArgs e)
+        {
+            if (_Editor != null)
+            {
+                RemoveEditorFromControls(true);
+            }
+            if (_API.IsTypeSelectorOpened)
+            {
+                var item = _API.Columns.Select(k => k).Where(k => k.Index == _API.TypeSelector.ColumnData.Index).Single();
+                int xstart = item.XStartPosition;
+                _API.TypeSelector.Location = new Point(xstart + 5, _API.TypeSelector.Location.Y);
+            }
+            Invalidate();
+        }
         private void HorizontalScrollMouseWheel(object sender, MouseEventArgs e)
         {
 
@@ -124,31 +136,7 @@ namespace Parser
             UpdateHorizontalScroll();
             Invalidate();
         }
-        private void VerticalScrollBar_VisibleChanged(object sender, EventArgs e)
-        {
-            if (!VerticalScrollBar.Visible)
-            {
-                HorisontalScrollBar.Width = this.Width;
-            }
-            else
-            {
-                HorisontalScrollBar.Width = this.Width - VerticalScrollBar.Width;
-            }
-        }
-        private void HorisontalScrollBar_Scroll(object sender, ScrollEventArgs e)
-        {
-            if (_Editor != null)
-            {
-                RemoveEditorFromControls(true);
-            }
-            if (_API.IsTypeSelectorOpened)
-            {
-                var item = _API.Columns.Select(k => k).Where(k => k.Index == _API.TypeSelector.ColumnData.Index).Single();
-                int xstart = item.XStartPosition;
-                _API.TypeSelector.Location = new Point(xstart + 5, _API.TypeSelector.Location.Y);
-            }
-            Invalidate();
-        }
+      
         private async void VScrollBar1_ValueChanged(object sender, EventArgs e)
         {
             bool isNeedInvalidation = true;

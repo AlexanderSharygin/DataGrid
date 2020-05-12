@@ -5,9 +5,9 @@ using System.Windows.Forms;
 namespace Parser
 {
     public partial class TypeSelector : UserControl
-    {     
-        string _SelectedItem;       
-        ColumnTypesList _Items  = new ColumnTypesList();       
+    {
+        string _SelectedItem;
+        ColumnTypesList _Items = new ColumnTypesList();
         internal Column ColumnData { get; set; }
         public TypeSelector()
         {
@@ -26,7 +26,7 @@ namespace Parser
                 }
                 var dataType = ColumnData.DataType;
                 CB_Types.DataSource = keys;
-                ColumnData.DataType = dataType;               
+                ColumnData.DataType = dataType;
             }
         }
         public string SelectedItem
@@ -37,15 +37,23 @@ namespace Parser
                 _SelectedItem = value;
                 CB_Types.SelectedItem = _SelectedItem;
             }
-        }      
+        }
         private void CB_Types_SelectedIndexChanged(object sender, EventArgs e)
         {
             _SelectedItem = CB_Types.SelectedItem.ToString();
-            ColumnData.DataType =   Items.TypesCollection[_SelectedItem];
+            ColumnData.DataType = Items.TypesCollection[_SelectedItem];
             if (Parent != null)
             {
                 this.Visible = false;
             }
+        }
+    }
+    partial class MyDataGrid
+    {
+
+        private void RemoveTypeSelectorFromControls()
+        {
+            Controls.Remove(_API.TypeSelector);
         }
     }
 }
