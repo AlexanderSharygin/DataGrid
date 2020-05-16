@@ -44,7 +44,8 @@ namespace Parser
         Pen _Pen;
         List<HeaderCell> _Header;
         bool _ViewPortIsScrolledDown = false;
-       CancellationTokenSource _CancellationTokenSource;      
+       CancellationTokenSource _CancellationTokenSource;
+        bool _IsSortingProcessing = false;
    
         public string PrivateKeyColumn { get; set; }
         public IEnumerable<object> ItemsSource
@@ -381,7 +382,7 @@ namespace Parser
         {
             if (e.PropertyName == "SortDirection")
             {
-                SortData();
+              SortData();
                 CustomInvalidate();
             }
         }

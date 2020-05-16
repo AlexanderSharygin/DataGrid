@@ -239,6 +239,7 @@ namespace Parser
                 {
                     _API.SortDirection = SortDirections.None;
                 }
+            
                 _API.SortedColumnIndex = ColumnData.Index;
                 ToggleSortDirection();
             }

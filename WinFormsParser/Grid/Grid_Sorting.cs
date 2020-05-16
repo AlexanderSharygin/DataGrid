@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,7 +12,7 @@ namespace Parser
         private async Task<List<object>> AsyncToggleSorting(int skipCount, int takeCount, CancellationToken token)
         {
 
-
+            _IsSortingProcessing = true;
             List<object> list = new List<object>();
             await Task.Run(() =>
             {
@@ -25,14 +26,62 @@ namespace Parser
 
                 }
             }, token);
-
+            _IsSortingProcessing = false;
             return list;
+           
 
         }
-        private void SortData()
-        {
+        CancellationTokenSource cts2;
 
-            var sortedItems = TooggleSorting(_CurrentPage.SkipElementsCount, _CurrentPage.TakeElementsCount).ToList();
+        private async void SortData()
+        {
+            if (cts2 != null)
+            {
+                cts2.Cancel();
+            }
+            
+            cts2 = new CancellationTokenSource();
+            
+
+            List<object> sortedItems = new List<object>();
+            await Task.Factory.StartNew(async delegate
+            {
+              
+                try
+                {
+                  
+                    _IsSortingProcessing = true;
+                    sortedItems = TooggleSorting(_CurrentPage.SkipElementsCount, _CurrentPage.TakeElementsCount)?.ToList();
+                  
+
+
+                    _IsSortingProcessing = false;
+                }
+                catch (Exception ex)
+                {
+
+                }
+            },cts2.Token).Unwrap();
+            
+
+
+            //  var sortedItems = await AsyncToggleSorting(_CurrentPage.SkipElementsCount, _CurrentPage.TakeElementsCount, cts.Token );
+            await Task.Factory.StartNew(async delegate
+            {
+               
+                while (_IsSortingProcessing)
+                {
+                    this.BackColor = Color.Black;
+                   
+                }
+                if (!_IsSortingProcessing)
+                {
+                    
+                    Invalidate();
+                    this.BackColor = Color.White; }
+
+            }, cts2.Token).Unwrap();
+          //  task.Start();
             Dictionary<string, Type> columns = GetColumnsInfo();
             int index = 0;
             foreach (var item in columns)
