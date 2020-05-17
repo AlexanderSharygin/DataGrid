@@ -12,7 +12,7 @@ namespace Parser
         private async Task<List<object>> AsyncToggleSorting(int skipCount, int takeCount, CancellationToken token)
         {
 
-            _IsSortingProcessing = true;
+            IsSortingFinished = false;
             List<object> list = new List<object>();
             await Task.Run(() =>
             {
@@ -26,7 +26,7 @@ namespace Parser
 
                 }
             }, token);
-            _IsSortingProcessing = false;
+            IsSortingFinished = true;
             return list;
            
 
@@ -44,44 +44,44 @@ namespace Parser
             
 
             List<object> sortedItems = new List<object>();
-            await Task.Factory.StartNew(async delegate
+            Task t1= Task.Factory.StartNew(async delegate
             {
               
                 try
                 {
                   
-                    _IsSortingProcessing = true;
-                    sortedItems = TooggleSorting(_CurrentPage.SkipElementsCount, _CurrentPage.TakeElementsCount)?.ToList();
-                  
+                    IsSortingFinished = false;
+                    sortedItems = TooggleSorting(_CurrentPage.SkipElementsCount, _CurrentPage.TakeElementsCount)?.ToList();                 
 
 
-                    _IsSortingProcessing = false;
+                    IsSortingFinished = true;
                 }
                 catch (Exception ex)
                 {
 
                 }
-            },cts2.Token).Unwrap();
-            
+            },cts2.Token);
 
-
-            //  var sortedItems = await AsyncToggleSorting(_CurrentPage.SkipElementsCount, _CurrentPage.TakeElementsCount, cts.Token );
-            await Task.Factory.StartNew(async delegate
+            Task t2 = Task.Factory.StartNew(async delegate
             {
-               
-                while (_IsSortingProcessing)
-                {
-                    this.BackColor = Color.Black;
-                   
-                }
-                if (!_IsSortingProcessing)
-                {
-                    
-                    Invalidate();
-                    this.BackColor = Color.White; }
 
-            }, cts2.Token).Unwrap();
-          //  task.Start();
+            while (!IsSortingFinished)
+            {
+                this.BackColor = Color.Black;
+
+            }
+                if (IsSortingFinished)
+                {
+
+
+                    this.BackColor = Color.White;
+                    
+                   
+
+                }
+
+            }, cts2.Token);
+            await Task.WhenAll(new[] { t1, t2 });         
             Dictionary<string, Type> columns = GetColumnsInfo();
             int index = 0;
             foreach (var item in columns)
@@ -101,6 +101,11 @@ namespace Parser
             {
                 AddToBufer(_Source[j].First());
             }
+            UpdateColumnsPosition();
+            UpdateHeadersWidth();
+            RecalculateTotalTableWidth();
+           Invalidate();
+
         }
         private IQueryable<object> TooggleSorting(int skipCount, int takeCount)
         {

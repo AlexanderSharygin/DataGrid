@@ -182,7 +182,8 @@ namespace Parser
             {
                 selectedPage = _Pages.Where(k => k.DownScrollValue <= (VerticalScrollBar.Value / _VerticalScrollValueRatio)).LastOrDefault();
                 Dictionary<string, Type> columns = GetColumnsInfo();
-                var printedPage = _Pages.Select(k => k).Where(k => k.Number == selectedPage.Number - 1).Single();
+                int selectedPageNumber = (selectedPage.Number > 1)? (selectedPage.Number - 1) : 1;             
+                var printedPage = _Pages.Select(k => k).Where(k => k.Number == selectedPageNumber).Single();
                 if (_CancellationTokenSource != null)
                 {
                     _CancellationTokenSource.Cancel();

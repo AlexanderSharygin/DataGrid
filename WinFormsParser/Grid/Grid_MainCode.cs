@@ -10,7 +10,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
-
+using System.Runtime.CompilerServices;
 
 namespace Parser
 {
@@ -44,10 +44,11 @@ namespace Parser
         Pen _Pen;
         List<HeaderCell> _Header;
         bool _ViewPortIsScrolledDown = false;
-       CancellationTokenSource _CancellationTokenSource;
-        bool _IsSortingProcessing = false;
-   
-        public string PrivateKeyColumn { get; set; }
+       CancellationTokenSource _CancellationTokenSource;       
+        public bool IsSortingFinished { get; set; }
+       
+     
+public string PrivateKeyColumn { get; set; }
         public IEnumerable<object> ItemsSource
         {
             get
@@ -103,7 +104,11 @@ namespace Parser
             }
         }     
         public event DataChangedHeandler DataChanged;
-        public delegate void DataChangedHeandler(object sender, EventArgs eventArgs);       
+        public delegate void DataChangedHeandler(object sender, EventArgs eventArgs);
+    
+      
+      
+
         public MyDataGrid()
         {
             AutoScaleMode = AutoScaleMode.None;
@@ -116,11 +121,12 @@ namespace Parser
             _CuurentPageNumber = 1;
             _CurrentPage = new Page();
             _API.Event_PropertyChanged += APIPropertyChanged;
-       
+      
             Columns.CollectionChanged += ColumnsCollectionChanged;
             ResizeRedraw = true;
             VerticalScrollBar.Minimum = 0;
             VerticalScrollBar.Value = 0;
+            VerticalScrollBar.SmallChange = _VerticalScrollValueRatio;
             if (VerticalScrollBar.Visible)
             {
                 HorisontalScrollBar.Width = this.ClientSize.Width - VerticalScrollBar.Width;
@@ -135,6 +141,7 @@ namespace Parser
             MouseWheel += DataGridMouseWheel;
             HorisontalScrollBar.MouseWheel += HorizontalScrollMouseWheel;
             Leave += LostFocus;
+            
         }    
      
         private Page CreateNewPage(int number)
@@ -383,7 +390,7 @@ namespace Parser
             if (e.PropertyName == "SortDirection")
             {
               SortData();
-                CustomInvalidate();
+            //  CustomInvalidate();
             }
         }
         private void ColumnPropertyChanged(object sender, PropertyChangedEventArgs e)
