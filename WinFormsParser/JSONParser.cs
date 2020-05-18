@@ -179,7 +179,7 @@ namespace WinFormsParser
         private void Autogeneration_Button_Click(object sender, EventArgs e)
         {
 
-            _DataTable.ColumnsAutoGeneration = true;          
+            _DataTable.ColumnsAutoGeneration = true;
             _DataTable.ItemsSource = _DBData.Workers.AsEnumerable();
             //  DataTable.ItemsSource = _Workers;
             _DataTable.PrivateKeyColumn = "Id";
@@ -202,19 +202,37 @@ namespace WinFormsParser
             CB_FieldsList2.Text = "";
             NU_FieldsIndexes.Maximum = _DataTable.Columns.Count - 1;
         }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+
+
+
+
+
+              _DataTable._ProgressScreen.Location = new System.Drawing.Point(50, 50);
+              _DataTable._ProgressScreen.Size = new System.Drawing.Size(100,100);
+            _DataTable._ProgressScreen.Visible = true;
+          _DataTable.Controls.Add(_DataTable._ProgressScreen);
+            _DataTable._ProgressScreen.Show();
+           _DataTable.Select();
+          //  _DataTable._ProgressScreen.RunProgress();
+           // _DataTable.Invalidate();
+        }
     }
     class Worker
-    {
-        public int ID { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Prefix { get; set; }
-        public string Position { get; set; }
-        public DateTime BirthDate { get; set; }
-        public string Notes { get; set; }
-        public string Address { get; set; }
-        public int StateID { get; set; }
-        //   public int Salary { get; set; }
-        //  public bool IsAlcoholic { get; set; }
+        {
+            public int ID { get; set; }
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+            public string Prefix { get; set; }
+            public string Position { get; set; }
+            public DateTime BirthDate { get; set; }
+            public string Notes { get; set; }
+            public string Address { get; set; }
+            public int StateID { get; set; }
+            //   public int Salary { get; set; }
+            //  public bool IsAlcoholic { get; set; }
+        }
     }
-}
+

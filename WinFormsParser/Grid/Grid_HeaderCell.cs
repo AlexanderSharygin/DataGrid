@@ -135,14 +135,20 @@ namespace Parser
             }
             base.Dispose(disposing);
         }
-        public void ToggleSortDirection()
+        public void ToggleSortDirection(bool isDroop)
         {
-
-            switch (_API.SortDirection)
+            if (isDroop)
             {
-                case SortDirections.DESC: _API.SortDirection = SortDirections.None; break;
-                case SortDirections.None: _API.SortDirection = SortDirections.ASC; break;
-                default: _API.SortDirection = SortDirections.DESC; break;
+                _API.SortDirection = SortDirections.ASC;
+            }
+            else
+            {
+                switch (_API.SortDirection)
+                {
+                    case SortDirections.DESC: _API.SortDirection = SortDirections.None; break;
+                    case SortDirections.None: _API.SortDirection = SortDirections.ASC; break;
+                    default: _API.SortDirection = SortDirections.DESC; break;
+                }
             }
 
         }
@@ -235,13 +241,15 @@ namespace Parser
             }
             if (!movingMode)
             {
+                bool isDropSorting = false;
                 if (_API.SortedColumnIndex != ColumnData.Index)
                 {
-                    _API.SortDirection = SortDirections.None;
+                    //_API.SortDirection = SortDirections.None;
+                    isDropSorting = true;
                 }
             
                 _API.SortedColumnIndex = ColumnData.Index;
-                ToggleSortDirection();
+                ToggleSortDirection(isDropSorting);
             }
             else
             {

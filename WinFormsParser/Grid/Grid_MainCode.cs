@@ -29,7 +29,12 @@ namespace Parser
         private int _OldScrollValue;
         List<Row> _Buffer;
         Source _API;
+       
+        
         Editor _Editor;
+      public  ProgressScreen _ProgressScreen;
+        
+        
         int _RowHeight;
         int _LineWidth = 1;
         int _FirstPrintedRowIndex = 0;
@@ -121,7 +126,7 @@ public string PrivateKeyColumn { get; set; }
             _CuurentPageNumber = 1;
             _CurrentPage = new Page();
             _API.Event_PropertyChanged += APIPropertyChanged;
-      
+            _ProgressScreen = new ProgressScreen();
             Columns.CollectionChanged += ColumnsCollectionChanged;
             ResizeRedraw = true;
             VerticalScrollBar.Minimum = 0;
@@ -178,6 +183,7 @@ public string PrivateKeyColumn { get; set; }
         }
         private async void AsyncGetCount()
         {
+          
             await Task.Factory.StartNew(() => {
                 _Pages.Clear();
                 _TotalRowsCount = _ItemsSource.Count();

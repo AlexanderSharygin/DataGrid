@@ -47,6 +47,7 @@
             this.label3 = new System.Windows.Forms.Label();
             this.CB_FieldsList2 = new System.Windows.Forms.ComboBox();
             this.button3 = new System.Windows.Forms.Button();
+            this.button4 = new System.Windows.Forms.Button();
             this.GB_Fields.SuspendLayout();
             this.GB_Table.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -61,7 +62,7 @@
             this.GB_Fields.Controls.Add(this.LB_FieldsList);
             this.GB_Fields.Location = new System.Drawing.Point(12, 72);
             this.GB_Fields.Name = "GB_Fields";
-            this.GB_Fields.Size = new System.Drawing.Size(192, 322);
+            this.GB_Fields.Size = new System.Drawing.Size(192, 270);
             this.GB_Fields.TabIndex = 0;
             this.GB_Fields.TabStop = false;
             this.GB_Fields.Text = "Список полей";
@@ -75,7 +76,7 @@
             this.LB_FieldsList.MinimumSize = new System.Drawing.Size(4, 50);
             this.LB_FieldsList.Name = "LB_FieldsList";
             this.LB_FieldsList.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
-            this.LB_FieldsList.Size = new System.Drawing.Size(179, 277);
+            this.LB_FieldsList.Size = new System.Drawing.Size(179, 238);
             this.LB_FieldsList.TabIndex = 0;
             this.LB_FieldsList.MouseClick += new System.Windows.Forms.MouseEventHandler(this.LB_FieldsList_MouseClick);
             // 
@@ -92,7 +93,7 @@
             this.GB_Table.TabStop = false;
             this.GB_Table.Text = "Таблица полей";
             // 
-            // DataTable
+            // _DataTable
             // 
             this._DataTable.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
@@ -101,11 +102,12 @@
             this._DataTable.BuferSize = 50;
             this._DataTable.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this._DataTable.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-          //  this.DataTable.ItemsSource = null;
+            this._DataTable.IsSortingFinished = false;
+      //      this._DataTable.ItemsSource = null;
             this._DataTable.LineColor = System.Drawing.Color.Black;
             this._DataTable.Location = new System.Drawing.Point(24, 25);
             this._DataTable.Margin = new System.Windows.Forms.Padding(0);
-            this._DataTable.Name = "DataTable";
+            this._DataTable.Name = "_DataTable";
             this._DataTable.PrivateKeyColumn = null;
             this._DataTable.RowHeight = 18;
             this._DataTable.Size = new System.Drawing.Size(532, 556);
@@ -263,11 +265,22 @@
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.Autogeneration_Button_Click);
             // 
+            // button4
+            // 
+            this.button4.Location = new System.Drawing.Point(56, 371);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(75, 23);
+            this.button4.TabIndex = 12;
+            this.button4.Text = "button4";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
+            // 
             // Show_Button
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(781, 616);
+            this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
@@ -309,6 +322,7 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.NumericUpDown NU_FieldsIndexes;
         private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button button4;
     }
 }
 
