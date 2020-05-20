@@ -49,7 +49,7 @@ namespace Parser
         Pen _Pen;
         List<HeaderCell> _Header;
         bool _ViewPortIsScrolledDown = false;
-       CancellationTokenSource _CancellationTokenSource;       
+       CancellationTokenSource _CancellationTokenSourceForScrolling;
         public bool IsSortingFinished { get; set; }
        
      
@@ -146,7 +146,7 @@ public string PrivateKeyColumn { get; set; }
             MouseWheel += DataGridMouseWheel;
             HorisontalScrollBar.MouseWheel += HorizontalScrollMouseWheel;
             Leave += LostFocus;
-            
+            IsSortingFinished = true;
         }    
      
         private Page CreateNewPage(int number)
@@ -664,7 +664,10 @@ public string PrivateKeyColumn { get; set; }
         }
         private void MyDataGrid_MouseClick(object sender, MouseEventArgs e)
         {
-
+            if (!IsSortingFinished)
+            {
+                return;
+            }
             RemoveTypeSelectorFromControls();
             var HitPointX = e.Location.X;
             var HitPointY = e.Location.Y;

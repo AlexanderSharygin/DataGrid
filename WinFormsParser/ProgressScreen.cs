@@ -26,7 +26,7 @@ namespace Parser
             while (!token.IsCancellationRequested)
                 {
 
-                    Thread.Sleep(100);
+                    Thread.Sleep(50);
                     value++;
                     progressBar1.Invoke((MethodInvoker)(() => progressBar1.Value = value)); 
                     if (value==99)
@@ -41,6 +41,15 @@ namespace Parser
         private  void ProgressScreen_Load(object sender, EventArgs e)
         {
           
+        }
+
+        private void progressBar1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
         }
     }
 }

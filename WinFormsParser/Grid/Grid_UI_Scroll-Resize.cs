@@ -139,6 +139,10 @@ namespace Parser
       
         private async void VScrollBar1_ValueChanged(object sender, EventArgs e)
         {
+            if (_Buffer.Count == 0)
+            {
+                return;
+            }
             bool isNeedInvalidation = true;
 
             UpdateColumnsPosition();
@@ -184,18 +188,18 @@ namespace Parser
                 Dictionary<string, Type> columns = GetColumnsInfo();
                 int selectedPageNumber = (selectedPage.Number > 1)? (selectedPage.Number - 1) : 1;             
                 var printedPage = _Pages.Select(k => k).Where(k => k.Number == selectedPageNumber).Single();
-                if (_CancellationTokenSource != null)
+                if (_CancellationTokenSourceForScrolling != null)
                 {
-                    _CancellationTokenSource.Cancel();
+                    _CancellationTokenSourceForScrolling.Cancel();
 
                 }
-                _CancellationTokenSource = new CancellationTokenSource();
+                _CancellationTokenSourceForScrolling = new CancellationTokenSource();
                 List<object> items = new List<object>();
                 try
                 {
                     if (selectedPage.Number - _CurrentPage.Number > 1)
                     {
-                        items = await AsyncToggleSorting(printedPage.EndIndex - 1 - _ViewPortRowsCount, BuferSize + _ViewPortRowsCount, _CancellationTokenSource.Token);
+                        items = await AsyncToggleSorting(printedPage.EndIndex - 1 - _ViewPortRowsCount, BuferSize + _ViewPortRowsCount, _CancellationTokenSourceForScrolling.Token);
                     }
                     else
                     {
@@ -246,18 +250,18 @@ namespace Parser
                 var printedPage = selectedPage;
                 _CuurentPageNumber = selectedPage.Number;
 
-                if (_CancellationTokenSource != null)
+                if (_CancellationTokenSourceForScrolling != null)
                 {
-                    _CancellationTokenSource.Cancel();
+                    _CancellationTokenSourceForScrolling.Cancel();
                 }
-                _CancellationTokenSource = new CancellationTokenSource();
+                _CancellationTokenSourceForScrolling = new CancellationTokenSource();
                 try
                 {
                     List<object> items = new List<object>();
                     if (_CurrentPage.Number - selectedPage.Number > 1)
                     {
 
-                        items = await AsyncToggleSorting(printedPage.EndIndex - BuferSize - _ViewPortRowsCount - nextPageCounter, BuferSize + _ViewPortRowsCount * nextPageCounter, _CancellationTokenSource.Token);
+                        items = await AsyncToggleSorting(printedPage.EndIndex - BuferSize - _ViewPortRowsCount - nextPageCounter, BuferSize + _ViewPortRowsCount * nextPageCounter, _CancellationTokenSourceForScrolling.Token);
                     }
                     else
                     {
