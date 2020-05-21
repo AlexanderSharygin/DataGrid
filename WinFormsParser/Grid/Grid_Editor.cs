@@ -3,6 +3,8 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Parser
@@ -25,7 +27,7 @@ namespace Parser
                 _API.IsEditorOpened = false;
             }
         }
-        private void Editor_Leave(object sender, EventArgs e)
+        private async void Editor_Leave(object sender, EventArgs e)
         {
             if (!_Editor.CancelChanges && _Editor.IsValidated && _Editor.Value != _Editor.OriginalValue)
             {
@@ -46,8 +48,40 @@ namespace Parser
                     }
                 }
 
-                var sourceeData = TooggleSorting(_CurrentPage.SkipElementsCount, _CurrentPage.TakeElementsCount).AsQueryable();
-                var sourceObject = sourceeData.GetObjectWithEqualProperties(tempObject);
+                var sourceeData = TooggleSorting(_CurrentPage.SkipElementsCount, _CurrentPage.TakeElementsCount, CancellationToken.None).AsQueryable();
+                bool isPerformed = false;
+                _ProgressScreen.Size = new Size(150, 50);
+                _ProgressScreen.Location = new Point(Width / 2 - 75, Height / 2 - 25);
+                Controls.Add(_ProgressScreen);
+                object sourceObject = new object();
+                Task t1 = Task.Factory.StartNew(() =>
+                {
+                    sourceObject = sourceeData.GetObjectWithEqualProperties(tempObject);
+                    isPerformed = true;
+
+                });
+                Task t2 = Task.Factory.StartNew(() =>
+                {
+
+                    CancellationTokenSource cts = new CancellationTokenSource();
+                   
+                    _ProgressScreen.RunProgress(cts.Token);
+                    while (!isPerformed)
+                    {
+                        continue;
+                    }
+                    if (isPerformed)
+                    {
+
+                        cts.Cancel();
+                        
+                    }
+
+                });
+                await Task.WhenAll(new[] { t1, t2 });
+                
+                Controls.Remove(_ProgressScreen);
+
                 PropertyDescriptorCollection sourceObjectProperties = TypeDescriptor.GetProperties(sourceObject);
                 var sourceObjectProperty = sourceObjectProperties.Find(_API.Columns[_Editor.BufferCell.SourceColumnIndex].HeaderText, false);
                 if (sourceObjectProperty != null)
@@ -87,7 +121,7 @@ namespace Parser
             UpdateColumnsPosition();
             UpdateHeadersWidth();
             RecalculateTotalTableWidth();
-            if (_API.SortDirection != SortDirections.None && (_API.SortedColumnIndex == _Editor.ColumnIndex && _Editor.OriginalValue != _Editor.Value))
+            if (_API.SortDirection != SortDirections.None && (_API.SortedColumnIndex == _Editor.ColumnIndex && _Editor.OriginalValue != _Editor.Value && !_Editor.CancelChanges))
             {
                 SortData();
             }

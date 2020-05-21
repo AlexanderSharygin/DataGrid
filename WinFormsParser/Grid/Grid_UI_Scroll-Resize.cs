@@ -199,11 +199,11 @@ namespace Parser
                 {
                     if (selectedPage.Number - _CurrentPage.Number > 1)
                     {
-                        items = await AsyncToggleSorting(printedPage.EndIndex - 1 - _ViewPortRowsCount, BuferSize + _ViewPortRowsCount, _CancellationTokenSourceForScrolling.Token);
+                        items = await AsyncToggleSorting(printedPage.EndIndex - 1 - _ViewPortRowsCount, BuferSize + _ViewPortRowsCount, _CancellationTokenSourceForScrolling.Token, 100);
                     }
                     else
                     {
-                        items = TooggleSorting(printedPage.EndIndex - 1 - _ViewPortRowsCount, BuferSize + _ViewPortRowsCount).ToList();
+                        items = await AsyncToggleSorting(printedPage.EndIndex - 1 - _ViewPortRowsCount, BuferSize + _ViewPortRowsCount,_CancellationTokenSourceForScrolling.Token, 0);
                     }
                     if (items.Count != 0)
                     {
@@ -261,11 +261,11 @@ namespace Parser
                     if (_CurrentPage.Number - selectedPage.Number > 1)
                     {
 
-                        items = await AsyncToggleSorting(printedPage.EndIndex - BuferSize - _ViewPortRowsCount - nextPageCounter, BuferSize + _ViewPortRowsCount * nextPageCounter, _CancellationTokenSourceForScrolling.Token);
+                        items = await AsyncToggleSorting(printedPage.EndIndex - BuferSize - _ViewPortRowsCount - nextPageCounter, BuferSize + _ViewPortRowsCount * nextPageCounter, _CancellationTokenSourceForScrolling.Token, 100);
                     }
                     else
                     {
-                        items = TooggleSorting(printedPage.EndIndex - BuferSize - _ViewPortRowsCount - nextPageCounter, BuferSize + _ViewPortRowsCount * nextPageCounter).ToList();
+                        items = await AsyncToggleSorting(printedPage.EndIndex - BuferSize - _ViewPortRowsCount - nextPageCounter, BuferSize + _ViewPortRowsCount * nextPageCounter, _CancellationTokenSourceForScrolling.Token, 0);
                     }
                     if (items.Count != 0)
                     {

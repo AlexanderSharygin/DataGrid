@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace Parser
 {
@@ -42,6 +43,8 @@ namespace Parser
         public static TEntity GetObjectWithEqualProperties<TEntity>(this IQueryable<TEntity> source, TEntity objectToCompare)
         {
             List<TEntity> listSource = source.ToList();
+              
+       
             var resultObject = Activator.CreateInstance(listSource.First().GetType());
             foreach (var item in listSource)
             {

@@ -11,7 +11,7 @@ namespace Parser
     partial class MyDataGrid
     {
         CancellationTokenSource _CancellationTokenSourceForSorting;
-        private async Task<List<object>> AsyncToggleSorting(int skipCount, int takeCount, CancellationToken token)
+        private async Task<List<object>> AsyncToggleSorting(int skipCount, int takeCount, CancellationToken token, int delay)
         {
 
             IsSortingFinished = false;
@@ -20,8 +20,8 @@ namespace Parser
             {
                 try
                 {
-                    Thread.Sleep(100);
-                    list = TooggleSortingWithCancellation(skipCount, takeCount, token)?.ToList();
+                    Thread.Sleep(delay);
+                    list = TooggleSorting(skipCount, takeCount, token)?.ToList();
                 }
                 catch (Exception ex)
                 {
@@ -55,7 +55,7 @@ namespace Parser
                  {
                      IsSortingFinished = false;
                     
-                     sortedItems = TooggleSortingWithCancellation(_CurrentPage.SkipElementsCount, _CurrentPage.TakeElementsCount, _CancellationTokenSourceForSorting.Token)?.ToList();
+                     sortedItems = TooggleSorting(_CurrentPage.SkipElementsCount, _CurrentPage.TakeElementsCount, _CancellationTokenSourceForSorting.Token)?.ToList();
                      IsSortingFinished = true;
                  }
                  catch (Exception ex)
@@ -120,7 +120,7 @@ namespace Parser
                 }
             
         }
-        private IQueryable<object> TooggleSorting(int skipCount, int takeCount)
+       /* private IQueryable<object> TooggleSorting(int skipCount, int takeCount)
         {
 
             if (skipCount < 0)
@@ -155,8 +155,8 @@ namespace Parser
                 return items;
             }
             return _ItemsSource;
-        }
-        private IQueryable<object> TooggleSortingWithCancellation(int skipCount, int takeCount, CancellationToken token)
+        }*/
+        private IQueryable<object> TooggleSorting(int skipCount, int takeCount, CancellationToken token)
         {
 
             if (skipCount < 0)
