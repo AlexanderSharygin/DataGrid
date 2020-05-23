@@ -91,7 +91,10 @@ namespace Parser
            
                 if (IsSortingFinished)
                 {
-                    Controls.Remove(_ProgressScreen);
+                if(IsScrollimgFinished)
+                { 
+                Controls.Remove(_ProgressScreen);
+                    }
 
                     Dictionary<string, Type> columns = GetColumnsInfo();
                     int index = 0;

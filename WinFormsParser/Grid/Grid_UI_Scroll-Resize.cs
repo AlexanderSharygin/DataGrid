@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Parser
 {
     partial class MyDataGrid 
     {
+        bool IsScrollimgFinished=true;
         private void HorisontalScrollBar_Scroll(object sender, ScrollEventArgs e)
         {
             if (_Editor != null)
@@ -38,8 +40,10 @@ namespace Parser
                 _API.TypeSelector.Location = new Point(xstart + 5, _API.TypeSelector.Location.Y);
             }
         }
+        bool _IsWhelling = false;
         private void DataGridMouseWheel(object sender, MouseEventArgs e)
         {
+            _IsWhelling = true;
             if (e.Delta < 0 && VerticalScrollBar.Value + VerticalScrollBar.SmallChange < VerticalScrollBar.Maximum)
             {
                 VerticalScrollBar.Value += VerticalScrollBar.SmallChange;
@@ -139,183 +143,289 @@ namespace Parser
       
         private async void VScrollBar1_ValueChanged(object sender, EventArgs e)
         {
-            if (_Buffer.Count == 0)
+            
+            if (IsScrollimgFinished || (!IsScrollimgFinished && !_IsWhelling))
             {
-                return;
-            }
-            bool isNeedInvalidation = true;
-
-            UpdateColumnsPosition();
-            UpdateHeadersWidth();
-            RecalculateTotalTableWidth();
-            if (_Editor != null)
-            {
-                RemoveEditorFromControls(true);
-            }
-            _FirstPrintedRowIndex = VerticalScrollBar.Value / _VerticalScrollValueRatio;
-            Page selectedPage = _CurrentPage;
-            if (_CuurentPageNumber > 1)
-            {
-                _FirstPrintedRowIndex = _FirstPrintedRowIndex - (BuferSize * (_CuurentPageNumber - 1)) + _ViewPortRowsCount + 1;
-
-            }
-            if (VerticalScrollBar.Value < 0)
-            {
-                _FirstPrintedRowIndex = 0;
-            }
-            if (_OldScrollValue < VerticalScrollBar.Value)
-            {
-                if (_CuurentPageNumber > 2)
+                if (_Buffer.Count == 0)
                 {
-                    _ViewPortIsScrolledDown = true;
+                    return;
                 }
-            }
-            else if (_OldScrollValue > VerticalScrollBar.Value)
-            {
-                if (_CuurentPageNumber == 2)
+                bool isNeedInvalidation = true;
+
+                UpdateColumnsPosition();
+                UpdateHeadersWidth();
+                RecalculateTotalTableWidth();
+                if (_Editor != null)
                 {
-                    _ViewPortIsScrolledDown = false;
+                    RemoveEditorFromControls(true);
                 }
-            }
-            int scrollOffset = 0;
-            if (_ViewPortIsScrolledDown)
-            {
-                scrollOffset = 1;
-            }
-            if ((VerticalScrollBar.Value / _VerticalScrollValueRatio >= selectedPage.EndIndex - _ViewPortRowsCount))
-            {
-                selectedPage = _Pages.Where(k => k.DownScrollValue <= (VerticalScrollBar.Value / _VerticalScrollValueRatio)).LastOrDefault();
-                Dictionary<string, Type> columns = GetColumnsInfo();
-                int selectedPageNumber = (selectedPage.Number > 1)? (selectedPage.Number - 1) : 1;             
-                var printedPage = _Pages.Select(k => k).Where(k => k.Number == selectedPageNumber).Single();
-                if (_CancellationTokenSourceForScrolling != null)
+                _FirstPrintedRowIndex = VerticalScrollBar.Value / _VerticalScrollValueRatio;
+                Page selectedPage = _CurrentPage;
+                if (_CuurentPageNumber > 1)
                 {
-                    _CancellationTokenSourceForScrolling.Cancel();
+                    _FirstPrintedRowIndex = _FirstPrintedRowIndex - (BuferSize * (_CuurentPageNumber - 1)) + _ViewPortRowsCount + 1;
 
                 }
-                _CancellationTokenSourceForScrolling = new CancellationTokenSource();
-                List<object> items = new List<object>();
-                try
+                if (VerticalScrollBar.Value < 0)
                 {
-                    if (selectedPage.Number - _CurrentPage.Number > 1)
+                    _FirstPrintedRowIndex = 0;
+                }
+                if (_OldScrollValue < VerticalScrollBar.Value)
+                {
+                    if (_CuurentPageNumber > 2)
                     {
-                        items = await AsyncToggleSorting(printedPage.EndIndex - 1 - _ViewPortRowsCount, BuferSize + _ViewPortRowsCount, _CancellationTokenSourceForScrolling.Token, 100);
-                    }
-                    else
-                    {
-                        items = await AsyncToggleSorting(printedPage.EndIndex - 1 - _ViewPortRowsCount, BuferSize + _ViewPortRowsCount,_CancellationTokenSourceForScrolling.Token, 0);
-                    }
-                    if (items.Count != 0)
-                    {
-                        int index = 0;
-                        foreach (var column in columns)
-                        {
-                            List<string> ColumnItems = new List<string>();
-                            ColumnItems = GetColumnItemsFromSource(column.Key, column.Value, items);
-                            var a = _Source[index].First();
-                            _Source[index].Clear();
-                            _Source[index].Add(a);
-                            _Source[index].AddRange(ColumnItems);
-                            index++;
-                        }
-                        _FirstPrintedRowIndex = 1;
-                        UpdateBufferAfterScroll();
-                        _CuurentPageNumber = selectedPage.Number;
-                        _CurrentPage = selectedPage;
-                        RecalculateTotalTableWidth();
-                        UpdateHeadersWidth();
-                        isNeedInvalidation = true;
-                    }
-                    else
-                    {
-                        isNeedInvalidation = false;
+                        _ViewPortIsScrolledDown = true;
                     }
                 }
-                catch
+                else if (_OldScrollValue > VerticalScrollBar.Value)
                 {
+                    if (_CuurentPageNumber == 2)
+                    {
+                        _ViewPortIsScrolledDown = false;
+                    }
                 }
-
-            }
-
-            if (VerticalScrollBar.Value / _VerticalScrollValueRatio + _ViewPortRowsCount + scrollOffset <= selectedPage.StartIndex - 1 && _OldScrollValue > VerticalScrollBar.Value)
-            {
-                scrollOffset = 0;
-                int nextPageCounter = 0;
-                if (_CuurentPageNumber > 2)
+                int scrollOffset = 0;
+                if (_ViewPortIsScrolledDown)
                 {
-                    nextPageCounter = 1;
+                    scrollOffset = 1;
                 }
-                Dictionary<string, Type> columns = GetColumnsInfo();
-                selectedPage = _Pages.Where(s => s.UpScrollValue > (VerticalScrollBar.Value / _VerticalScrollValueRatio)).FirstOrDefault();
-                var printedPage = selectedPage;
-                _CuurentPageNumber = selectedPage.Number;
+                if ((VerticalScrollBar.Value / _VerticalScrollValueRatio >= selectedPage.EndIndex - _ViewPortRowsCount))
+                {
 
-                if (_CancellationTokenSourceForScrolling != null)
-                {
-                    _CancellationTokenSourceForScrolling.Cancel();
-                }
-                _CancellationTokenSourceForScrolling = new CancellationTokenSource();
-                try
-                {
+                    selectedPage = _Pages.Where(k => k.DownScrollValue <= (VerticalScrollBar.Value / _VerticalScrollValueRatio)).LastOrDefault();
+                    Dictionary<string, Type> columns = GetColumnsInfo();
+                    int selectedPageNumber = (selectedPage.Number > 1) ? (selectedPage.Number) : 1;
+                    var printedPage = _Pages.Select(k => k).Where(k => k.Number == selectedPageNumber).Single();
+                    if (_CancellationTokenSourceForScrolling != null)
+                    {
+                        _CancellationTokenSourceForScrolling.Cancel();
+
+                    }
+                    _CancellationTokenSourceForScrolling = new CancellationTokenSource();
+                    _ProgressScreen.Size = new Size(150, 50);
+                    _ProgressScreen.Location = new Point(Width / 2 - 75, Height / 2 - 25);
+                    var isProgressBarOpened = Controls.Contains(_ProgressScreen);
+                    if (!isProgressBarOpened)
+                    {
+                        Controls.Add(_ProgressScreen);
+                    }
+
                     List<object> items = new List<object>();
-                    if (_CurrentPage.Number - selectedPage.Number > 1)
+                    try
                     {
+                        int delay;
+                        if (_CurrentPage.Number - selectedPage.Number > 1)
+                        {
 
-                        items = await AsyncToggleSorting(printedPage.EndIndex - BuferSize - _ViewPortRowsCount - nextPageCounter, BuferSize + _ViewPortRowsCount * nextPageCounter, _CancellationTokenSourceForScrolling.Token, 100);
-                    }
-                    else
-                    {
-                        items = await AsyncToggleSorting(printedPage.EndIndex - BuferSize - _ViewPortRowsCount - nextPageCounter, BuferSize + _ViewPortRowsCount * nextPageCounter, _CancellationTokenSourceForScrolling.Token, 0);
-                    }
-                    if (items.Count != 0)
-                    {
-                        int index = 0;
-                        foreach (var item in columns)
-                        {
-                            List<string> ColumnItems = new List<string>();
-                            ColumnItems = GetColumnItemsFromSource(item.Key, item.Value, items);
-                            List<string> viewPortItems = new List<string>();
-                            var a = _Source[index].First();
-                            _Source[index].Clear();
-                            _Source[index].Add(a);
-                            _Source[index].AddRange(ColumnItems);
-                            _Source[index].AddRange(viewPortItems);
-                            index++;
-                        }
-                        if (_CuurentPageNumber < 2)
-                        {
-                            _FirstPrintedRowIndex = BuferSize - _ViewPortRowsCount - 1;
+                            delay = 100;
                         }
                         else
                         {
-                            _FirstPrintedRowIndex = BuferSize - 1;
+                            delay = 0;
                         }
-                        if (VerticalScrollBar.Value == 0)
+
+                        Task t1 = Task.Factory.StartNew(() =>
                         {
-                            _FirstPrintedRowIndex = 0;
+
+                            try
+                            {
+                                IsScrollimgFinished = false;
+                                Thread.Sleep(delay);
+                                items = TooggleSorting(printedPage.EndIndex - 1 - _ViewPortRowsCount, BuferSize + _ViewPortRowsCount, _CancellationTokenSourceForScrolling.Token)?.ToList();
+                                IsScrollimgFinished = true;
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }, _CancellationTokenSourceForScrolling.Token);
+                        Task t2 = Task.Factory.StartNew(() =>
+                        {
+
+                            CancellationTokenSource cts = new CancellationTokenSource();
+
+                            _ProgressScreen.RunProgress(cts.Token);
+                            while (!IsScrollimgFinished && !_CancellationTokenSourceForScrolling.IsCancellationRequested)
+                            {
+                                continue;
+                            }
+                            if (IsScrollimgFinished || _CancellationTokenSourceForScrolling.IsCancellationRequested)
+                            {
+
+                                cts.Cancel();
+
+                            }
+
+                        }, _CancellationTokenSourceForScrolling.Token);
+                        
+                        await Task.WhenAll(new[] { t1, t2 });
+
+                        if (IsSortingFinished && IsScrollimgFinished)
+                        {
+                            Controls.Remove(_ProgressScreen);
+                        }
+                        if (items.Count != 0)
+                        {
+                            int index = 0;
+                            foreach (var column in columns)
+                            {
+                                List<string> ColumnItems = new List<string>();
+                                ColumnItems = GetColumnItemsFromSource(column.Key, column.Value, items);
+                                var a = _Source[index].First();
+                                _Source[index].Clear();
+                                _Source[index].Add(a);
+                                _Source[index].AddRange(ColumnItems);
+                                index++;
+                            }
+                            _FirstPrintedRowIndex = 1;
+                            UpdateBufferAfterScroll();
+                            var number = selectedPage.Number;
+                            selectedPage = _Pages.Select(k => k).Where(k => k.Number == number + 1).First();
+                            _CuurentPageNumber = selectedPage.Number;
+                            _CurrentPage = selectedPage;
+                            RecalculateTotalTableWidth();
+                            UpdateHeadersWidth();
+                            isNeedInvalidation = true;
+                        }
+                        else
+                        {
+                            isNeedInvalidation = false;
+                        }
+                    }
+                    catch
+                    {
+                    }
+
+                }
+
+                if (VerticalScrollBar.Value / _VerticalScrollValueRatio + _ViewPortRowsCount + scrollOffset <= selectedPage.StartIndex - 1 && _OldScrollValue > VerticalScrollBar.Value)
+                {
+                    scrollOffset = 0;
+                    int nextPageCounter = 0;
+                    if (_CuurentPageNumber > 2)
+                    {
+                        nextPageCounter = 1;
+                    }
+                    Dictionary<string, Type> columns = GetColumnsInfo();
+                    selectedPage = _Pages.Where(s => s.UpScrollValue > (VerticalScrollBar.Value / _VerticalScrollValueRatio)).FirstOrDefault();
+                    var printedPage = selectedPage;
+                    _CuurentPageNumber = selectedPage.Number;
+
+                    if (_CancellationTokenSourceForScrolling != null)
+                    {
+                        _CancellationTokenSourceForScrolling.Cancel();
+                    }
+                    _ProgressScreen.Size = new Size(150, 50);
+                    _ProgressScreen.Location = new Point(Width / 2 - 75, Height / 2 - 25);
+                    var isProgressBarOpened = Controls.Contains(_ProgressScreen);
+                    if (!isProgressBarOpened)
+                    {
+                        Controls.Add(_ProgressScreen);
+                    }
+                    _CancellationTokenSourceForScrolling = new CancellationTokenSource();
+                    List<object> items = new List<object>();
+                    try
+                    {
+                        int delay;
+                        if (_CurrentPage.Number - selectedPage.Number > 1)
+                        {
+
+                            delay = 100;
+                        }
+                        else
+                        {
+                            delay = 0;
+                        }
+
+                        Task t1 = Task.Factory.StartNew(() =>
+                        {
+                            try
+                            {
+                                IsScrollimgFinished = false;
+                                Thread.Sleep(delay);
+                                items = TooggleSorting(printedPage.EndIndex - BuferSize - _ViewPortRowsCount - nextPageCounter, BuferSize + _ViewPortRowsCount * nextPageCounter, _CancellationTokenSourceForScrolling.Token)?.ToList();
+                                IsScrollimgFinished = true;
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }, _CancellationTokenSourceForScrolling.Token);
+                        Task t2 = Task.Factory.StartNew(() =>
+                        {
+
+                            CancellationTokenSource cts = new CancellationTokenSource();
+
+                            _ProgressScreen.RunProgress(cts.Token);
+                            while (!IsScrollimgFinished && !_CancellationTokenSourceForScrolling.IsCancellationRequested)
+                            {
+                                continue;
+                            }
+                            if (IsScrollimgFinished || _CancellationTokenSourceForScrolling.IsCancellationRequested)
+                            {
+
+                                cts.Cancel();
+
+                            }
+
+                        }, _CancellationTokenSourceForScrolling.Token);
+                      
+                        await Task.WhenAll(new[] { t1, t2 });
+                        if (IsSortingFinished && IsScrollimgFinished)
+                        {
+                            Controls.Remove(_ProgressScreen);
+                        }
+                        if (items.Count != 0)
+                        {
+                            int index = 0;
+                            foreach (var item in columns)
+                            {
+                                List<string> ColumnItems = new List<string>();
+                                ColumnItems = GetColumnItemsFromSource(item.Key, item.Value, items);
+                                List<string> viewPortItems = new List<string>();
+                                var a = _Source[index].First();
+                                _Source[index].Clear();
+                                _Source[index].Add(a);
+                                _Source[index].AddRange(ColumnItems);
+                                _Source[index].AddRange(viewPortItems);
+                                index++;
+                            }
+                            if (_CuurentPageNumber < 2)
+                            {
+                                _FirstPrintedRowIndex = BuferSize - _ViewPortRowsCount - 1;
+                            }
+                            else
+                            {
+                                _FirstPrintedRowIndex = BuferSize - 1;
+                            }
+                            if (VerticalScrollBar.Value == 0)
+                            {
+                                _FirstPrintedRowIndex = 0;
+
+                            }
+                            UpdateBufferAfterScroll();
+                            _CuurentPageNumber = selectedPage.Number;
+                            _CurrentPage = selectedPage;
+                            RecalculateTotalTableWidth();
+                            UpdateHeadersWidth();
+                            isNeedInvalidation = true;
 
                         }
-                        UpdateBufferAfterScroll();
-                        _CuurentPageNumber = selectedPage.Number;
-                        _CurrentPage = selectedPage;
-                        RecalculateTotalTableWidth();
-                        UpdateHeadersWidth();
-                        isNeedInvalidation = true;
-
+                        else
+                        {
+                            isNeedInvalidation = false;
+                        }
                     }
-                    else
+                    catch
                     {
-                        isNeedInvalidation = false;
                     }
                 }
-                catch
+                _IsWhelling = false;
+                _OldScrollValue = VerticalScrollBar.Value;
+                if (isNeedInvalidation)
                 {
+                    Invalidate();
                 }
-            }
-            _OldScrollValue = VerticalScrollBar.Value;
-            if (isNeedInvalidation)
-            {
-                Invalidate();
             }
         }
         private void UpdateScrolls()
