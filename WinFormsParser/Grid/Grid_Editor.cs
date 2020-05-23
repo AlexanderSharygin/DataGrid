@@ -50,9 +50,7 @@ namespace Parser
 
                 var sourceeData = TooggleSorting(_CurrentPage.SkipElementsCount, _CurrentPage.TakeElementsCount, CancellationToken.None).AsQueryable();
                 bool isPerformed = false;
-                _ProgressScreen.Size = new Size(150, 50);
-                _ProgressScreen.Location = new Point(Width / 2 - 75, Height / 2 - 25);
-                Controls.Add(_ProgressScreen);
+                ShowProgressScrren();
                 object sourceObject = new object();
                 Task t1 = Task.Factory.StartNew(() =>
                 {
@@ -65,7 +63,7 @@ namespace Parser
 
                     CancellationTokenSource cts = new CancellationTokenSource();
                    
-                    _ProgressScreen.RunProgress(cts.Token);
+                    _ProgressScreen.RunProgressBar(cts.Token);
                     while (!isPerformed)
                     {
                         continue;
@@ -79,9 +77,7 @@ namespace Parser
 
                 });
                 await Task.WhenAll(new[] { t1, t2 });
-                
-                Controls.Remove(_ProgressScreen);
-
+                RemoveProgressScreen(false);
                 PropertyDescriptorCollection sourceObjectProperties = TypeDescriptor.GetProperties(sourceObject);
                 var sourceObjectProperty = sourceObjectProperties.Find(_API.Columns[_Editor.BufferCell.SourceColumnIndex].HeaderText, false);
                 if (sourceObjectProperty != null)

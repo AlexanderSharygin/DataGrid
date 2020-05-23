@@ -10,7 +10,7 @@ namespace Parser
 {
     partial class MyDataGrid 
     {
-        bool IsScrollimgFinished=true;
+        
         private void HorisontalScrollBar_Scroll(object sender, ScrollEventArgs e)
         {
             if (_Editor != null)
@@ -40,10 +40,10 @@ namespace Parser
                 _API.TypeSelector.Location = new Point(xstart + 5, _API.TypeSelector.Location.Y);
             }
         }
-        bool _IsWhelling = false;
+       
         private void DataGridMouseWheel(object sender, MouseEventArgs e)
         {
-            _IsWhelling = true;
+            IsScrollingByMouse = true;
             if (e.Delta < 0 && VerticalScrollBar.Value + VerticalScrollBar.SmallChange < VerticalScrollBar.Maximum)
             {
                 VerticalScrollBar.Value += VerticalScrollBar.SmallChange;
@@ -144,14 +144,13 @@ namespace Parser
         private async void VScrollBar1_ValueChanged(object sender, EventArgs e)
         {
             
-            if (IsScrollimgFinished || (!IsScrollimgFinished && !_IsWhelling))
+            if (IsScrollingFinished || (!IsScrollingFinished && !IsScrollingByMouse))
             {
                 if (_Buffer.Count == 0)
                 {
                     return;
                 }
                 bool isNeedInvalidation = true;
-
                 UpdateColumnsPosition();
                 UpdateHeadersWidth();
                 RecalculateTotalTableWidth();
@@ -202,37 +201,24 @@ namespace Parser
 
                     }
                     _CancellationTokenSourceForScrolling = new CancellationTokenSource();
-                    _ProgressScreen.Size = new Size(150, 50);
-                    _ProgressScreen.Location = new Point(Width / 2 - 75, Height / 2 - 25);
-                    var isProgressBarOpened = Controls.Contains(_ProgressScreen);
-                    if (!isProgressBarOpened)
+                    ShowProgressScrren();
+                    int taskDelay=0;
+                    if (_CurrentPage.Number - selectedPage.Number > 1)
                     {
-                        Controls.Add(_ProgressScreen);
-                    }
-
+                        taskDelay = 100;
+                    }                  
                     List<object> items = new List<object>();
                     try
-                    {
-                        int delay;
-                        if (_CurrentPage.Number - selectedPage.Number > 1)
-                        {
-
-                            delay = 100;
-                        }
-                        else
-                        {
-                            delay = 0;
-                        }
-
+                    {                   
                         Task t1 = Task.Factory.StartNew(() =>
                         {
 
                             try
                             {
-                                IsScrollimgFinished = false;
-                                Thread.Sleep(delay);
+                                IsScrollingFinished = false;
+                                Thread.Sleep(taskDelay);
                                 items = TooggleSorting(printedPage.EndIndex - 1 - _ViewPortRowsCount, BuferSize + _ViewPortRowsCount, _CancellationTokenSourceForScrolling.Token)?.ToList();
-                                IsScrollimgFinished = true;
+                                IsScrollingFinished = true;
                             }
                             catch (Exception ex)
                             {
@@ -241,17 +227,14 @@ namespace Parser
                         }, _CancellationTokenSourceForScrolling.Token);
                         Task t2 = Task.Factory.StartNew(() =>
                         {
-
                             CancellationTokenSource cts = new CancellationTokenSource();
-
-                            _ProgressScreen.RunProgress(cts.Token);
-                            while (!IsScrollimgFinished && !_CancellationTokenSourceForScrolling.IsCancellationRequested)
+                            _ProgressScreen.RunProgressBar(cts.Token);
+                            while (!IsScrollingFinished && !_CancellationTokenSourceForScrolling.IsCancellationRequested)
                             {
                                 continue;
                             }
-                            if (IsScrollimgFinished || _CancellationTokenSourceForScrolling.IsCancellationRequested)
+                            if (IsScrollingFinished || _CancellationTokenSourceForScrolling.IsCancellationRequested)
                             {
-
                                 cts.Cancel();
 
                             }
@@ -259,11 +242,7 @@ namespace Parser
                         }, _CancellationTokenSourceForScrolling.Token);
                         
                         await Task.WhenAll(new[] { t1, t2 });
-
-                        if (IsSortingFinished && IsScrollimgFinished)
-                        {
-                            Controls.Remove(_ProgressScreen);
-                        }
+                        RemoveProgressScreen(true);
                         if (items.Count != 0)
                         {
                             int index = 0;
@@ -315,36 +294,25 @@ namespace Parser
                     {
                         _CancellationTokenSourceForScrolling.Cancel();
                     }
-                    _ProgressScreen.Size = new Size(150, 50);
-                    _ProgressScreen.Location = new Point(Width / 2 - 75, Height / 2 - 25);
-                    var isProgressBarOpened = Controls.Contains(_ProgressScreen);
-                    if (!isProgressBarOpened)
+                    int taskDdelay=0;
+                    if (_CurrentPage.Number - selectedPage.Number > 1)
                     {
-                        Controls.Add(_ProgressScreen);
-                    }
+
+                        taskDdelay = 100;
+                    }                    
+                    ShowProgressScrren();
                     _CancellationTokenSourceForScrolling = new CancellationTokenSource();
                     List<object> items = new List<object>();
                     try
-                    {
-                        int delay;
-                        if (_CurrentPage.Number - selectedPage.Number > 1)
-                        {
-
-                            delay = 100;
-                        }
-                        else
-                        {
-                            delay = 0;
-                        }
-
+                    {                     
                         Task t1 = Task.Factory.StartNew(() =>
                         {
                             try
                             {
-                                IsScrollimgFinished = false;
-                                Thread.Sleep(delay);
+                                IsScrollingFinished = false;
+                                Thread.Sleep(taskDdelay);
                                 items = TooggleSorting(printedPage.EndIndex - BuferSize - _ViewPortRowsCount - nextPageCounter, BuferSize + _ViewPortRowsCount * nextPageCounter, _CancellationTokenSourceForScrolling.Token)?.ToList();
-                                IsScrollimgFinished = true;
+                                IsScrollingFinished = true;
                             }
                             catch (Exception ex)
                             {
@@ -353,28 +321,20 @@ namespace Parser
                         }, _CancellationTokenSourceForScrolling.Token);
                         Task t2 = Task.Factory.StartNew(() =>
                         {
-
                             CancellationTokenSource cts = new CancellationTokenSource();
-
-                            _ProgressScreen.RunProgress(cts.Token);
-                            while (!IsScrollimgFinished && !_CancellationTokenSourceForScrolling.IsCancellationRequested)
+                            _ProgressScreen.RunProgressBar(cts.Token);
+                            while (!IsScrollingFinished && !_CancellationTokenSourceForScrolling.IsCancellationRequested)
                             {
                                 continue;
                             }
-                            if (IsScrollimgFinished || _CancellationTokenSourceForScrolling.IsCancellationRequested)
+                            if (IsScrollingFinished || _CancellationTokenSourceForScrolling.IsCancellationRequested)
                             {
-
                                 cts.Cancel();
-
                             }
 
-                        }, _CancellationTokenSourceForScrolling.Token);
-                      
+                        }, _CancellationTokenSourceForScrolling.Token);                      
                         await Task.WhenAll(new[] { t1, t2 });
-                        if (IsSortingFinished && IsScrollimgFinished)
-                        {
-                            Controls.Remove(_ProgressScreen);
-                        }
+                        RemoveProgressScreen(true);
                         if (items.Count != 0)
                         {
                             int index = 0;
@@ -420,7 +380,7 @@ namespace Parser
                     {
                     }
                 }
-                _IsWhelling = false;
+                IsScrollingByMouse = false;
                 _OldScrollValue = VerticalScrollBar.Value;
                 if (isNeedInvalidation)
                 {

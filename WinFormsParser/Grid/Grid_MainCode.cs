@@ -50,10 +50,12 @@ namespace Parser
         List<HeaderCell> _Header;
         bool _ViewPortIsScrolledDown = false;
        CancellationTokenSource _CancellationTokenSourceForScrolling;
-        public bool IsSortingFinished { get; set; }
-       
-     
-public string PrivateKeyColumn { get; set; }
+        CancellationTokenSource _CancellationTokenSourceForSorting;
+        private bool IsSortingFinished  = true;
+        private bool IsScrollingByMouse = false;
+        private bool IsScrollingFinished = true;
+
+        public string PrivateKeyColumn { get; set; }
         public IEnumerable<object> ItemsSource
         {
             get
@@ -181,10 +183,36 @@ public string PrivateKeyColumn { get; set; }
             }
             return tempPage;
         }
+        private void ShowProgressScrren()
+        {
+            _ProgressScreen.Size = new Size(150, 50);
+            _ProgressScreen.Location = new Point(Width / 2 - 75, Height / 2 - 25);
+            var isProgressScreenOpened = Controls.Contains(_ProgressScreen);
+            if (!isProgressScreenOpened)
+            {
+                Controls.Add(_ProgressScreen);
+            }
+        }
+        private void RemoveProgressScreen(bool IsCheckSortingAndScrolling)
+        {
+            if (IsCheckSortingAndScrolling)
+            {
+                if (IsScrollingFinished && IsScrollingFinished)
+                {
+                    Controls.Remove(_ProgressScreen);
+                }
+            }
+            else
+            {
+                Controls.Remove(_ProgressScreen);
+            }
+        }
         private async void AsyncGetCount()
         {
-          
-            await Task.Factory.StartNew(() => {
+            bool isPerformed = false;
+            ShowProgressScrren();
+            Task t1 = Task.Factory.StartNew(() => {
+               
                 _Pages.Clear();
                 _TotalRowsCount = _ItemsSource.Count();
                 int pagesCount = (int)(Math.Ceiling(Convert.ToDecimal(_TotalRowsCount / BuferSize)));
@@ -214,8 +242,52 @@ public string PrivateKeyColumn { get; set; }
                     VerticalScrollBar.Invoke((MethodInvoker)(() => VerticalScrollBar.Minimum = 0));
                     VerticalScrollBar.Invoke((MethodInvoker)(() => VerticalScrollBar.Value = 0));
                 }
-                VerticalScrollBar.Invoke((MethodInvoker)(() => VerticalScrollBar.Maximum = ((_TotalRowsCount - _ViewPortRowsCount) * _VerticalScrollValueRatio) - 1));
+                VerticalScrollBar.Invoke((MethodInvoker)(() => VerticalScrollBar.Maximum = ((_TotalRowsCount - _ViewPortRowsCount) * _VerticalScrollValueRatio) - 1));             
+                isPerformed = true;
+           
             });
+            Task t2 = Task.Factory.StartNew(() =>
+            {
+               
+                CancellationTokenSource cts = new CancellationTokenSource();
+               
+              
+                _ProgressScreen.RunProgressBar(cts.Token);
+               
+                while (!isPerformed)
+                {
+                    if (_Header?.Count>0 )
+                    {
+                        try
+                        {
+                            if (_Header.FirstOrDefault()?.IsBlocked == false)
+                            {
+                                foreach (var item in _Header)
+                                {
+                                    item.IsBlocked = true;
+                                }
+                            }
+                        }
+                        catch
+                        {
+                            continue;
+                        }
+                        
+                    }
+                        continue;
+                }
+                if (isPerformed)
+                {
+                    cts.Cancel();
+                    foreach (var item in _Header)
+                    {
+                        item.IsBlocked = false;
+                    }
+                }
+
+            });
+            await Task.WhenAll(new[] { t1, t2 });
+            RemoveProgressScreen(false);
         }
         private Dictionary<string, Type> GetColumnsInfo()
         {

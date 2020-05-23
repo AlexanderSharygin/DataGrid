@@ -106,10 +106,10 @@
     </Compile>
     <Compile Include="DBContext\Worker.cs" />
     <Compile Include="DBContext\WorkersSmall.cs" />
-    <Compile Include="ProgressScreen.cs">
+    <Compile Include="Grid\ProgressScreen.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="ProgressScreen.Designer.cs">
+    <Compile Include="Grid\ProgressScreen.Designer.cs">
       <DependentUpon>ProgressScreen.cs</DependentUpon>
     </Compile>
     <EmbeddedResource Include="Grid\Grid_HeaderCell.resx">
@@ -121,7 +121,7 @@
     <EmbeddedResource Include="Grid\Grid_MainCode.resx">
       <DependentUpon>Grid_MainCode.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ProgressScreen.resx">
+    <EmbeddedResource Include="Grid\ProgressScreen.resx">
       <DependentUpon>ProgressScreen.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">

@@ -21,7 +21,7 @@ namespace Parser
         Source _API;
         TypeSelector _TypeSelector = new TypeSelector();
         private IContainer _Components = null;
-
+        public bool IsBlocked { get; set; }
 
         internal Column ColumnData { get; }
         public string HeaderText { get; set; }
@@ -50,6 +50,7 @@ namespace Parser
             _API = api;
             _TypeSelector.Items = _API.DataTypes;
             _TypeSelector.SelectedItem = _API.DataTypes.GetKeyByValue(ColumnData.DataType);
+            
         }
 
 
@@ -92,7 +93,10 @@ namespace Parser
         }
         private void HeaderCell_MouseClick(object sender, MouseEventArgs e)
         {
-
+            if (IsBlocked)
+            {
+                return;
+            }
             if (_API.IsEditorUsed)
             {
                 Parent.Controls.Remove(_API.EditorControl);
