@@ -62,17 +62,20 @@ namespace Parser
             { return _ItemsSource; }
             set
             {
-                _ItemsSource = value.AsQueryable();               
-                Dictionary<string, Type> columnsInfo = GetColumnsInfo();
-                _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;               
-                _Source = GetStringDataSource(columnsInfo);
-                AsyncGetCount();            
-                if (ColumnsAutoGeneration)
+                _ItemsSource = value?.AsQueryable();
+                if (_ItemsSource != null)
                 {
-                    Columns.Clear();
-                    foreach (var item in columnsInfo)
+                    Dictionary<string, Type> columnsInfo = GetColumnsInfo();
+                    _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;
+                    _Source = GetStringDataSource(columnsInfo);
+                    AsyncGetCount();
+                    if (ColumnsAutoGeneration)
                     {
-                        Columns.Add(new Column(item.Key, item.Value) { Visible = true });
+                        Columns.Clear();
+                        foreach (var item in columnsInfo)
+                        {
+                            Columns.Add(new Column(item.Key, item.Value) { Visible = true });
+                        }
                     }
                 }
             }
