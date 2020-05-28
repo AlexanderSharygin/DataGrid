@@ -180,8 +180,8 @@ namespace WinFormsParser
         {
 
             _DataTable.ColumnsAutoGeneration = true;
-           // _DataTable.ItemsSource = _DBData.Workers.AsEnumerable();
-            _DataTable.ItemsSource = null;
+            _DataTable.ItemsSource = _DBData.Workers.AsEnumerable();
+           // _DataTable.ItemsSource = null;
             _DataTable.PrivateKeyColumn = "Id";
             LB_FieldsList.Items.Clear();
             CB_FieldsList1.Items.Clear();

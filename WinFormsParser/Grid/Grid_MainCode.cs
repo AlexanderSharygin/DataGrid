@@ -188,7 +188,8 @@ namespace Parser
         }
         private void ShowProgressScrren()
         {
-            _ProgressScreen.Size = new Size(150, 50);
+            _ProgressScreen.Width=150;
+            _ProgressScreen.CalculateHeight();
             _ProgressScreen.Location = new Point(Width / 2 - 75, Height / 2 - 25);
             var isProgressScreenOpened = Controls.Contains(_ProgressScreen);
             if (!isProgressScreenOpened)

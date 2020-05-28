@@ -32,17 +32,16 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
-            // progressBar1
+            // ProgressBar
             // 
             this.ProgressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.ProgressBar.Location = new System.Drawing.Point(5, 5);
             this.ProgressBar.Margin = new System.Windows.Forms.Padding(5);
-            this.ProgressBar.Name = "progressBar1";
-            this.ProgressBar.Size = new System.Drawing.Size(159, 23);
+            this.ProgressBar.Name = "ProgressBar";
+            this.ProgressBar.Size = new System.Drawing.Size(184, 23);
             this.ProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
             this.ProgressBar.TabIndex = 0;
-         
             // 
             // textBox1
             // 
@@ -52,11 +51,10 @@
             this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.textBox1.Location = new System.Drawing.Point(3, 32);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(163, 13);
+            this.textBox1.Size = new System.Drawing.Size(188, 13);
             this.textBox1.TabIndex = 1;
             this.textBox1.Text = "Loading";
             this.textBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-          
             // 
             // ProgressScreen
             // 
@@ -67,8 +65,7 @@
             this.Controls.Add(this.ProgressBar);
             this.Margin = new System.Windows.Forms.Padding(5);
             this.Name = "ProgressScreen";
-            this.Size = new System.Drawing.Size(169, 50);
-           
+            this.Size = new System.Drawing.Size(194, 51);
             this.ResumeLayout(false);
             this.PerformLayout();
 

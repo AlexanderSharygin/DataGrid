@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Drawing.Printing;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -30,6 +31,11 @@ namespace Parser
                   
                 }
             }, token);
+        }
+        public void CalculateHeight()
+        {
+            this.Height = Margin.Top + ProgressBar.Height + 5 + textBox1.Height + Margin.Bottom;
+            
         }
        
     }
