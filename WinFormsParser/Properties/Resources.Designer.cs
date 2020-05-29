@@ -126,6 +126,15 @@ namespace Parser.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на 100.
+        /// </summary>
+        internal static string MinPageSize {
+            get {
+                return ResourceManager.GetString("MinPageSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Simple-JSON objects parser.
         ///UP/Down arrows - menu navigation.
         ///Space - Adding a field to the ones displayed in the table..

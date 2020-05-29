@@ -47,12 +47,15 @@
             this.label3 = new System.Windows.Forms.Label();
             this.CB_FieldsList2 = new System.Windows.Forms.ComboBox();
             this.button3 = new System.Windows.Forms.Button();
+            this.label5 = new System.Windows.Forms.Label();
+            this.NUD_PageSize = new System.Windows.Forms.NumericUpDown();
             this.button4 = new System.Windows.Forms.Button();
             this.GB_Fields.SuspendLayout();
             this.GB_Table.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NU_FieldsIndexes)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NUD_PageSize)).BeginInit();
             this.SuspendLayout();
             // 
             // GB_Fields
@@ -99,15 +102,14 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this._DataTable.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this._DataTable.BuferSize = 50;
             this._DataTable.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this._DataTable.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            //this._DataTable.IsSortingFinished = true;
-      //      this._DataTable.ItemsSource = null;
+            this._DataTable.ItemsSource = null;
             this._DataTable.LineColor = System.Drawing.Color.Black;
             this._DataTable.Location = new System.Drawing.Point(24, 25);
             this._DataTable.Margin = new System.Windows.Forms.Padding(0);
             this._DataTable.Name = "_DataTable";
+            this._DataTable.PageSize = 100;
             this._DataTable.PrivateKeyColumn = null;
             this._DataTable.RowHeight = 18;
             this._DataTable.Size = new System.Drawing.Size(532, 556);
@@ -265,15 +267,37 @@
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.Autogeneration_Button_Click);
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(18, 349);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(98, 13);
+            this.label5.TabIndex = 12;
+            this.label5.Text = "Размер страницы";
+            // 
+            // NUD_PageSize
+            // 
+            this.NUD_PageSize.Location = new System.Drawing.Point(18, 365);
+            this.NUD_PageSize.Name = "NUD_PageSize";
+            this.NUD_PageSize.Size = new System.Drawing.Size(120, 20);
+            this.NUD_PageSize.TabIndex = 13;
+            this.NUD_PageSize.Value = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+           
+            // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(56, 371);
+            this.button4.Location = new System.Drawing.Point(144, 365);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(75, 23);
-            this.button4.TabIndex = 12;
-            this.button4.Text = "button4";
+            this.button4.Size = new System.Drawing.Size(52, 20);
+            this.button4.TabIndex = 14;
+            this.button4.Text = "Apply";
             this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
+            this.button4.Click += new System.EventHandler(this.button4_Click_1);
             // 
             // Show_Button
             // 
@@ -281,6 +305,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(781, 616);
             this.Controls.Add(this.button4);
+            this.Controls.Add(this.NUD_PageSize);
+            this.Controls.Add(this.label5);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
@@ -297,7 +323,9 @@
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NU_FieldsIndexes)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NUD_PageSize)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -322,6 +350,8 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.NumericUpDown NU_FieldsIndexes;
         private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.NumericUpDown NUD_PageSize;
         private System.Windows.Forms.Button button4;
     }
 }

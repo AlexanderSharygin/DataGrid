@@ -162,4 +162,7 @@ Space - Adding a field to the ones displayed in the table.</value>
   <data name="TrueValue" xml:space="preserve">
     <value>Yes</value>
   </data>
+  <data name="MinPageSize" xml:space="preserve">
+    <value>100</value>
+  </data>
 </root>

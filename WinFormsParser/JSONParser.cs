@@ -23,6 +23,8 @@ namespace WinFormsParser
             _Workers = new List<Worker>();
             _DataTable.DataChanged += new MyDataGrid.DataChangedHeandler(SubmitChanges);
             _DBData = new DBModel();
+            NUD_PageSize.Maximum = 1000;
+            NUD_PageSize.Minimum = 0;
         }
 
         void SubmitChanges(object sender, EventArgs eventArgs)
@@ -179,7 +181,9 @@ namespace WinFormsParser
         private void Autogeneration_Button_Click(object sender, EventArgs e)
         {
 
+            
             _DataTable.ColumnsAutoGeneration = true;
+            _DataTable.PageSize = (int)NUD_PageSize.Value;
             _DataTable.ItemsSource = _DBData.Workers.AsEnumerable();
            // _DataTable.ItemsSource = null;
             _DataTable.PrivateKeyColumn = "Id";
@@ -218,6 +222,15 @@ namespace WinFormsParser
            _DataTable.Select();
           //  _DataTable._ProgressScreen.RunProgress();
            // _DataTable.Invalidate();
+        }
+
+      
+
+        private void button4_Click_1(object sender, EventArgs e)
+        {
+            _DataTable.PageSize = (int)NUD_PageSize.Value;
+          
+
         }
     }
     class Worker

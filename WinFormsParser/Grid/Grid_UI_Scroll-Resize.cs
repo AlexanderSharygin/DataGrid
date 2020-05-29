@@ -162,7 +162,7 @@ namespace Parser
                 Page selectedPage = _CurrentPage;
                 if (_CuurentPageNumber > 1)
                 {
-                    _FirstPrintedRowIndex = _FirstPrintedRowIndex - (BuferSize * (_CuurentPageNumber - 1)) + _ViewPortRowsCount + 1;
+                    _FirstPrintedRowIndex = _FirstPrintedRowIndex - (_PageSize * (_CuurentPageNumber - 1)) + _ViewPortRowsCount + 1;
 
                 }
                 if (VerticalScrollBar.Value < 0)
@@ -217,7 +217,7 @@ namespace Parser
                             {
                                 IsScrollingFinished = false;
                                 Thread.Sleep(taskDelay);
-                                items = TooggleSorting(printedPage.EndIndex - 1 - _ViewPortRowsCount, BuferSize + _ViewPortRowsCount, _CancellationTokenSourceForScrolling.Token)?.ToList();
+                                items = TooggleSorting(printedPage.EndIndex - 1 - _ViewPortRowsCount, _PageSize + _ViewPortRowsCount, _CancellationTokenSourceForScrolling.Token)?.ToList();
                                 IsScrollingFinished = true;
                             }
                             catch (Exception ex)
@@ -311,7 +311,7 @@ namespace Parser
                             {
                                 IsScrollingFinished = false;
                                 Thread.Sleep(taskDdelay);
-                                items = TooggleSorting(printedPage.EndIndex - BuferSize - _ViewPortRowsCount - nextPageCounter, BuferSize + _ViewPortRowsCount * nextPageCounter, _CancellationTokenSourceForScrolling.Token)?.ToList();
+                                items = TooggleSorting(printedPage.EndIndex - _PageSize - _ViewPortRowsCount - nextPageCounter, _PageSize + _ViewPortRowsCount * nextPageCounter, _CancellationTokenSourceForScrolling.Token)?.ToList();
                                 IsScrollingFinished = true;
                             }
                             catch (Exception ex)
@@ -352,11 +352,11 @@ namespace Parser
                             }
                             if (_CuurentPageNumber < 2)
                             {
-                                _FirstPrintedRowIndex = BuferSize - _ViewPortRowsCount - 1;
+                                _FirstPrintedRowIndex = _PageSize - _ViewPortRowsCount - 1;
                             }
                             else
                             {
-                                _FirstPrintedRowIndex = BuferSize - 1;
+                                _FirstPrintedRowIndex = _PageSize - 1;
                             }
                             if (VerticalScrollBar.Value == 0)
                             {

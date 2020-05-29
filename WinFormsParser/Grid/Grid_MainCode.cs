@@ -79,8 +79,57 @@ namespace Parser
                     }
                 }
             }
-        }       
-        public int BuferSize { get; set; } = 50;
+        }
+        [DisplayName(@"PageSize"), Description("Размер страницы")]
+        public int PageSize
+        {
+            get
+            { return _PageSize; }
+            set
+            {
+              
+                int temp = value;
+                if (value < Convert.ToInt32(Resources.MinPageSize))
+                {
+                    _PageSize = Convert.ToInt32(Resources.MinPageSize);
+                }
+                else
+                {
+                    if (temp % 10 > 0)
+                    {
+                        _PageSize = temp - temp % 10 + 10;
+                    }
+                    else
+                    {
+                        _PageSize = value;
+                    }
+                }
+                if (_ItemsSource != null)
+                {
+                    Dictionary<string, Type> columnsInfo = GetColumnsInfo();
+                    _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;               
+                
+                    VerticalScrollBar.Value = 0;
+                    _Pages.Clear();                   
+                    int pagesCount = (int)(Math.Ceiling(Convert.ToDecimal(_TotalRowsCount / _PageSize)));
+                    if (pagesCount == 0)
+                    {
+                        pagesCount = 1;
+                    }                   
+                    _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;
+                    for (int i = 0; i < pagesCount; i++)
+                    {
+                        _Pages.Add(CreateNewPage(i));
+                    }
+                    _Source = GetStringDataSource(columnsInfo);
+                 
+                    CustomInvalidate();
+                    _CurrentPage = _Pages.FirstOrDefault();
+                }
+            }
+        }
+        
+        int _PageSize=Convert.ToInt32(Resources.MinPageSize); 
         internal ObservableCollection<Column> Columns
         {
             get
@@ -158,30 +207,30 @@ namespace Parser
         {
             Page tempPage = new Page();
             tempPage.Number = number + 1;
-            tempPage.StartIndex = number * BuferSize;
-            tempPage.EndIndex = tempPage.StartIndex + BuferSize;
+            tempPage.StartIndex = number * _PageSize;
+            tempPage.EndIndex = tempPage.StartIndex + _PageSize;
             if (tempPage.Number == 1)
             {
                 tempPage.SkipElementsCount = 0;
-                tempPage.TakeElementsCount = BuferSize;
+                tempPage.TakeElementsCount = _PageSize;
                 tempPage.DownScrollValue = 0;
-                tempPage.UpScrollValue = BuferSize - _ViewPortRowsCount + 1;
+                tempPage.UpScrollValue = _PageSize - _ViewPortRowsCount + 1;
             }
             if (tempPage.Number > 1)
             {
                 int startPoint = _Pages[number - 1].EndIndex - _ViewPortRowsCount;
-                int takeCount = BuferSize + _ViewPortRowsCount - 1;
+                int takeCount = _PageSize + _ViewPortRowsCount - 1;
                 tempPage.SkipElementsCount = startPoint;
                 tempPage.TakeElementsCount = takeCount;
                 if (tempPage.Number == 2)
                 {
                     tempPage.DownScrollValue = _Pages[0].UpScrollValue;
-                    tempPage.UpScrollValue = tempPage.DownScrollValue + BuferSize - 1;
+                    tempPage.UpScrollValue = tempPage.DownScrollValue + _PageSize - 1;
                 }
                 else
                 {
-                    tempPage.DownScrollValue = _Pages[number - 1].DownScrollValue + BuferSize;
-                    tempPage.UpScrollValue = tempPage.DownScrollValue + BuferSize - 1;
+                    tempPage.DownScrollValue = _Pages[number - 1].DownScrollValue + _PageSize;
+                    tempPage.UpScrollValue = tempPage.DownScrollValue + _PageSize - 1;
                 }
             }
             return tempPage;
@@ -219,7 +268,7 @@ namespace Parser
                
                 _Pages.Clear();
                 _TotalRowsCount = _ItemsSource.Count();
-                int pagesCount = (int)(Math.Ceiling(Convert.ToDecimal(_TotalRowsCount / BuferSize)));
+                int pagesCount = (int)(Math.Ceiling(Convert.ToDecimal(_TotalRowsCount / _PageSize)));
                 if (pagesCount == 0)
                 {
                     pagesCount = 1;
@@ -308,8 +357,8 @@ namespace Parser
         }
         private List<List<string>> GetStringDataSource(Dictionary<string, Type> columns)
         {
-            List<List<string>> stringSource = new List<List<string>>(BuferSize);
-            var dataSource = _ItemsSource.Take(BuferSize).ToList();
+            List<List<string>> stringSource = new List<List<string>>(_PageSize);
+            var dataSource = _ItemsSource.Take(_PageSize).ToList();
             foreach (var column in columns)
             {
                 List<string> ColumnItems = new List<string>();
