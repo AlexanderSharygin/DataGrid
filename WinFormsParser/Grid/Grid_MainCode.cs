@@ -87,44 +87,46 @@ namespace Parser
             { return _PageSize; }
             set
             {
-              
-                int temp = value;
-                if (value < Convert.ToInt32(Resources.MinPageSize))
+                if (IsSortingFinished && IsScrollingFinished)
                 {
-                    _PageSize = Convert.ToInt32(Resources.MinPageSize);
-                }
-                else
-                {
-                    if (temp % 10 > 0)
+                    int temp = value;
+                    if (value < Convert.ToInt32(Resources.MinPageSize))
                     {
-                        _PageSize = temp - temp % 10 + 10;
+                        _PageSize = Convert.ToInt32(Resources.MinPageSize);
                     }
                     else
                     {
-                        _PageSize = value;
+                        if (temp % 10 > 0)
+                        {
+                            _PageSize = temp - temp % 10 + 10;
+                        }
+                        else
+                        {
+                            _PageSize = value;
+                        }
                     }
-                }
-                if (_ItemsSource != null)
-                {
-                    Dictionary<string, Type> columnsInfo = GetColumnsInfo();
-                    _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;               
-                
-                    VerticalScrollBar.Value = 0;
-                    _Pages.Clear();                   
-                    int pagesCount = (int)(Math.Ceiling(Convert.ToDecimal(_TotalRowsCount / _PageSize)));
-                    if (pagesCount == 0)
+                    if (_ItemsSource != null)
                     {
-                        pagesCount = 1;
-                    }                   
-                    _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;
-                    for (int i = 0; i < pagesCount; i++)
-                    {
-                        _Pages.Add(CreateNewPage(i));
+                        Dictionary<string, Type> columnsInfo = GetColumnsInfo();
+                        _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;
+
+                        VerticalScrollBar.Value = 0;
+                        _Pages.Clear();
+                        int pagesCount = (int)(Math.Ceiling(Convert.ToDecimal(_TotalRowsCount / _PageSize)));
+                        if (pagesCount == 0)
+                        {
+                            pagesCount = 1;
+                        }
+                        _ViewPortRowsCount = (this.Height) / (RowHeight) - 1;
+                        for (int i = 0; i < pagesCount; i++)
+                        {
+                            _Pages.Add(CreateNewPage(i));
+                        }
+                        _Source = GetStringDataSource(columnsInfo);
+
+                        CustomInvalidate();
+                        _CurrentPage = _Pages.FirstOrDefault();
                     }
-                    _Source = GetStringDataSource(columnsInfo);
-                 
-                    CustomInvalidate();
-                    _CurrentPage = _Pages.FirstOrDefault();
                 }
             }
         }
