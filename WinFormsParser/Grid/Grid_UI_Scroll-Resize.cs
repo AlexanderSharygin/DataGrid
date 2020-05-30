@@ -43,7 +43,12 @@ namespace Parser
        
         private void DataGridMouseWheel(object sender, MouseEventArgs e)
         {
+            if (!IsDataUploaded)
+            {
+                return;
+            }
             IsScrollingByMouse = true;
+           
             if (e.Delta < 0 && VerticalScrollBar.Value + VerticalScrollBar.SmallChange < VerticalScrollBar.Maximum)
             {
                 VerticalScrollBar.Value += VerticalScrollBar.SmallChange;
@@ -159,6 +164,10 @@ namespace Parser
                     RemoveEditorFromControls(true);
                 }
                 _FirstPrintedRowIndex = VerticalScrollBar.Value / _VerticalScrollValueRatio;
+                if (_CurrentPage.Number == 1 && (_CurrentPage.EndIndex - _CurrentPage.StartIndex) != PageSize)
+                {
+                    _CurrentPage = _Pages.FirstOrDefault();
+                }
                 Page selectedPage = _CurrentPage;
                 if (_CuurentPageNumber > 1)
                 {
@@ -260,8 +269,11 @@ namespace Parser
                             UpdateBufferAfterScroll();
                             var number = selectedPage.Number;
                             selectedPage = _Pages.Select(k => k).Where(k => k.Number == number + 1).First();
-                            _CuurentPageNumber = selectedPage.Number;
-                            _CurrentPage = selectedPage;
+                          
+                                _CuurentPageNumber = selectedPage.Number;
+
+                                _CurrentPage = selectedPage;
+                         
                             RecalculateTotalTableWidth();
                             UpdateHeadersWidth();
                             isNeedInvalidation = true;

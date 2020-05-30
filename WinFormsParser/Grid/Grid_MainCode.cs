@@ -54,7 +54,7 @@ namespace Parser
         private bool IsSortingFinished  = true;
         private bool IsScrollingByMouse = false;
         private bool IsScrollingFinished = true;
-
+        private bool IsDataUploaded = true;
         public string PrivateKeyColumn { get; set; }
         public IEnumerable<object> ItemsSource
         {
@@ -260,9 +260,10 @@ namespace Parser
                 Controls.Remove(_ProgressScreen);
             }
         }
+       
         private async void AsyncGetCount()
         {
-            bool isPerformed = false;
+            IsDataUploaded = false;
             ShowProgressScrren();
             Task t1 = Task.Factory.StartNew(() => {
                
@@ -296,7 +297,7 @@ namespace Parser
                     VerticalScrollBar.Invoke((MethodInvoker)(() => VerticalScrollBar.Value = 0));
                 }
                 VerticalScrollBar.Invoke((MethodInvoker)(() => VerticalScrollBar.Maximum = ((_TotalRowsCount - _ViewPortRowsCount) * _VerticalScrollValueRatio) - 1));             
-                isPerformed = true;
+                IsDataUploaded = true;
            
             });
             Task t2 = Task.Factory.StartNew(() =>
@@ -307,7 +308,7 @@ namespace Parser
               
                 _ProgressScreen.RunProgressBar(cts.Token);
                
-                while (!isPerformed)
+                while (!IsDataUploaded)
                 {
                     if (_Header?.Count>0 )
                     {
@@ -329,7 +330,7 @@ namespace Parser
                     }
                         continue;
                 }
-                if (isPerformed)
+                if (IsDataUploaded)
                 {
                     cts.Cancel();
                     foreach (var item in _Header)
