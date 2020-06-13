@@ -10,7 +10,7 @@ namespace Parser
         }
 
         public virtual DbSet<Worker> Workers { get; set; }
-        public virtual DbSet<WorkersSmall> WorkersSmalls { get; set; }
+        public virtual DbSet<WorkersSmall> WorkersSmall { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

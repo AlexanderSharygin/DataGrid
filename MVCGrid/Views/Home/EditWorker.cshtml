@@ -1,0 +1,47 @@
+﻿
+@{
+    ViewBag.Title = "Редактировать";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model  MVCGrid.Models.Worker
+    <h2> Worker @Model.FirstName @Model.LastName</h2>
+@using (Html.BeginForm("EditWorker", "Home", FormMethod.Post))
+{ 
+<fieldset>
+    @Html.HiddenFor(m => m.Id)
+    @Html.HiddenFor(m => m.Address)
+    @Html.HiddenFor(m => m.BirthDate)
+    @Html.HiddenFor(m => m.IsAlcoholic)
+    @Html.HiddenFor(m => m.Notes)
+    @Html.HiddenFor(m => m.Prefix)
+    @Html.HiddenFor(m => m.StateID)
+
+    <p>
+        @Html.LabelFor(m => m.FirstName, "Имя")
+        <br />
+        @Html.EditorFor(m => m.FirstName)
+
+    </p>
+    <p>
+        @Html.LabelFor(m => m.LastName, "Фамилия")
+        <br />
+        @Html.EditorFor(m => m.LastName)
+
+    </p>
+    <p>
+        @Html.LabelFor(m => m.Position, "Должность")
+        <br />
+        @Html.EditorFor(m => m.Position)
+
+    </p>
+    <p>
+        @Html.LabelFor(m => m.Position, "Зар.плата")
+        <br />
+        @Html.EditorFor(m => m.Salary)
+
+    </p>
+    <p><input type="submit" value="Ok" /></p>
+</fieldset>
+}
+

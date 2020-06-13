@@ -1,0 +1,58 @@
+﻿@model MVCGrid.Models.Worker
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Новый работник</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.LabelFor(model => model.FirstName, "Имя")
+    <br />
+    @Html.EditorFor(model => model.FirstName)
+    <br />
+    <br />
+    @Html.LabelFor(model => model.LastName, "Фамилия")
+    <br />
+    @Html.EditorFor(model => model.LastName)
+    <br />
+    <br />
+    @Html.LabelFor(model => model.Prefix, "Префикс")
+    <br />
+    @Html.EditorFor(model => model.Prefix)
+    <br />
+    <br />
+    @Html.LabelFor(model => model.Position, "Должность")
+    <br />
+    @Html.EditorFor(model => model.Position)
+    <br />
+    <br />
+    @Html.LabelFor(model => model.BirthDate, "Дата рождения")
+    <br />
+    @Html.EditorFor(model => model.BirthDate)
+    <br />
+    <br />
+    @Html.LabelFor(model => model.Address, "Адрес")
+    <br />
+    @Html.EditorFor(model => model.Address)
+    <br />
+    <br />
+    @Html.LabelFor(model => model.StateID, "State ID")
+    <br />
+    @Html.EditorFor(model => model.StateID)
+    <br />
+    <br />
+    @Html.LabelFor(model => model.Salary, "Зарплата")
+    <br />
+    @Html.EditorFor(model => model.Salary)
+    <br />
+    <br />
+    @Html.LabelFor(model => model.IsAlcoholic, "Поадался пьяным?")
+    <br />
+    @Html.CheckBoxFor(model=>model.IsAlcoholic)
+    <br />
+    <br />
+    <input type="submit" value="Добавить" />
+}
+

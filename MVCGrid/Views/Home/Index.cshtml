@@ -1,4 +1,42 @@
-﻿@{
-    Layout = null;
+﻿@model MVCGrid.Models.IndexViewModel
+@using MVCGrid.Helpers;
+
+
+@{
+    ViewBag.Title = "Home Page";
+ 
+ 
+   
 }
+  
+
+<table class="table">
+    <tr>
+        <td>FirstName</td>
+        <td>LastNane</td>
+    </tr>
+    @foreach (var item in Model.Workers)
+    {
+        <tr>
+            <td>@item.FirstName</td>
+            <td>@item.LastName</td>
+        </tr>
+    }
+</table>
+<br />
+<div class="btn-group">
+    @Html.PageLinks(Model.PageInfo, x => Url.Action("Index", new { page = x}))
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
 
