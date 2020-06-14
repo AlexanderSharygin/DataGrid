@@ -47,7 +47,9 @@ namespace MVCGrid.Models
 
         public static explicit operator Worker(Workers v)
         {
-            Worker a = new Worker();
+            if (v != null)
+            {
+                Worker a = new Worker();
             a.Id = v.Id;
             a.FirstName = v.FirstName;
             a.LastName = v.LastName;
@@ -60,23 +62,31 @@ namespace MVCGrid.Models
             a.Salary = v.Salary;
             a.IsAlcoholic = v.IsAlcoholic;
             return a;
-            
+            }
+            else
+            { return null; }
+
         }
         public static explicit operator Worker(WorkersSmall v)
         {
-            Worker a = new Worker();
-            a.Id = v.Id;
-            a.FirstName = v.FirstName;
-            a.LastName = v.LastName;
-            a.Prefix = v.Prefix;
-            a.Position = v.Position;
-            a.BirthDate = v.BirthDate;
-            a.Notes = v.Notes;
-            a.Address = v.Address;
-            a.StateID = v.StateID;
-            a.Salary = v.Salary;
-            a.IsAlcoholic = v.IsAlcoholic;
-            return a;
+            if (v != null)
+            {
+                Worker a = new Worker();
+                a.Id = v.Id;
+                a.FirstName = v.FirstName;
+                a.LastName = v.LastName;
+                a.Prefix = v.Prefix;
+                a.Position = v.Position;
+                a.BirthDate = v.BirthDate;
+                a.Notes = v.Notes;
+                a.Address = v.Address;
+                a.StateID = v.StateID;
+                a.Salary = v.Salary;
+                a.IsAlcoholic = v.IsAlcoholic;
+                return a;
+            }
+            else
+            { return null;  }
 
         }
         //   public int Salary { get; set; }

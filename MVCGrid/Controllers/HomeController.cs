@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Security.Policy;
 using System.Web;
@@ -9,19 +10,19 @@ using static MVCGrid.Models.DataContext;
 
 namespace MVCGrid.Controllers
 {
-   
+
     public class HomeController : Controller
     {
-      
+
         DataContext _DB = new DataContext();
-       [HttpGet]
+        [HttpGet]
         public ActionResult EditWorker(int? id)
         {
             if (id == null)
             {
                 return HttpNotFound();
             }
-            
+
             Worker worker = (Worker)_DB.WorkersSmall.Find(id);
             if (worker != null)
             {
@@ -31,16 +32,52 @@ namespace MVCGrid.Controllers
             {
                 return HttpNotFound();
             }
-        
+
         }
         [HttpPost]
         public ActionResult EditWorker(WorkersSmall worker)
         {
-           
+
             _DB.Entry(worker).State = System.Data.Entity.EntityState.Modified;
             _DB.SaveChanges();
             return RedirectToAction("Index");
         }
+        [HttpGet]
+        public ActionResult Delete(int id)
+        {
+            
+                Worker worker = (Worker)_DB.WorkersSmall.Find(id);            
+                if (worker == null)
+                {
+                    return HttpNotFound();
+                }
+                else
+                {
+                    return View(worker);
+                }
+           
+
+        }
+        [HttpPost, ActionName("Delete")]
+        public ActionResult DeleteConfirmed(int id)
+        {
+            WorkersSmall worker = _DB.WorkersSmall.Find(id);
+
+            if (worker == null)
+            {
+                return HttpNotFound();
+            }
+            else
+            {
+                _DB.WorkersSmall.Remove(worker);
+                _DB.SaveChanges();
+                return RedirectToAction("Index");
+            }
+            
+        }
+
+
+
         [HttpGet]
         public ActionResult Create()
         {
