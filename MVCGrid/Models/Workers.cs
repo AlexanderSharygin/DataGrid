@@ -9,6 +9,7 @@ namespace MVCGrid
     public partial class Workers
     {
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        [ScaffoldColumn(false)]
         public int Id { get; set; }
 
         [Required]
@@ -47,40 +48,54 @@ namespace MVCGrid
     [Table("WorkersSmall")]
     public partial class WorkersSmall
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
-          public int Id { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [ScaffoldColumn(false)]  
+        public int Id { get; set; }
 
         [Required]
+        [Display(Name = "Имя")]
         [StringLength(20)]
         public string FirstName { get; set; }
 
         [Required]
+        [Display(Name = "Фамилия")]
         [StringLength(50)]
         public string LastName { get; set; }
 
         [Required]
         [StringLength(5)]
+        [Display(Name = "Префикс")]
         public string Prefix { get; set; }
 
         [Required]
+        [Display(Name = "Должность")]
         [StringLength(50)]
         public string Position { get; set; }
 
+        [Required]
         [Column(TypeName = "smalldatetime")]
+        [Display(Name = "Дата Рождения")]
         public DateTime BirthDate { get; set; }
 
         [StringLength(500)]
+        [Display(Name = "Заметки")]
         public string Notes { get; set; }
 
         [Required]
+        [Display(Name = "Адрес")]
         [StringLength(200)]
         public string Address { get; set; }
 
+        [Required]
+        [Display(Name = "Номер")]
         public int StateID { get; set; }
-
+       
+        [Required]
         [Column(TypeName = "money")]
+        [Display(Name = "Зар. плата")]
         public decimal Salary { get; set; }
 
+        [Display(Name = "Алкоголик")]
         public bool IsAlcoholic { get; set; }
     }
 }

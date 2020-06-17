@@ -35,12 +35,34 @@ namespace MVCGrid.Controllers
 
         }
         [HttpPost]
-        public ActionResult EditWorker(WorkersSmall worker)
+        public ActionResult EditWorker([Bind(Include ="Id, FirstName, LastName, Position, Salary")] WorkersSmall worker)
         {
 
-            _DB.Entry(worker).State = System.Data.Entity.EntityState.Modified;
-            _DB.SaveChanges();
-            return RedirectToAction("Index");
+            if (worker == null)
+            {
+                return HttpNotFound();
+            }
+            else
+            {
+                if (ModelState.IsValidField("FirstName") && ModelState.IsValidField("LastName") && ModelState.IsValidField("Position") && ModelState.IsValidField("Salary"))
+                {
+                    var workerToSave = _DB.WorkersSmall.Select(k => k).Where(k => k.Id == worker.Id).FirstOrDefault();
+                    workerToSave.FirstName = worker.FirstName;
+                    workerToSave.LastName = worker.LastName;
+                    workerToSave.Position = worker.Position;
+                    workerToSave.Salary = worker.Salary;
+                    _DB.Entry(workerToSave).State = System.Data.Entity.EntityState.Modified;
+                    _DB.SaveChanges();
+
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    Worker worker1 = (Worker)_DB.WorkersSmall.Find(worker.Id);
+                    return View(worker1);
+                }
+            }
+                
         }
         [HttpGet]
         public ActionResult Delete(int id)
@@ -86,9 +108,25 @@ namespace MVCGrid.Controllers
         [HttpPost]
         public ActionResult Create(WorkersSmall worker)
         {
-            _DB.WorkersSmall.Add(worker);
-            _DB.SaveChanges();
-            return RedirectToAction("Index");
+            if (worker == null)
+            {
+                return View();
+            }
+            else
+            {
+                if (ModelState.IsValid)
+                {
+
+                    _DB.Entry(worker).State = System.Data.Entity.EntityState.Added;
+                    _DB.SaveChanges();
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    return View();
+                }
+            }
+           
         }
 
         public ActionResult Index(int page = 1)

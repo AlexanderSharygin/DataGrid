@@ -8,49 +8,63 @@
 
 @using (Html.BeginForm())
 {
-    @Html.LabelFor(model => model.FirstName, "Имя")
+    @Html.LabelFor(model => model.FirstName, "Имя*")
     <br />
     @Html.EditorFor(model => model.FirstName)
+    @Html.ValidationMessageFor(m => m.FirstName)
     <br />
     <br />
-    @Html.LabelFor(model => model.LastName, "Фамилия")
+    @Html.LabelFor(model => model.LastName, "Фамилия*")
     <br />
     @Html.EditorFor(model => model.LastName)
+    @Html.ValidationMessageFor(m => m.LastName)
     <br />
     <br />
-    @Html.LabelFor(model => model.Prefix, "Префикс")
+    @Html.LabelFor(model => model.Prefix, "Префикс*")
     <br />
     @Html.EditorFor(model => model.Prefix)
+    @Html.ValidationMessageFor(m => m.Prefix)
     <br />
     <br />
-    @Html.LabelFor(model => model.Position, "Должность")
+    @Html.LabelFor(model => model.Position, "Должность*")
     <br />
     @Html.EditorFor(model => model.Position)
+    @Html.ValidationMessageFor(m => m.Position)
     <br />
     <br />
-    @Html.LabelFor(model => model.BirthDate, "Дата рождения")
+    @Html.LabelFor(model => model.BirthDate, "Дата рождения*")
     <br />
     @Html.EditorFor(model => model.BirthDate)
+    @Html.ValidationMessageFor(m => m.BirthDate)
     <br />
     <br />
-    @Html.LabelFor(model => model.Address, "Адрес")
+    @Html.LabelFor(model => model.Address, "Адрес*")
     <br />
     @Html.EditorFor(model => model.Address)
+    @Html.ValidationMessageFor(m => m.Address)
     <br />
     <br />
-    @Html.LabelFor(model => model.StateID, "State ID")
+    @Html.LabelFor(model => model.StateID, "Номер*")
     <br />
     @Html.EditorFor(model => model.StateID)
+    @Html.ValidationMessageFor(m => m.StateID)
     <br />
     <br />
-    @Html.LabelFor(model => model.Salary, "Зарплата")
+    @Html.LabelFor(model => model.Salary, "Зарплата*")
     <br />
     @Html.EditorFor(model => model.Salary)
+    @Html.ValidationMessageFor(m => m.StateID)
+    <br />
+    <br />
+    @Html.LabelFor(model => model.Notes, "Заметки")
+    <br />
+    @Html.EditorFor(model => model.Notes)
     <br />
     <br />
     @Html.LabelFor(model => model.IsAlcoholic, "Поадался пьяным?")
     <br />
-    @Html.CheckBoxFor(model=>model.IsAlcoholic)
+    @Html.CheckBoxFor(model => model.IsAlcoholic)
+
     <br />
     <br />
     <input type="submit" value="Добавить" />

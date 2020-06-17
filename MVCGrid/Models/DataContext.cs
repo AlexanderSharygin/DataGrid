@@ -7,6 +7,7 @@ namespace MVCGrid.Models
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
     using System.Security.Cryptography.X509Certificates;
+    using System.ComponentModel.DataAnnotations;
 
     public partial class DataContext : DbContext
     {
@@ -33,6 +34,7 @@ namespace MVCGrid.Models
 
    public class Worker
     {
+      
         public int Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }

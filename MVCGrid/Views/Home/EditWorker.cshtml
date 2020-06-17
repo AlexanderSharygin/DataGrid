@@ -10,35 +10,34 @@
 { 
 <fieldset>
     @Html.HiddenFor(m => m.Id)
-    @Html.HiddenFor(m => m.Address)
-    @Html.HiddenFor(m => m.BirthDate)
-    @Html.HiddenFor(m => m.IsAlcoholic)
-    @Html.HiddenFor(m => m.Notes)
-    @Html.HiddenFor(m => m.Prefix)
-    @Html.HiddenFor(m => m.StateID)
+   
 
     <p>
         @Html.LabelFor(m => m.FirstName, "Имя")
         <br />
         @Html.EditorFor(m => m.FirstName)
+        @Html.ValidationMessageFor(m => m.FirstName)
 
     </p>
     <p>
         @Html.LabelFor(m => m.LastName, "Фамилия")
         <br />
         @Html.EditorFor(m => m.LastName)
+        @Html.ValidationMessageFor(m => m.LastName)
 
     </p>
     <p>
         @Html.LabelFor(m => m.Position, "Должность")
         <br />
         @Html.EditorFor(m => m.Position)
+        @Html.ValidationMessageFor(m => m.Position)
 
     </p>
     <p>
         @Html.LabelFor(m => m.Position, "Зар.плата")
         <br />
         @Html.EditorFor(m => m.Salary)
+        @Html.ValidationMessageFor(m => m.Salary)
 
     </p>
     <p><input type="submit" value="Ok" /></p>

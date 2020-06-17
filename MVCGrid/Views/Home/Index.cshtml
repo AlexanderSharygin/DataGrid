@@ -17,10 +17,13 @@
     </tr>
     @foreach (var item in Model.Workers)
     {
-        <tr>
-            <td>@item.FirstName</td>
-            <td>@item.LastName</td>
-        </tr>
+<tr>
+    <td>@item.FirstName</td>
+    <td>@item.LastName</td>
+    <td>@Html.ActionLink("Edit", "EditWorker", new { id = item.Id })</td>
+    <td>@Html.ActionLink("Delete", "Delete", new { id = item.Id })</td>
+</tr>
+
     }
 </table>
 <br />
