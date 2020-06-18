@@ -4,33 +4,84 @@
 
 @{
     ViewBag.Title = "Home Page";
- 
- 
-   
+
+
+
 }
-  
-
-<table class="table">
-    <tr>
-        <td>FirstName</td>
-        <td>LastNane</td>
-    </tr>
-    @foreach (var item in Model.Workers)
-    {
-<tr>
-    <td>@item.FirstName</td>
-    <td>@item.LastName</td>
-    <td>@Html.ActionLink("Edit", "EditWorker", new { id = item.Id })</td>
-    <td>@Html.ActionLink("Delete", "Delete", new { id = item.Id })</td>
-</tr>
-
-    }
-</table>
 <br />
-<div class="btn-group">
-    @Html.PageLinks(Model.PageInfo, x => Url.Action("Index", new { page = x}))
+<div>
+    @using (Ajax.BeginForm("JSONWorkerSearch", new AjaxOptions { OnSuccess = "OnSuccess" }))
+    {
+        <input type="text" name="FirstName" placeholder="FirstName" />
+        <input type="submit" value="Поиск" />
+    }
+
+    <br />
+    <table class="table">
+        <tr>
+            <td>FirstName</td>
+            <td>LastNane</td>
+        </tr>
+        @foreach (var item in Model.Workers)
+        {
+            <tr>
+                <td>@item.FirstName</td>
+                <td>@item.LastName</td>
+                <td>@Html.ActionLink("Edit", "EditWorker", new { id = item.Id })</td>
+                <td>@Html.ActionLink("Delete", "Delete", new { id = item.Id })</td>
+            </tr>
+
+        }
+    </table>
+    <br />
+    <div class="btn-group">
+        @Html.PageLinks(Model.PageInfo, x => Url.Action("Index", new { page = x }))
+    </div>
+    <br />
+    <br />
+    <div id="results"></div>
+</div>
+<br/>
+<div id="ShowAlcoholics">
+    @Ajax.ActionLink("Показать алкоголиков", "ShowAlcoholics",
+            new AjaxOptions { UpdateTargetId = "ShowAlcoholics" })
 </div>
 
+<script type="text/javascript">
+  
+   
+    function OnFailure() {
+        alert("Работники с таким именем не найдены базе данных.");
+    }
+    function OnSuccess(data) {
+        var results = $('#results'); // получаем нужный элемент
+        results.empty(); //очищаем элемент
+        if (data.length > 0) {
+            let div = document.createElement('div');
+            div.className = "notification";
+            div.innerHTML = "Работники с именем " + data[0].FirstName + ":";
+            results.append(div);
+            for (var i = 0; i < data.length; i++) {
+                results.append('<li>' + data[i].FirstName + ' ' + data[i].LastName + '</li>'); // добавляем данные в список
+            }
+        }
+        else {
+            OnFailure();
+        }
+    }
+    
+</script>
+<style>
+    .notification {
+        font-size: 15px;
+        font-family: Verdana, Arial, Helvetica, Sans-Serif;
+        font-weight: bold;
+       line-height:40px;
+       
+       
+       
+    }
+</style>
 
 
 

@@ -1,0 +1,11 @@
+﻿@model IEnumerable<MVCGrid.Models.Worker>
+
+<div id="ShowAlcoholics">
+    <h3>Список алкашей: </h3>
+    <ul>
+        @foreach (var item in Model)
+        {
+            <li>@item.FirstName @item.LastName</li>
+        }
+    </ul>
+</div>

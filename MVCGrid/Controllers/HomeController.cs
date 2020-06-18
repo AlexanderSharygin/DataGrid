@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity.Infrastructure;
+using System.IO;
 using System.Linq;
 using System.Security.Policy;
 using System.Web;
@@ -127,6 +128,27 @@ namespace MVCGrid.Controllers
                 }
             }
            
+        }
+        [HttpPost]
+        public JsonResult JSONWorkerSearch(string firstName)
+        {
+            var jsondata = _DB.WorkersSmall.Where(a => a.FirstName==firstName).ToList();
+           
+            return Json(jsondata, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult ShowAlcoholics()
+        {
+            var alcoholics = _DB.WorkersSmall.Where(a => a.IsAlcoholic).ToList();
+            List<Worker> alcoholicsList = new List<Worker>();
+            foreach (var item in alcoholics)
+            {
+                alcoholicsList.Add((Worker)item);
+            }
+            if (alcoholicsList.Count <= 0)
+            {
+                return HttpNotFound();
+            }
+            return PartialView(alcoholicsList);
         }
 
         public ActionResult Index(int page = 1)

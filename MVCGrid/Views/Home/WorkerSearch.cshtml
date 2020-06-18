@@ -1,0 +1,11 @@
+﻿@model IEnumerable<MVCGrid.Models.Worker>
+
+<div id="searchresults">
+    <h3>Работники с именем : @Model.FirstOrDefault().FirstName</h3>
+    <ul>
+        @foreach (var item in Model)
+        {
+            <li>@item.FirstName</li>
+        }
+    </ul>
+</div>
