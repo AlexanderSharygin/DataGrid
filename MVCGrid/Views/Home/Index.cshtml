@@ -9,6 +9,9 @@
 
 }
 <br />
+
+<div><span id="notification" style="color:red;font-size:15px;"></span></div>
+
 <div>
     @using (Ajax.BeginForm("JSONWorkerSearch", new AjaxOptions { OnSuccess = "OnSuccess" }))
     {
@@ -41,15 +44,15 @@
     <br />
     <div id="results"></div>
 </div>
-<br/>
+<br />
 <div id="ShowAlcoholics">
     @Ajax.ActionLink("Показать алкоголиков", "ShowAlcoholics",
             new AjaxOptions { UpdateTargetId = "ShowAlcoholics" })
 </div>
 
 <script type="text/javascript">
-  
-   
+
+
     function OnFailure() {
         alert("Работники с таким именем не найдены базе данных.");
     }
@@ -58,7 +61,7 @@
         results.empty(); //очищаем элемент
         if (data.length > 0) {
             let div = document.createElement('div');
-            div.className = "notification";
+            div.className = "notif";
             div.innerHTML = "Работники с именем " + data[0].FirstName + ":";
             results.append(div);
             for (var i = 0; i < data.length; i++) {
@@ -69,17 +72,36 @@
             OnFailure();
         }
     }
-    
+
 </script>
+
+@section scripts{
+    <script src="~/Scripts/jquery.signalR-2.4.1.min.js"></script>
+    <!--Ссылка на автоматически сгенерированный скрипт хаба SignalR -->
+    <script src="~/signalr/hubs"></script>
+    <script type="text/javascript">
+        $(function () {
+
+            var notificationhub = $.connection.notificationHub;
+          
+            notificationhub.client.displayMessage = function (message) {
+
+                $('#notification').html(message);
+                debugger;
+            };
+
+            $.connection.hub.start();
+
+        });
+    </script>
+}
+
 <style>
-    .notification {
+    .notif {
         font-size: 15px;
         font-family: Verdana, Arial, Helvetica, Sans-Serif;
         font-weight: bold;
-       line-height:40px;
-       
-       
-       
+        line-height: 40px;
     }
 </style>
 

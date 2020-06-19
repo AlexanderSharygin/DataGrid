@@ -8,6 +8,7 @@ using System.Web;
 using System.Web.Mvc;
 using MVCGrid.Models;
 using static MVCGrid.Models.DataContext;
+using MVCGrid.Hubs;
 
 namespace MVCGrid.Controllers
 {
@@ -120,6 +121,7 @@ namespace MVCGrid.Controllers
 
                     _DB.Entry(worker).State = System.Data.Entity.EntityState.Added;
                     _DB.SaveChanges();
+                    SendMessage("Добавлен новый работник");
                     return RedirectToAction("Index");
                 }
                 else
@@ -135,6 +137,15 @@ namespace MVCGrid.Controllers
             var jsondata = _DB.WorkersSmall.Where(a => a.FirstName==firstName).ToList();
            
             return Json(jsondata, JsonRequestBehavior.AllowGet);
+        }
+        private void SendMessage(string message)
+        {
+            // Получаем контекст хаба
+            var context =
+                Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<NotificationHub>();
+            // отправляем сообщение
+         
+            context.Clients.All.displayMessage(message);
         }
         public ActionResult ShowAlcoholics()
         {
@@ -158,6 +169,7 @@ namespace MVCGrid.Controllers
             IEnumerable<WorkersSmall> workersForPage = _DB.WorkersSmall.OrderBy(k=>k.Id).Skip((page - 1) * pageSize).Take(pageSize);
             PageInfo pageInfo = new PageInfo { PageNumber = page, PageSize = pageSize, TotalItems =_DB.WorkersSmall.Count() };
             IndexViewModel ivm = new IndexViewModel { PageInfo = pageInfo, Workers = workersForPage };
+          
             return View(ivm);
 
         }
