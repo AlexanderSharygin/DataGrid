@@ -15,9 +15,18 @@ namespace MVCGrid.Controllers
 
     public class HomeController : Controller
     {
-
+       
         DataContext _DB = new DataContext();
         [HttpGet]
+        public ActionResult AutocompleteSearch(string term)
+        {
+            List<string> a = new List<string>();
+         
+          
+            var models = _DB.WorkersSmall.Where(k => k.FirstName.Contains(term)).Select(k => new { value = k.FirstName }).Distinct();
+          
+            return Json(models, JsonRequestBehavior.AllowGet);
+        }
         public ActionResult EditWorker(int? id)
         {
             if (id == null)
