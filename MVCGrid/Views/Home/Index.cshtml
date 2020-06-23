@@ -57,7 +57,7 @@
             </div>
             <br />
             <br />
-            <div id="SearchResults"></div>
+            <div id="results"></div>
         </div>
         <br />
         <div id="ShowAlcoholics">
@@ -66,18 +66,29 @@
         </div>
 
         <script type="text/javascript">
+
+
+            function OnFailure() {
+                alert("Работники с таким именем не найдены базе данных.");
+            }
             function OnSuccess(data) {
-                var results = $('#SearchResults'); // получаем нужный элемент
+                var results = $('#results'); // получаем нужный элемент
                 results.empty(); //очищаем элемент
-                for (var i = 0; i < data.length; i++) {
-                    results.append('<li>' + data[i].Name + '</li>'); // добавляем данные в список
+                if (data.length > 0) {
+                    let div = document.createElement('div');
+                    div.className = "notif";
+                    div.innerHTML = "Работники с именем " + data[0].FirstName + ":";
+                    results.append(div);
+                    for (var i = 0; i < data.length; i++) {
+                        results.append('<li>' + data[i].FirstName + ' ' + data[i].LastName + '</li>'); // добавляем данные в список
+                    }
+                }
+                else {
+                    OnFailure();
                 }
             }
-        </script>
 
-
-        @section scripts{
-            <script src="~/Scripts/jquery.signalR-2.4.1.min.js"></script>
+        </script><script src="~/Scripts/jquery.signalR-2.4.1.min.js"></script>
             <!--Ссылка на автоматически сгенерированный скрипт хаба SignalR -->
             <script src="~/signalr/hubs"></script>
             <script type="text/javascript">
@@ -95,7 +106,7 @@
 
                 });
             </script>
-        }
+        
 
         <style>
             .notif {
