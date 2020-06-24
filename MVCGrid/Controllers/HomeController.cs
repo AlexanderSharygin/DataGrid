@@ -117,6 +117,7 @@ namespace MVCGrid.Controllers
             return View();
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Create(WorkersSmall worker)
         {
             if (worker == null)
