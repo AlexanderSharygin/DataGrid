@@ -9,6 +9,7 @@ using System.Web.Mvc;
 using MVCGrid.Models;
 using static MVCGrid.Models.DataContext;
 using MVCGrid.Hubs;
+using Newtonsoft.Json;
 
 namespace MVCGrid.Controllers
 {
@@ -171,16 +172,22 @@ namespace MVCGrid.Controllers
             }
             return PartialView(alcoholicsList);
         }
-
-        public ActionResult Index(int page = 1)
+        public string GetData()
         {
-            
-           int pageSize = 10; // количество объектов на страницу          
-            IEnumerable<WorkersSmall> workersForPage = _DB.WorkersSmall.OrderBy(k=>k.Id).Skip((page - 1) * pageSize).Take(pageSize);
-            PageInfo pageInfo = new PageInfo { PageNumber = page, PageSize = pageSize, TotalItems =_DB.WorkersSmall.Count() };
-            IndexViewModel ivm = new IndexViewModel { PageInfo = pageInfo, Workers = workersForPage };
-          
-            return View(ivm);
+            var workers = _DB.WorkersSmall.OrderBy(k => k.Id).ToList();
+            return JsonConvert.SerializeObject(workers);
+        }
+
+        public ActionResult Index()
+        {
+
+            // int pageSize = 10; // количество объектов на страницу          
+            //  IEnumerable<WorkersSmall> workersForPage = _DB.WorkersSmall.OrderBy(k=>k.Id).Skip((page - 1) * pageSize).Take(pageSize);
+            //  PageInfo pageInfo = new PageInfo { PageNumber = page, PageSize = pageSize, TotalItems =_DB.WorkersSmall.Count() };
+            // IndexViewModel ivm = new IndexViewModel { PageInfo = pageInfo, Workers = workersForPage };
+
+            //  return View(ivm);
+            return View();
 
         }
 
