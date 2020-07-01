@@ -58,7 +58,7 @@
                         datatype: "json",
                         colNames: ['Id', 'Имя', 'Фамилия', 'Действия'],
                         colModel: [
-                            { name: 'Id', index: 'Id', width: 50, stype: 'text' },
+                            { name: 'Id', index: 'Id', width: 50, stype: 'text'  },
                             { name: 'FirstName', index: 'FirstName', width:200, sortable: true },
                             { name: 'LastName', index: 'LastName', width: 200, sortable: true },
                             { name: 'Edit', index: 'Edit', width: 150, align: "center", editable: true, formatter: actionFormater }
@@ -69,13 +69,13 @@
                         rowList: [10, 20, 30],
                         pager: '#jpager',
                         loadonce: true, // загрузка только один раз
-                        sortname: 'Id', // сортировка по умолчанию по столбцу Id
-                        sortorder: "asc", // порядок сортировки
+                        sortname: 'FirstName', // сортировка по умолчанию по столбцу Id
+                        sortorder: "ASC", // порядок сортировки
                         caption: "Список работников"
                     });
                     function actionFormater(cellvalue, options, rowObject) {
                         // do something here
-                        return "<a href='/Home/EditWorker/" + options.rowId + "' >Редатировать</a>"+ "  " + "<a href='/Home/Delete/" + options.rowId + "' >Удалить</a>" ;
+                        return "<a href='/Home/EditWorker/" + rowObject.Id + "' >Редатировать</a>" + "  " + "<a href='/Home/Delete/" + rowObject.Id + "' >Удалить</a>";
                     }
                     $("#jqgrid").jqGrid('navGrid', '#jpager', {
 

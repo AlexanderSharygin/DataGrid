@@ -18,6 +18,7 @@ namespace MVCGrid.Controllers
     {
        
         DataContext _DB = new DataContext();
+        IRepository<WorkersSmall> _RepDB = new Repository();
         [HttpGet]
         public ActionResult AutocompleteSearch(string term)
         {
@@ -35,7 +36,8 @@ namespace MVCGrid.Controllers
                 return HttpNotFound();
             }
 
-            Worker worker = (Worker)_DB.WorkersSmall.Find(id);
+            //   Worker worker = (Worker)_DB.WorkersSmall.Find(id);
+            Worker worker = (Worker)_RepDB.GetWorker((int)id);
             if (worker != null)
             {
                 return View(worker);
@@ -58,19 +60,22 @@ namespace MVCGrid.Controllers
             {
                 if (ModelState.IsValidField("FirstName") && ModelState.IsValidField("LastName") && ModelState.IsValidField("Position") && ModelState.IsValidField("Salary"))
                 {
-                    var workerToSave = _DB.WorkersSmall.Select(k => k).Where(k => k.Id == worker.Id).FirstOrDefault();
+                    var workerToSave = _RepDB.GetWorker(worker.Id);
                     workerToSave.FirstName = worker.FirstName;
                     workerToSave.LastName = worker.LastName;
                     workerToSave.Position = worker.Position;
                     workerToSave.Salary = worker.Salary;
-                    _DB.Entry(workerToSave).State = System.Data.Entity.EntityState.Modified;
-                    _DB.SaveChanges();
+                    _RepDB.Update(workerToSave);
+                    _RepDB.Save();
+                    // _DB.Entry(workerToSave).State = System.Data.Entity.EntityState.Modified;
+                   // _DB.SaveChanges();
 
                     return RedirectToAction("Index");
                 }
                 else
                 {
-                    Worker worker1 = (Worker)_DB.WorkersSmall.Find(worker.Id);
+                    //  Worker worker1 = (Worker)_DB.WorkersSmall.Find(worker.Id);
+                     Worker worker1 = (Worker)_RepDB.GetWorker(worker.Id);
                     return View(worker1);
                 }
             }
@@ -79,9 +84,10 @@ namespace MVCGrid.Controllers
         [HttpGet]
         public ActionResult Delete(int id)
         {
-            
-                Worker worker = (Worker)_DB.WorkersSmall.Find(id);            
-                if (worker == null)
+
+            //  Worker worker = (Worker)_DB.WorkersSmall.Find(id);            
+             Worker worker = (Worker)_RepDB.GetWorker(id);           
+            if (worker == null)
                 {
                     return HttpNotFound();
                 }
@@ -95,7 +101,9 @@ namespace MVCGrid.Controllers
         [HttpPost, ActionName("Delete")]
         public ActionResult DeleteConfirmed(int id)
         {
-            WorkersSmall worker = _DB.WorkersSmall.Find(id);
+            //WorkersSmall worker = _DB.WorkersSmall.Find(id);
+            WorkersSmall worker = _RepDB.GetWorker(id);
+
 
             if (worker == null)
             {
@@ -103,8 +111,8 @@ namespace MVCGrid.Controllers
             }
             else
             {
-                _DB.WorkersSmall.Remove(worker);
-                _DB.SaveChanges();
+                _RepDB.Delete(id);
+                _RepDB.Save();
                 return RedirectToAction("Index");
             }
             
@@ -130,8 +138,10 @@ namespace MVCGrid.Controllers
                 if (ModelState.IsValid)
                 {
 
-                    _DB.Entry(worker).State = System.Data.Entity.EntityState.Added;
-                    _DB.SaveChanges();
+                  //  _DB.Entry(worker).State = System.Data.Entity.EntityState.Added;
+                    _RepDB.Create(worker);
+                    _RepDB.Save();
+                //    _DB.SaveChanges();
                     SendMessage("Добавлен новый работник");
                     return RedirectToAction("Index");
                 }
@@ -145,7 +155,7 @@ namespace MVCGrid.Controllers
         [HttpPost]
         public JsonResult JSONWorkerSearch(string firstName)
         {
-            var jsondata = _DB.WorkersSmall.Where(a => a.FirstName==firstName).ToList();
+            var jsondata = _RepDB.GetWorkers().Where(a => a.FirstName==firstName).ToList();
            
             return Json(jsondata, JsonRequestBehavior.AllowGet);
         }
@@ -160,7 +170,7 @@ namespace MVCGrid.Controllers
         }
         public ActionResult ShowAlcoholics()
         {
-            var alcoholics = _DB.WorkersSmall.Where(a => a.IsAlcoholic).ToList();
+            var alcoholics = _RepDB.GetWorkers().Where(a => a.IsAlcoholic).ToList();
             List<Worker> alcoholicsList = new List<Worker>();
             foreach (var item in alcoholics)
             {
@@ -174,7 +184,8 @@ namespace MVCGrid.Controllers
         }
         public string GetData()
         {
-            var workers = _DB.WorkersSmall.OrderBy(k => k.Id).ToList();
+            // var workers = _DB.WorkersSmall.OrderBy(k => k.Id).ToList();
+            var workers = _RepDB.GetWorkers().OrderBy(k => k.Id).ToList();
             return JsonConvert.SerializeObject(workers);
         }
 

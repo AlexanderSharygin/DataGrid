@@ -30,9 +30,10 @@ namespace MVCGridTests
         {
             Assert.AreEqual("Index", result.ViewName);
         }
+        [TestMethod]
         public void GetDataTest()
         {
-           Assert.IsInstanceOfType(GetData Type expectedType)
+            Assert.IsInstanceOfType(controller.GetData(), typeof(string));
         }
 
 
