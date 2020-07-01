@@ -187,7 +187,7 @@ namespace MVCGrid.Controllers
             // IndexViewModel ivm = new IndexViewModel { PageInfo = pageInfo, Workers = workersForPage };
 
             //  return View(ivm);
-            return View();
+            return View("Index");
 
         }
 
