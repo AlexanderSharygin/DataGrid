@@ -18,7 +18,7 @@ namespace MVCGrid.Controllers
     {
        
         DataContext _DB = new DataContext();
-        IRepository<WorkersSmall> _RepDB = new Repository();
+        IRepository<WorkersSmall> _RepDB;
         [HttpGet]
         public ActionResult AutocompleteSearch(string term)
         {
@@ -28,6 +28,14 @@ namespace MVCGrid.Controllers
             var models = _DB.WorkersSmall.Where(k => k.FirstName.Contains(term)).Select(k => new { value = k.FirstName }).Distinct();
           
             return Json(models, JsonRequestBehavior.AllowGet);
+        }
+        public HomeController(IRepository<WorkersSmall> repository)
+        {
+            _RepDB = repository ;
+        }
+        public HomeController()
+        {
+            _RepDB = new Repository();
         }
         public ActionResult EditWorker(int? id)
         {
@@ -147,7 +155,7 @@ namespace MVCGrid.Controllers
                 }
                 else
                 {
-                    return View();
+                    return View("Create");
                 }
             }
            
@@ -189,6 +197,11 @@ namespace MVCGrid.Controllers
             return JsonConvert.SerializeObject(workers);
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            _RepDB.Dispose();
+            base.Dispose(disposing);
+        }
         public ActionResult Index()
         {
 
@@ -198,6 +211,7 @@ namespace MVCGrid.Controllers
             // IndexViewModel ivm = new IndexViewModel { PageInfo = pageInfo, Workers = workersForPage };
 
             //  return View(ivm);
+            
             return View("Index");
 
         }
