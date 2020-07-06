@@ -18,116 +18,24 @@ namespace MVCGrid.Controllers
     {
        
         DataContext _DB = new DataContext();
-        IRepository<WorkersSmall> _RepDB;
-        [HttpGet]
-        public ActionResult AutocompleteSearch(string term)
-        {
-            List<string> a = new List<string>();
-         
-          
-            var models = _DB.WorkersSmall.Where(k => k.FirstName.Contains(term)).Select(k => new { value = k.FirstName }).Distinct();
-          
-            return Json(models, JsonRequestBehavior.AllowGet);
-        }
+        IRepository<WorkersSmall> _MsSqlDB;
         public HomeController(IRepository<WorkersSmall> repository)
         {
-            _RepDB = repository ;
+            _MsSqlDB = repository;
         }
         public HomeController()
         {
-            _RepDB = new Repository();
+            _MsSqlDB = new Repository();
         }
-        public ActionResult EditWorker(int? id)
+        public string GetData()
         {
-            if (id == null)
-            {
-                return HttpNotFound();
-            }
-
-            //   Worker worker = (Worker)_DB.WorkersSmall.Find(id);
-            Worker worker = (Worker)_RepDB.GetWorker((int)id);
-            if (worker != null)
-            {
-                return View(worker);
-            }
-            else
-            {
-                return HttpNotFound();
-            }
-
+            var workers = _MsSqlDB.GetWorkers().OrderBy(k => k.Id).ToList();
+            return JsonConvert.SerializeObject(workers);
         }
-        [HttpPost]
-        public ActionResult EditWorker([Bind(Include ="Id, FirstName, LastName, Position, Salary")] WorkersSmall worker)
+        public ActionResult Index()
         {
-
-            if (worker == null)
-            {
-                return HttpNotFound();
-            }
-            else
-            {
-                if (ModelState.IsValidField("FirstName") && ModelState.IsValidField("LastName") && ModelState.IsValidField("Position") && ModelState.IsValidField("Salary"))
-                {
-                    var workerToSave = _RepDB.GetWorker(worker.Id);
-                    workerToSave.FirstName = worker.FirstName;
-                    workerToSave.LastName = worker.LastName;
-                    workerToSave.Position = worker.Position;
-                    workerToSave.Salary = worker.Salary;
-                    _RepDB.Update(workerToSave);
-                    _RepDB.Save();
-                    // _DB.Entry(workerToSave).State = System.Data.Entity.EntityState.Modified;
-                   // _DB.SaveChanges();
-
-                    return RedirectToAction("Index");
-                }
-                else
-                {
-                    //  Worker worker1 = (Worker)_DB.WorkersSmall.Find(worker.Id);
-                     Worker worker1 = (Worker)_RepDB.GetWorker(worker.Id);
-                    return View(worker1);
-                }
-            }
-                
+            return View("Index");
         }
-        [HttpGet]
-        public ActionResult Delete(int id)
-        {
-
-            //  Worker worker = (Worker)_DB.WorkersSmall.Find(id);            
-             Worker worker = (Worker)_RepDB.GetWorker(id);           
-            if (worker == null)
-                {
-                    return HttpNotFound();
-                }
-                else
-                {
-                    return View(worker);
-                }
-           
-
-        }
-        [HttpPost, ActionName("Delete")]
-        public ActionResult DeleteConfirmed(int id)
-        {
-            //WorkersSmall worker = _DB.WorkersSmall.Find(id);
-            WorkersSmall worker = _RepDB.GetWorker(id);
-
-
-            if (worker == null)
-            {
-                return HttpNotFound();
-            }
-            else
-            {
-                _RepDB.Delete(id);
-                _RepDB.Save();
-                return RedirectToAction("Index");
-            }
-            
-        }
-
-
-
         [HttpGet]
         public ActionResult Create()
         {
@@ -145,11 +53,8 @@ namespace MVCGrid.Controllers
             {
                 if (ModelState.IsValid)
                 {
-
-                  //  _DB.Entry(worker).State = System.Data.Entity.EntityState.Added;
-                    _RepDB.Create(worker);
-                    _RepDB.Save();
-                //    _DB.SaveChanges();
+                    _MsSqlDB.Create(worker);
+                    _MsSqlDB.Save();
                     SendMessage("Добавлен новый работник");
                     return RedirectToAction("Index");
                 }
@@ -158,13 +63,100 @@ namespace MVCGrid.Controllers
                     return View("Create");
                 }
             }
-           
+
         }
+        public ActionResult EditWorker(int? id)
+        {
+            if (id == null)
+            {
+                return HttpNotFound();
+            }
+            WorkerSmall worker = (WorkerSmall)_MsSqlDB.GetWorker((int)id);
+            if (worker != null)
+            {
+                return View(worker);
+            }
+            else
+            {
+                return HttpNotFound();
+            }
+        }
+        [HttpPost]
+        public ActionResult EditWorker([Bind(Include = "Id, FirstName, LastName, Position, Salary")] WorkersSmall worker)
+        {
+
+            if (worker == null)
+            {
+                return HttpNotFound();
+            }
+            else
+            {
+                if (ModelState.IsValidField("FirstName") && ModelState.IsValidField("LastName") && ModelState.IsValidField("Position") && ModelState.IsValidField("Salary"))
+                {
+                    var workerToSave = _MsSqlDB.GetWorker(worker.Id);
+                    workerToSave.FirstName = worker.FirstName;
+                    workerToSave.LastName = worker.LastName;
+                    workerToSave.Position = worker.Position;
+                    workerToSave.Salary = worker.Salary;
+                    _MsSqlDB.Update(workerToSave);
+                    _MsSqlDB.Save();
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    WorkerSmall worker1 = (WorkerSmall)_MsSqlDB.GetWorker(worker.Id);
+                    return View(worker1);
+                }
+            }
+
+        }
+        [HttpGet]
+        public ActionResult Delete(int id)
+        {
+
+            WorkerSmall worker = (WorkerSmall)_MsSqlDB.GetWorker(id);
+            if (worker == null)
+            {
+                return HttpNotFound();
+            }
+            else
+            {
+                return View(worker);
+            }
+
+        }
+        [HttpPost, ActionName("Delete")]
+        public ActionResult DeleteConfirmed(int id)
+        {
+
+            WorkerSmall worker = (WorkerSmall)_MsSqlDB.GetWorker(id);
+
+            if (worker == null)
+            {
+                return HttpNotFound();
+            }
+            else
+            {
+                _MsSqlDB.Delete(id);
+                _MsSqlDB.Save();
+                return RedirectToAction("Index");
+            }
+
+        }
+         [HttpGet]
+        public ActionResult AutocompleteSearch(string term)
+        {
+            List<string> a = new List<string>();
+         
+          
+            var models = _DB.WorkersSmall.Where(k => k.FirstName.Contains(term)).Select(k => new { value = k.FirstName }).Distinct();
+          
+            return Json(models, JsonRequestBehavior.AllowGet);
+        }            
         [HttpPost]
         public JsonResult JSONWorkerSearch(string firstName)
         {
-            var jsondata = _RepDB.GetWorkers().Where(a => a.FirstName==firstName).ToList();
-           
+            var jsondata = _MsSqlDB.GetWorkers().Where(a => a.FirstName==firstName).ToList();           
             return Json(jsondata, JsonRequestBehavior.AllowGet);
         }
         private void SendMessage(string message)
@@ -172,62 +164,30 @@ namespace MVCGrid.Controllers
             // Получаем контекст хаба
             var context =
                 Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<NotificationHub>();
-            // отправляем сообщение
-         
+            // отправляем сообщение        
             context.Clients.All.displayMessage(message);
         }
         public ActionResult ShowAlcoholics()
         {
-            var alcoholics = _RepDB.GetWorkers().Where(a => a.IsAlcoholic).ToList();
-            List<Worker> alcoholicsList = new List<Worker>();
+            var alcoholics = _MsSqlDB.GetWorkers().Where(a => a.IsAlcoholic).ToList();
+            List<WorkersSmall> alcoholicsList = new List<WorkersSmall>();
             foreach (var item in alcoholics)
             {
-                alcoholicsList.Add((Worker)item);
+                alcoholicsList.Add(item);
             }
             if (alcoholicsList.Count <= 0)
             {
                 return HttpNotFound();
             }
             return PartialView(alcoholicsList);
-        }
-        public string GetData()
-        {
-            // var workers = _DB.WorkersSmall.OrderBy(k => k.Id).ToList();
-            var workers = _RepDB.GetWorkers().OrderBy(k => k.Id).ToList();
-            return JsonConvert.SerializeObject(workers);
-        }
+        }     
 
         protected override void Dispose(bool disposing)
         {
-            _RepDB.Dispose();
+            _MsSqlDB.Dispose();
             base.Dispose(disposing);
-        }
-        public ActionResult Index()
-        {
+        }     
 
-            // int pageSize = 10; // количество объектов на страницу          
-            //  IEnumerable<WorkersSmall> workersForPage = _DB.WorkersSmall.OrderBy(k=>k.Id).Skip((page - 1) * pageSize).Take(pageSize);
-            //  PageInfo pageInfo = new PageInfo { PageNumber = page, PageSize = pageSize, TotalItems =_DB.WorkersSmall.Count() };
-            // IndexViewModel ivm = new IndexViewModel { PageInfo = pageInfo, Workers = workersForPage };
-
-            //  return View(ivm);
-            
-            return View("Index");
-
-        }
-
-        public ActionResult About()
-        {
-            ViewBag.Message = "Your application description page.";
-
-            return View();
-        }
-
-        public ActionResult Contact()
-        {
-            ViewBag.Message = "Your contact page.";
-
-            return View();
-        }
+       
     }
 }

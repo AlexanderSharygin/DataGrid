@@ -1,4 +1,4 @@
-namespace MVCGrid.Models
+п»їnamespace MVCGrid.Models
 {
     using System;
     using System.Data.Entity;
@@ -9,32 +9,35 @@ namespace MVCGrid.Models
     using System.Security.Cryptography.X509Certificates;
     using System.ComponentModel.DataAnnotations;
 
+
     public partial class DataContext : DbContext
     {
         public DataContext()
-            : base("name=DBModel")
+            : base("name=Model1")
         {
         }
 
-        public virtual DbSet<Workers> Workers { get; set; }
         public virtual DbSet<WorkersSmall> WorkersSmall { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Workers>()
-                .Property(e => e.Salary)
-                .HasPrecision(19, 4);
+            modelBuilder.Entity<WorkersSmall>()
+                .Property(e => e.FirstName)
+                .IsFixedLength();
 
             modelBuilder.Entity<WorkersSmall>()
-              .Property(e => e.Salary)
-              .HasPrecision(19, 4);
+                .Property(e => e.Prefix)
+                .IsFixedLength();
+
+            modelBuilder.Entity<WorkersSmall>()
+                .Property(e => e.Salary)
+                .HasPrecision(19, 4);
         }
+
     }
-
-
-   public class Worker
+    public class WorkerSmall
     {
-      
+
         public int Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -47,33 +50,11 @@ namespace MVCGrid.Models
         public decimal Salary { get; set; }
         public bool IsAlcoholic { get; set; }
 
-        public static explicit operator Worker(Workers v)
+        public static explicit operator WorkerSmall(WorkersSmall v)
         {
             if (v != null)
             {
-                Worker a = new Worker();
-            a.Id = v.Id;
-            a.FirstName = v.FirstName;
-            a.LastName = v.LastName;
-            a.Prefix = v.Prefix;
-            a.Position = v.Position;
-            a.BirthDate = v.BirthDate;
-            a.Notes = v.Notes;
-            a.Address = v.Address;
-            a.StateID = v.StateID;
-            a.Salary = v.Salary;
-            a.IsAlcoholic = v.IsAlcoholic;
-            return a;
-            }
-            else
-            { return null; }
-
-        }
-        public static explicit operator Worker(WorkersSmall v)
-        {
-            if (v != null)
-            {
-                Worker a = new Worker();
+                WorkerSmall a = new WorkerSmall();
                 a.Id = v.Id;
                 a.FirstName = v.FirstName;
                 a.LastName = v.LastName;
@@ -88,18 +69,16 @@ namespace MVCGrid.Models
                 return a;
             }
             else
-            { return null;  }
+            { return null; }
 
         }
-        //   public int Salary { get; set; }
-        //  public bool IsAlcoholic { get; set; }
     }
     public class PageInfo
     {
-        public int PageNumber { get; set; } // номер текущей страницы
-        public int PageSize { get; set; } // кол-во объектов на странице
-        public int TotalItems { get; set; } // всего объектов
-        public int TotalPages  // всего страниц
+        public int PageNumber { get; set; } // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+        public int PageSize { get; set; } // пїЅпїЅпїЅ-пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+        public int TotalItems { get; set; } // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+        public int TotalPages  // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         {
             get { return (int)Math.Ceiling((decimal)TotalItems / PageSize); }
         }
@@ -107,9 +86,8 @@ namespace MVCGrid.Models
     public class IndexViewModel
     {
         public IEnumerable<WorkersSmall> Workers { get; set; }
-       
+
         public PageInfo PageInfo { get; set; }
     }
 }
-
 
