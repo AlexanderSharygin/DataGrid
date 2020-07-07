@@ -162,8 +162,28 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Helpers\HelpersList.cs" />
     <Compile Include="Hubs\NotificationHub.cs" />
+    <Compile Include="Migrations\202007061920401_InitialCreate.cs" />
+    <Compile Include="Migrations\202007061920401_InitialCreate.Designer.cs">
+      <DependentUpon>202007061920401_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202007071313535_FirstM.cs" />
+    <Compile Include="Migrations\202007071313535_FirstM.Designer.cs">
+      <DependentUpon>202007071313535_FirstM.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202007071340319_Firsts.cs" />
+    <Compile Include="Migrations\202007071340319_Firsts.Designer.cs">
+      <DependentUpon>202007071340319_Firsts.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202007071420044_Firstl.cs" />
+    <Compile Include="Migrations\202007071420044_Firstl.Designer.cs">
+      <DependentUpon>202007071420044_Firstl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202007071421499_Firstlm.cs" />
+    <Compile Include="Migrations\202007071421499_Firstlm.Designer.cs">
+      <DependentUpon>202007071421499_Firstlm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\DataContext.cs" />
     <Compile Include="Models\Repository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -298,14 +318,11 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Home\About.cshtml" />
-    <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Home\EditWorker.cshtml" />
     <Content Include="Views\Home\Create.cshtml" />
     <Content Include="Views\Home\Delete.cshtml" />
-    <Content Include="Views\Home\WorkerSearch.cshtml" />
-    <Content Include="Views\Home\ShowAlcoholics.cshtml" />
+    <Content Include="Views\Home\PartialShowAlcoholics.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -323,6 +340,23 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\202007061920401_InitialCreate.resx">
+      <DependentUpon>202007061920401_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202007071313535_FirstM.resx">
+      <DependentUpon>202007071313535_FirstM.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202007071340319_Firsts.resx">
+      <DependentUpon>202007071340319_Firsts.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202007071420044_Firstl.resx">
+      <DependentUpon>202007071420044_Firstl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202007071421499_Firstlm.resx">
+      <DependentUpon>202007071421499_Firstlm.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity.Infrastructure;
-using System.IO;
-using System.Linq;
-using System.Security.Policy;
-using System.Web;
-using System.Web.Mvc;
+﻿using MVCGrid.Hubs;
 using MVCGrid.Models;
-using static MVCGrid.Models.DataContext;
-using MVCGrid.Hubs;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web.Mvc;
 
 namespace MVCGrid.Controllers
 {
@@ -71,7 +65,7 @@ namespace MVCGrid.Controllers
             {
                 return HttpNotFound();
             }
-            WorkerSmall worker = (WorkerSmall)_MsSqlDB.GetWorker((int)id);
+            WorkersSmall worker = _MsSqlDB.GetWorker((int)id);
             if (worker != null)
             {
                 return View(worker);
@@ -104,7 +98,7 @@ namespace MVCGrid.Controllers
                 }
                 else
                 {
-                    WorkerSmall worker1 = (WorkerSmall)_MsSqlDB.GetWorker(worker.Id);
+                    WorkersSmall worker1 = _MsSqlDB.GetWorker(worker.Id);
                     return View(worker1);
                 }
             }
@@ -114,7 +108,7 @@ namespace MVCGrid.Controllers
         public ActionResult Delete(int id)
         {
 
-            WorkerSmall worker = (WorkerSmall)_MsSqlDB.GetWorker(id);
+            WorkersSmall worker = _MsSqlDB.GetWorker(id);
             if (worker == null)
             {
                 return HttpNotFound();
@@ -129,7 +123,7 @@ namespace MVCGrid.Controllers
         public ActionResult DeleteConfirmed(int id)
         {
 
-            WorkerSmall worker = (WorkerSmall)_MsSqlDB.GetWorker(id);
+            WorkersSmall worker = _MsSqlDB.GetWorker(id);
 
             if (worker == null)
             {
@@ -167,7 +161,7 @@ namespace MVCGrid.Controllers
             // отправляем сообщение        
             context.Clients.All.displayMessage(message);
         }
-        public ActionResult ShowAlcoholics()
+        public ActionResult PartialShowAlcoholics()
         {
             var alcoholics = _MsSqlDB.GetWorkers().Where(a => a.IsAlcoholic).ToList();
             List<WorkersSmall> alcoholicsList = new List<WorkersSmall>();

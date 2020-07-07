@@ -4,24 +4,23 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-@model  MVCGrid.Models.WorkerSmall
+@model  MVCGrid.Models.WorkersSmall
 
 
 <h2>Удаление</h2>
-<dl>
+<div>
     <dt>Удалить работника</dt>
-    <dd>
+    <div>
         @Html.DisplayFor(model => model.FirstName)
-    </dd>
+    </div>
 
 
-</dl>
+</div>
 
 @using (Html.BeginForm())
 {
     <input type="submit" value="Удалить" />
     <input value="Отмена" type="button" onclick="location.href='/Home/Index'" />
-
 
 }
 

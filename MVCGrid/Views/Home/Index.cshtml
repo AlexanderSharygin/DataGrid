@@ -1,11 +1,7 @@
-﻿@model MVCGrid.Models.IndexViewModel
-@using MVCGrid.Helpers;
-
+﻿
 
 @{
-    ViewBag.Title = "Home Page";
- 
-  
+    ViewBag.Title = "Home Page";  
 
 }
     <head>
@@ -24,22 +20,26 @@
             .ui-jqgrid .ui-jqgrid-pager {
                 height: 50px;
             }
+            .notif {
+                font-size: 15px;
+                font-family: Verdana, Arial, Helvetica, Sans-Serif;
+                font-weight: bold;
+                line-height: 40px;
+            }
         </style>
     </head>
-    <body>
+  
+  <body>
         <br />
-
         <div><span id="notification" style="color:red;font-size:15px;"></span></div>
-
         <div>
-
-            @using (Ajax.BeginForm("JSONWorkerSearch", new AjaxOptions { OnSuccess = "OnSuccess" }))
+        @using (Ajax.BeginForm("JSONWorkerSearch", new AjaxOptions { OnSuccess = "OnSuccess" }))
             {
                 <input type="text" name="FirstName" placeholder="FirstName" data-autocomplete-source='@Url.Action("AutocompleteSearch", "Home")' />
                 <input type="submit" value="Поиск" />
 
             }
-
+           
             <script type="text/javascript">
                 $(function () {
                     $("[data-autocomplete-source]").each(function () {
@@ -49,6 +49,7 @@
                 });
             </script>
             <br />
+           
             <table id="jqgrid"></table>
             <div id="jpager"></div>
             <script type="text/javascript">
@@ -64,7 +65,6 @@
                             { name: 'Edit', index: 'Edit', width: 150, align: "center", editable: true, formatter: actionFormater }
 
                         ],
-
                         rowNum: 10, // число отображаемых строк
                         rowList: [10, 20, 30],
                         pager: '#jpager',
@@ -73,8 +73,7 @@
                         sortorder: "ASC", // порядок сортировки
                         caption: "Список работников"
                     });
-                    function actionFormater(cellvalue, options, rowObject) {
-                        // do something here
+                    function actionFormater(cellvalue, options, rowObject) {                      
                         return "<a href='/Home/EditWorker/" + rowObject.Id + "' >Редатировать</a>" + "  " + "<a href='/Home/Delete/" + rowObject.Id + "' >Удалить</a>";
                     }
                     $("#jqgrid").jqGrid('navGrid', '#jpager', {
@@ -89,19 +88,17 @@
                     });
                 });
             </script>
-
             <br />
+
             <div id="results"></div>
         </div>
         <br />
-        <div id="ShowAlcoholics">
-            @Ajax.ActionLink("Показать алкоголиков", "ShowAlcoholics",
-                    new AjaxOptions { UpdateTargetId = "ShowAlcoholics" })
+        <div id="PartialShowAlcoholics">
+            @Ajax.ActionLink("Показать алкоголиков", "PartialShowAlcoholics",
+                    new AjaxOptions { UpdateTargetId = "PartialShowAlcoholics" })
         </div>
 
         <script type="text/javascript">
-
-
             function OnFailure() {
                 alert("Работники с таким именем не найдены базе данных.");
             }
@@ -139,17 +136,9 @@
                     $.connection.hub.start();
 
                 });
-            </script>
-        
+            </script>        
 
-        <style>
-            .notif {
-                font-size: 15px;
-                font-family: Verdana, Arial, Helvetica, Sans-Serif;
-                font-weight: bold;
-                line-height: 40px;
-            }
-        </style>
+      
     </body>
 
 

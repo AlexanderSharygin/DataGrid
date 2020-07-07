@@ -1,14 +1,11 @@
-namespace MVCGrid
+namespace MVCGrid.Models
 {
     using System;
-    using System.CodeDom;
-    using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
-    using System.Data.Entity.Spatial;
 
- 
-    [Table("WorkersSmall")]
+
+    [Table ("WorkersSmall")]
     public partial class WorkersSmall
     {
        
@@ -17,7 +14,8 @@ namespace MVCGrid
         public int Id { get; set; }
         [Required]
         [Display(Name = "Имя")]
-        [MaxLength(50, ErrorMessage = "Превышена допустимая длина строки.")]
+        [MaxLength(20, ErrorMessage = "Превышена допустимая длина строки.")]
+        [Column(TypeName = "nvarchar")]
         [StringLength(20)]
         public string FirstName { get; set; }
 
@@ -31,6 +29,7 @@ namespace MVCGrid
         [StringLength(5)]
         [MaxLength(5, ErrorMessage = "Превышена допустимая длина строки.")]
         [Display(Name = "Префикс")]
+        [Column(TypeName = "nvarchar")]
         public string Prefix { get; set; }
 
         [Required]

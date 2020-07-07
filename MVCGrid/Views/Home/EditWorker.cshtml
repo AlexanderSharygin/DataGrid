@@ -3,44 +3,45 @@
     ViewBag.Title = "Редактировать";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
-@model  MVCGrid.Models.WorkerSmall
-    <h2> Worker @Model.FirstName @Model.LastName</h2>
+@model  MVCGrid.Models.WorkersSmall
+   
+ <h2> Worker @Model.FirstName @Model.LastName</h2>
 @using (Html.BeginForm("EditWorker", "Home", FormMethod.Post))
 { 
 <fieldset>
-    @Html.HiddenFor(m=>m.Id)
-   
+    @Html.HiddenFor(m => m.Id)
 
-    <p>
+
+    <div>
         @Html.LabelFor(m => m.FirstName, "Имя")
         <br />
         @Html.EditorFor(m => m.FirstName)
         @Html.ValidationMessageFor(m => m.FirstName)
 
-    </p>
-    <p>
+    </div>
+    <div>
         @Html.LabelFor(m => m.LastName, "Фамилия")
         <br />
         @Html.EditorFor(m => m.LastName)
         @Html.ValidationMessageFor(m => m.LastName)
 
-    </p>
-    <p>
+    </div>
+    <div>
         @Html.LabelFor(m => m.Position, "Должность")
         <br />
         @Html.EditorFor(m => m.Position)
         @Html.ValidationMessageFor(m => m.Position)
 
-    </p>
-    <p>
+    </div>
+    <div>
         @Html.LabelFor(m => m.Position, "Зар.плата")
         <br />
         @Html.EditorFor(m => m.Salary)
         @Html.ValidationMessageFor(m => m.Salary)
 
-    </p>
-    <p><input type="submit" value="Ok" /></p>
+    </div>
+    <br />
+    <div><input type="submit" value="Ok" /></div>
 </fieldset>
 }
 

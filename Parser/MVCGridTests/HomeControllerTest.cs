@@ -1,12 +1,9 @@
-﻿using System;
-using System.Web.Mvc;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using MVCGrid.Controllers;
 using MVCGrid.Models;
-using Moq;
-using System.Collections.Generic;
-using MVCGrid;
-using System.Linq;
+using System;
+using System.Web.Mvc;
 
 namespace MVCGridTests
 {
