@@ -11,88 +11,34 @@ namespace MVCGrid.Models
 
     public partial class DataContext : DbContext
     {
-        public DataContext()
-            : base("name=DBModel")
+        public partial class DataContext : DbContext
         {
-        }
-
-        public virtual DbSet<Workers> Workers { get; set; }
-        public virtual DbSet<WorkersSmall> WorkersSmall { get; set; }
-
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Workers>()
-                .Property(e => e.Salary)
-                .HasPrecision(19, 4);
-
-            modelBuilder.Entity<WorkersSmall>()
-              .Property(e => e.Salary)
-              .HasPrecision(19, 4);
-        }
-    }
-
-
-   public class Worker
-    {
-      
-        public int Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Prefix { get; set; }
-        public string Position { get; set; }
-        public DateTime BirthDate { get; set; }
-        public string Notes { get; set; }
-        public string Address { get; set; }
-        public int StateID { get; set; }
-        public decimal Salary { get; set; }
-        public bool IsAlcoholic { get; set; }
-
-        public static explicit operator Worker(Workers v)
-        {
-            if (v != null)
+            public DataContext()
+                : base("name=DBModel")
             {
-                Worker a = new Worker();
-            a.Id = v.Id;
-            a.FirstName = v.FirstName;
-            a.LastName = v.LastName;
-            a.Prefix = v.Prefix;
-            a.Position = v.Position;
-            a.BirthDate = v.BirthDate;
-            a.Notes = v.Notes;
-            a.Address = v.Address;
-            a.StateID = v.StateID;
-            a.Salary = v.Salary;
-            a.IsAlcoholic = v.IsAlcoholic;
-            return a;
             }
-            else
-            { return null; }
 
-        }
-        public static explicit operator Worker(WorkersSmall v)
-        {
-            if (v != null)
+            public virtual DbSet<WorkersSmall> WorkersSmall { get; set; }
+
+            protected override void OnModelCreating(DbModelBuilder modelBuilder)
             {
-                Worker a = new Worker();
-                a.Id = v.Id;
-                a.FirstName = v.FirstName;
-                a.LastName = v.LastName;
-                a.Prefix = v.Prefix;
-                a.Position = v.Position;
-                a.BirthDate = v.BirthDate;
-                a.Notes = v.Notes;
-                a.Address = v.Address;
-                a.StateID = v.StateID;
-                a.Salary = v.Salary;
-                a.IsAlcoholic = v.IsAlcoholic;
-                return a;
+                modelBuilder.Entity<WorkersSmall>()
+                    .Property(e => e.FirstName)
+                    .IsFixedLength();
+
+                modelBuilder.Entity<WorkersSmall>()
+                    .Property(e => e.Prefix)
+                    .IsFixedLength();
+
+                modelBuilder.Entity<WorkersSmall>()
+                    .Property(e => e.Salary)
+                    .HasPrecision(19, 4);
             }
-            else
-            { return null;  }
 
         }
-        //   public int Salary { get; set; }
-        //  public bool IsAlcoholic { get; set; }
+
+
+
     }
     public class PageInfo
     {
