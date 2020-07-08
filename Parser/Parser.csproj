@@ -85,10 +85,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConsoleRender.cs" />
+    <None Include="Trash\MyLinqTests.cs" />
+    <None Include="Trash\NewListTests.cs" />
+    <None Include="Trash\ObjectFieldsTests.cs" />
+    <None Include="Trash\KeyListTests.cs" />
     <None Include="Trash\TableEditor.cs" />
     <None Include="Trash\ScrollShize.cs" />
     <Compile Include="Trash\Config.cs" />
-    <None Include="Trash\ObjectFields.cs" />
+    <None Include="Trash\ObjectFields.cs">
+      <CustomToolNamespace>Parser.Traah</CustomToolNamespace>
+    </None>
     <None Include="Trash\MyList.cs" />
     <None Include="packages.config" />
     <None Include="Trash\MyList_Trash.cs" />
