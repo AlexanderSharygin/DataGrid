@@ -1,4 +1,4 @@
-﻿@model MVCGrid.Models.Worker
+﻿@model MVCGrid.Models.WorkersSmall
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -9,64 +9,72 @@
 @using (Html.BeginForm())
 {
     @Html.LabelFor(model => model.FirstName, "Имя*")
-    <br />
-    @Html.EditorFor(model => model.FirstName)
-    @Html.ValidationMessageFor(m => m.FirstName)
-    <br />
-    <br />
-    @Html.LabelFor(model => model.LastName, "Фамилия*")
-    <br />
-    @Html.EditorFor(model => model.LastName)
-    @Html.ValidationMessageFor(m => m.LastName)
-    <br />
-    <br />
-    @Html.LabelFor(model => model.Prefix, "Префикс*")
-    <br />
-    @Html.EditorFor(model => model.Prefix)
-    @Html.ValidationMessageFor(m => m.Prefix)
-    <br />
-    <br />
-    @Html.LabelFor(model => model.Position, "Должность*")
-    <br />
-    @Html.EditorFor(model => model.Position)
-    @Html.ValidationMessageFor(m => m.Position)
-    <br />
-    <br />
-    @Html.LabelFor(model => model.BirthDate, "Дата рождения*")
-    <br />
-    @Html.EditorFor(model => model.BirthDate)
-    @Html.ValidationMessageFor(m => m.BirthDate)
-    <br />
-    <br />
-    @Html.LabelFor(model => model.Address, "Адрес*")
-    <br />
-    @Html.EditorFor(model => model.Address)
-    @Html.ValidationMessageFor(m => m.Address)
-    <br />
-    <br />
-    @Html.LabelFor(model => model.StateID, "Номер*")
-    <br />
-    @Html.EditorFor(model => model.StateID)
-    @Html.ValidationMessageFor(m => m.StateID)
-    <br />
-    <br />
-    @Html.LabelFor(model => model.Salary, "Зарплата*")
-    <br />
-    @Html.EditorFor(model => model.Salary)
-    @Html.ValidationMessageFor(m => m.StateID)
-    <br />
-    <br />
-    @Html.LabelFor(model => model.Notes, "Заметки")
-    <br />
-    @Html.EditorFor(model => model.Notes)
-    <br />
-    <br />
-    @Html.LabelFor(model => model.IsAlcoholic, "Поадался пьяным?")
-    <br />
-    @Html.CheckBoxFor(model => model.IsAlcoholic)
+    <div>
+        @Html.EditorFor(model => model.FirstName)
+        @Html.ValidationMessageFor(m => m.FirstName)
+    </div>
+    <div>
+        @Html.LabelFor(model => model.LastName, "Фамилия*")
+        <div>
+            @Html.EditorFor(model => model.LastName)
+            @Html.ValidationMessageFor(m => m.LastName)
+        </div>
+    </div>
+    <div>
+        @Html.LabelFor(model => model.Prefix, "Префикс*")
+        <div>
+            @Html.EditorFor(model => model.Prefix)
+            @Html.ValidationMessageFor(m => m.Prefix)
+        </div>
+    </div>
+    <div>
+        @Html.LabelFor(model => model.Position, "Должность*")
+        <div>
+            @Html.EditorFor(model => model.Position)
+            @Html.ValidationMessageFor(m => m.Position)
+        </div>
+    </div>
+    <div>
+        @Html.LabelFor(model => model.BirthDate, "Дата рождения*")
+        <div>
+            @Html.EditorFor(model => model.BirthDate)
+            @Html.ValidationMessageFor(m => m.BirthDate)
+        </div>
+    </div>
+    <div>
+        @Html.LabelFor(model => model.Address, "Адрес*")
+        <div>
+            @Html.EditorFor(model => model.Address)
+            @Html.ValidationMessageFor(m => m.Address)
+        </div>
+    </div>
+    <div>
+        @Html.LabelFor(model => model.StateID, "Номер*")
+        <div>
+            @Html.EditorFor(model => model.StateID)
+            @Html.ValidationMessageFor(m => m.StateID)
+        </div>
+    </div>
+    <div>
+        @Html.LabelFor(model => model.Salary, "Зарплата*")
+        <div>
+            @Html.EditorFor(model => model.Salary)
+            @Html.ValidationMessageFor(m => m.StateID)
+        </div>
+    </div>
+    <div>
+        @Html.LabelFor(model => model.Notes, "Заметки")
+        <div>
+            @Html.EditorFor(model => model.Notes)
+        </div>
+    </div>
+    <div>
+        @Html.LabelFor(model => model.IsAlcoholic, "Поадался пьяным?")
+        <div>
+            @Html.CheckBoxFor(model => model.IsAlcoholic)
 
-    <br />
-    <br />
+        </div>
+    </div>
     <input type="submit" value="Добавить" />
 }
 

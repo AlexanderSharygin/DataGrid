@@ -4,7 +4,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-@model  MVCGrid.Models.Worker
+@model  MVCGrid.Models.WorkersSmall
     <h2> Worker @Model.FirstName @Model.LastName</h2>
 @using (Html.BeginForm("EditWorker", "Home", FormMethod.Post))
 { 

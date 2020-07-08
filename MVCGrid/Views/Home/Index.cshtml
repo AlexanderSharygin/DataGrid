@@ -1,20 +1,15 @@
 ﻿@model MVCGrid.Models.IndexViewModel
 @using MVCGrid.Helpers;
 
-
 @{
     ViewBag.Title = "Home Page";
-
-
-
 }
 <br />
-
 <div><span id="notification" style="color:red;font-size:15px;"></span></div>
 
 <div>
     @using (Ajax.BeginForm("JSONWorkerSearch", new AjaxOptions { OnSuccess = "OnSuccess" }))
-    {
+    {     
         <input type="text" name="FirstName" placeholder="FirstName" />
         <input type="submit" value="Поиск" />
     }
@@ -33,7 +28,6 @@
                 <td>@Html.ActionLink("Edit", "EditWorker", new { id = item.Id })</td>
                 <td>@Html.ActionLink("Delete", "Delete", new { id = item.Id })</td>
             </tr>
-
         }
     </table>
     <br />
@@ -45,21 +39,22 @@
     <div id="results"></div>
 </div>
 <br />
-<div id="ShowAlcoholics">
+<div id="PartialShowAlcoholics">
     @Ajax.ActionLink("Показать алкоголиков", "ShowAlcoholics",
-            new AjaxOptions { UpdateTargetId = "ShowAlcoholics" })
+            new AjaxOptions { UpdateTargetId = "PartialShowAlcoholics" })
 </div>
 
 <script type="text/javascript">
-
-
-    function OnFailure() {
+    function OnFailure()
+    {
         alert("Работники с таким именем не найдены базе данных.");
     }
-    function OnSuccess(data) {
+    function OnSuccess(data)
+    {
         var results = $('#results'); // получаем нужный элемент
         results.empty(); //очищаем элемент
-        if (data.length > 0) {
+        if (data.length > 0)
+        {
             let div = document.createElement('div');
             div.className = "notif";
             div.innerHTML = "Работники с именем " + data[0].FirstName + ":";
@@ -68,7 +63,8 @@
                 results.append('<li>' + data[i].FirstName + ' ' + data[i].LastName + '</li>'); // добавляем данные в список
             }
         }
-        else {
+        else
+        {
             OnFailure();
         }
     }

@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity.Infrastructure;
-using System.IO;
-using System.Linq;
-using System.Security.Policy;
-using System.Web;
-using System.Web.Mvc;
+﻿using MVCGrid.Hubs;
 using MVCGrid.Models;
-using static MVCGrid.Models.DataContext;
-using MVCGrid.Hubs;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web.Mvc;
 
 namespace MVCGrid.Controllers
 {
@@ -17,6 +11,46 @@ namespace MVCGrid.Controllers
     {
 
         DataContext _DB = new DataContext();
+        public ActionResult Index(int page = 1)
+        {
+
+            int pageSize = 10; // количество объектов на страницу          
+            IEnumerable<WorkersSmall> workersForPage = _DB.WorkersSmall.OrderBy(k => k.Id).Skip((page - 1) * pageSize).Take(pageSize);
+            PageInfo pageInfo = new PageInfo { PageNumber = page, PageSize = pageSize, TotalItems = _DB.WorkersSmall.Count() };
+            IndexViewModel ivm = new IndexViewModel { PageInfo = pageInfo, Workers = workersForPage };
+
+            return View(ivm);
+
+        }
+        [HttpGet]
+        public ActionResult Create()
+        {
+            return View();
+        }
+        [HttpPost]
+        public ActionResult Create(WorkersSmall worker)
+        {
+            if (worker == null)
+            {
+                return View();
+            }
+            else
+            {
+                if (ModelState.IsValid)
+                {
+
+                    _DB.Entry(worker).State = System.Data.Entity.EntityState.Added;
+                    _DB.SaveChanges();
+                    SendMessage("Добавлен новый работник");
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    return View();
+                }
+            }
+
+        }
         [HttpGet]
         public ActionResult EditWorker(int? id)
         {
@@ -24,8 +58,7 @@ namespace MVCGrid.Controllers
             {
                 return HttpNotFound();
             }
-
-            Worker worker = (Worker)_DB.WorkersSmall.Find(id);
+            WorkersSmall worker = _DB.WorkersSmall.Find(id);
             if (worker != null)
             {
                 return View(worker);
@@ -39,7 +72,6 @@ namespace MVCGrid.Controllers
         [HttpPost]
         public ActionResult EditWorker([Bind(Include ="Id, FirstName, LastName, Position, Salary")] WorkersSmall worker)
         {
-
             if (worker == null)
             {
                 return HttpNotFound();
@@ -55,12 +87,11 @@ namespace MVCGrid.Controllers
                     workerToSave.Salary = worker.Salary;
                     _DB.Entry(workerToSave).State = System.Data.Entity.EntityState.Modified;
                     _DB.SaveChanges();
-
                     return RedirectToAction("Index");
                 }
                 else
                 {
-                    Worker worker1 = (Worker)_DB.WorkersSmall.Find(worker.Id);
+                    WorkersSmall worker1 = _DB.WorkersSmall.Find(worker.Id);
                     return View(worker1);
                 }
             }
@@ -70,7 +101,7 @@ namespace MVCGrid.Controllers
         public ActionResult Delete(int id)
         {
             
-                Worker worker = (Worker)_DB.WorkersSmall.Find(id);            
+                WorkersSmall worker = _DB.WorkersSmall.Find(id);            
                 if (worker == null)
                 {
                     return HttpNotFound();
@@ -100,92 +131,36 @@ namespace MVCGrid.Controllers
             
         }
 
-
-
-        [HttpGet]
-        public ActionResult Create()
-        {
-            return View();
-        }
-        [HttpPost]
-        public ActionResult Create(WorkersSmall worker)
-        {
-            if (worker == null)
-            {
-                return View();
-            }
-            else
-            {
-                if (ModelState.IsValid)
-                {
-
-                    _DB.Entry(worker).State = System.Data.Entity.EntityState.Added;
-                    _DB.SaveChanges();
-                    SendMessage("Добавлен новый работник");
-                    return RedirectToAction("Index");
-                }
-                else
-                {
-                    return View();
-                }
-            }
-           
-        }
+       
         [HttpPost]
         public JsonResult JSONWorkerSearch(string firstName)
         {
-            var jsondata = _DB.WorkersSmall.Where(a => a.FirstName==firstName).ToList();
-           
+            var jsondata = _DB.WorkersSmall.Where(a => a.FirstName==firstName).ToList();           
             return Json(jsondata, JsonRequestBehavior.AllowGet);
         }
         private void SendMessage(string message)
         {
-            // Получаем контекст хаба
-            var context =
-                Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<NotificationHub>();
-            // отправляем сообщение
-         
+           
+            var context = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<NotificationHub>();             
             context.Clients.All.displayMessage(message);
         }
         public ActionResult ShowAlcoholics()
         {
             var alcoholics = _DB.WorkersSmall.Where(a => a.IsAlcoholic).ToList();
-            List<Worker> alcoholicsList = new List<Worker>();
+            List<WorkersSmall> alcoholicsList = new List<WorkersSmall>();
             foreach (var item in alcoholics)
             {
-                alcoholicsList.Add((Worker)item);
+                alcoholicsList.Add(item);
             }
             if (alcoholicsList.Count <= 0)
             {
                 return HttpNotFound();
             }
-            return PartialView(alcoholicsList);
+            return PartialView("PartialShowAlcoholics", alcoholicsList);
         }
 
-        public ActionResult Index(int page = 1)
-        {
-            
-           int pageSize = 10; // количество объектов на страницу          
-            IEnumerable<WorkersSmall> workersForPage = _DB.WorkersSmall.OrderBy(k=>k.Id).Skip((page - 1) * pageSize).Take(pageSize);
-            PageInfo pageInfo = new PageInfo { PageNumber = page, PageSize = pageSize, TotalItems =_DB.WorkersSmall.Count() };
-            IndexViewModel ivm = new IndexViewModel { PageInfo = pageInfo, Workers = workersForPage };
-          
-            return View(ivm);
+       
 
-        }
-
-        public ActionResult About()
-        {
-            ViewBag.Message = "Your application description page.";
-
-            return View();
-        }
-
-        public ActionResult Contact()
-        {
-            ViewBag.Message = "Your contact page.";
-
-            return View();
-        }
+     
     }
 }
