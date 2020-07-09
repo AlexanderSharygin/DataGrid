@@ -4,10 +4,10 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using Parser;
+
 using Parser.Properties;
 
-namespace WinFormsParser
+namespace Parser
 {
     public partial class Show_Button : Form
     {
@@ -22,7 +22,7 @@ namespace WinFormsParser
         private void Form1_Load(object sender, EventArgs e)
         {
             var inputText = File.ReadAllText("Files\\Data.txt");
-            _JSONObjects = JSONParser.ParseSimpleJSON(inputText);        
+            _JSONObjects = SimpleJSONParser.ParseSimpleJSON(inputText);        
         }
         private List<List <string>> GetTable()
         {

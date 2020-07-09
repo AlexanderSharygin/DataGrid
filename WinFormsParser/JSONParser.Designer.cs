@@ -1,4 +1,4 @@
-﻿namespace WinFormsParser
+﻿namespace Parser
 {
     partial class Show_Button
     {

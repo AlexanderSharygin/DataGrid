@@ -2,7 +2,7 @@
 
 namespace Parser
 {
-   public static class JSONParser
+   public static class SimpleJSONParser
     {
         public static List<Dictionary<string,string>> ParseSimpleJSON(string inputText)
         {

@@ -82,7 +82,7 @@
     <None Include="packages.config" />
     <None Include="Trash\MyList_Trash.cs" />
     <None Include="Trash\JSONObject.cs" />
-    <Compile Include="JSONParser.cs" />
+    <Compile Include="SimpleJSONParser.cs" />
     <None Include="Trash\ConsolePrinter.cs" />
     <None Include="Trash\MyLinq.cs" />
     <Compile Include="Program.cs" />

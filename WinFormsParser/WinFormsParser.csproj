@@ -88,8 +88,9 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
+    <Compile Include="SimpleJSONParser.cs" />
     <Compile Include="TableEditor.cs">
-      <SubType>UserControl</SubType>
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="TypeSelector.cs">
       <SubType>UserControl</SubType>
@@ -130,12 +131,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Parser\Parser.csproj">
-      <Project>{2db3cb56-1814-4deb-98a6-06f192c9a9c5}</Project>
-      <Name>Parser</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
