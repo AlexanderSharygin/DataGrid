@@ -1,4 +1,4 @@
-﻿namespace Parser
+﻿namespace WinFormsParser
 {
     partial class TypeSelector
     {

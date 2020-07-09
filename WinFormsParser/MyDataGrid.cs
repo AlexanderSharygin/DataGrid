@@ -10,7 +10,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace Parser
+namespace WinFormsParser
 {
 
 

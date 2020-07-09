@@ -1,5 +1,4 @@
-﻿namespace Parser
-{
+﻿namespace WinFormsParser{
     partial class TableCell
     {
         /// <summary> 

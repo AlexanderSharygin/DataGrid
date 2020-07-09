@@ -32,7 +32,7 @@
             this.GB_Fields = new System.Windows.Forms.GroupBox();
             this.LB_FieldsList = new System.Windows.Forms.ListBox();
             this.GB_Table = new System.Windows.Forms.GroupBox();
-            this.DataTable = new Parser.MyDataGrid();
+            this.DataTable = new MyDataGrid();
             this.Add = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.Remove = new System.Windows.Forms.Button();
@@ -294,7 +294,7 @@
         private System.Windows.Forms.GroupBox GB_Fields;
         private System.Windows.Forms.ListBox LB_FieldsList;
         private System.Windows.Forms.GroupBox GB_Table;
-        private Parser.MyDataGrid DataTable;
+        private MyDataGrid DataTable;
         private System.Windows.Forms.Button Add;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button Remove;

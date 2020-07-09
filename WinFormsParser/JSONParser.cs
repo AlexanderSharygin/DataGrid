@@ -4,7 +4,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using Parser;
+
 using Parser.Properties;
 
 namespace WinFormsParser

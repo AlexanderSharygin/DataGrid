@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 
 
-namespace Parser
+namespace WinFormsParser
 {
 
     public static class ObservableCollectionExtensions
