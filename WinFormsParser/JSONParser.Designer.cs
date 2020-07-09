@@ -1,4 +1,4 @@
-﻿namespace WinFormsParser
+﻿namespace Parser
 {
     partial class Show_Button
     {
@@ -293,7 +293,7 @@
         private System.Windows.Forms.GroupBox GB_Fields;
         private System.Windows.Forms.ListBox LB_FieldsList;
         private System.Windows.Forms.GroupBox GB_Table;
-        private Parser.MyDataGrid _DataTable;
+        private MyDataGrid _DataTable;
         private System.Windows.Forms.Button Add;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button Remove;

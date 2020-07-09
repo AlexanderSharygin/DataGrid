@@ -4,10 +4,10 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using Parser;
 
 
-namespace WinFormsParser
+
+namespace Parser
 {
 
     public partial class Show_Button : Form
@@ -40,8 +40,8 @@ namespace WinFormsParser
 
         private void Application_Load(object sender, EventArgs e)
         {
-            var inputText = File.ReadAllText("Files\\Data.txt");
-            _Workers = JSONParser.CreateObjects<Worker>(inputText);
+          //  var inputText = File.ReadAllText("Files\\Data.txt");
+          //  _Workers = JSONParser.CreateObjects<Worker>(inputText);
 
         }
         private void LB_FieldsList_MouseClick(object sender, EventArgs e)
@@ -203,7 +203,7 @@ namespace WinFormsParser
             NU_FieldsIndexes.Maximum = _DataTable.Columns.Count - 1;
         }
     }
-    class Worker
+  /*  class Worker
     {
         public int ID { get; set; }
         public string FirstName { get; set; }
@@ -216,5 +216,5 @@ namespace WinFormsParser
         public int StateID { get; set; }
         //   public int Salary { get; set; }
         //  public bool IsAlcoholic { get; set; }
-    }
+    }*/
 }
