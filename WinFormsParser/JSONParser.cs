@@ -7,7 +7,7 @@ using System.Windows.Forms;
 using Parser;
 
 
-namespace WinFormsParser
+namespace Parser
 {
 
     public partial class Show_Button : Form
@@ -42,8 +42,7 @@ namespace WinFormsParser
 
         private void Application_Load(object sender, EventArgs e)
         {
-            var inputText = File.ReadAllText("Files\\Data.txt");
-            _Workers = JSONParser.CreateObjects<Worker>(inputText);
+           
 
         }
         private void LB_FieldsList_MouseClick(object sender, EventArgs e)
@@ -233,19 +232,6 @@ namespace WinFormsParser
 
         }
     }
-    class Worker
-        {
-            public int ID { get; set; }
-            public string FirstName { get; set; }
-            public string LastName { get; set; }
-            public string Prefix { get; set; }
-            public string Position { get; set; }
-            public DateTime BirthDate { get; set; }
-            public string Notes { get; set; }
-            public string Address { get; set; }
-            public int StateID { get; set; }
-            //   public int Salary { get; set; }
-            //  public bool IsAlcoholic { get; set; }
-        }
+  
     }
 

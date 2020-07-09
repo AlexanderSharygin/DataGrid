@@ -105,7 +105,6 @@
       <DependentUpon>Grid_TypeSelector.cs</DependentUpon>
     </Compile>
     <Compile Include="DBContext\Worker.cs" />
-    <Compile Include="DBContext\WorkersSmall.cs" />
     <Compile Include="Grid\ProgressScreen.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -145,12 +144,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Parser\Parser.csproj">
-      <Project>{2db3cb56-1814-4deb-98a6-06f192c9a9c5}</Project>
-      <Name>Parser</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
