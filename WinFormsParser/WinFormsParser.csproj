@@ -104,7 +104,6 @@
       <DependentUpon>TypeSelector.cs</DependentUpon>
     </Compile>
     <Compile Include="Worker.cs" />
-    <Compile Include="WorkersSmall.cs" />
     <EmbeddedResource Include="HeaderCell.resx">
       <DependentUpon>HeaderCell.cs</DependentUpon>
     </EmbeddedResource>

@@ -10,7 +10,7 @@ namespace Parser
         }
 
         public virtual DbSet<Worker> Workers { get; set; }
-        public virtual DbSet<WorkersSmall> WorkersSmalls { get; set; }
+      
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -18,17 +18,7 @@ namespace Parser
                 .Property(e => e.Salary)
                 .HasPrecision(19, 4);
 
-            modelBuilder.Entity<WorkersSmall>()
-                .Property(e => e.FirstName)
-                .IsFixedLength();
-
-            modelBuilder.Entity<WorkersSmall>()
-                .Property(e => e.Prefix)
-                .IsFixedLength();
-
-            modelBuilder.Entity<WorkersSmall>()
-                .Property(e => e.Salary)
-                .HasPrecision(19, 4);
+          
           
         }
     }
