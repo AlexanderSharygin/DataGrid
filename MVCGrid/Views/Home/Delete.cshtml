@@ -3,9 +3,7 @@
     ViewBag.Title = "Удалить";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
-@model  MVCGrid.Models.Worker
-
+@model  MVCGrid.Models.WorkersSmall
 
 <h2>Удаление</h2>
 <dl>
@@ -13,15 +11,12 @@
     <dd>
         @Html.DisplayFor(model => model.FirstName)
     </dd>
-
-
 </dl>
 
 @using (Html.BeginForm())
 {
     <input type="submit" value="Удалить" />
     <input value="Отмена" type="button" onclick="location.href='/Home/Index'" />
-
 
 }
 

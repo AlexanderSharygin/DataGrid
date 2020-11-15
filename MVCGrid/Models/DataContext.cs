@@ -11,88 +11,32 @@ namespace MVCGrid.Models
 
     public partial class DataContext : DbContext
     {
+
         public DataContext()
             : base("name=DBModel")
         {
         }
 
-        public virtual DbSet<Workers> Workers { get; set; }
         public virtual DbSet<WorkersSmall> WorkersSmall { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Workers>()
-                .Property(e => e.Salary)
-                .HasPrecision(19, 4);
+            modelBuilder.Entity<WorkersSmall>()
+                .Property(e => e.FirstName)
+                .IsFixedLength();
 
             modelBuilder.Entity<WorkersSmall>()
-              .Property(e => e.Salary)
-              .HasPrecision(19, 4);
+                .Property(e => e.Prefix)
+                .IsFixedLength();
+
+            modelBuilder.Entity<WorkersSmall>()
+                .Property(e => e.Salary)
+                .HasPrecision(19, 4);
         }
-    }
 
 
-   public class Worker
-    {
-      
-        public int Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Prefix { get; set; }
-        public string Position { get; set; }
-        public DateTime BirthDate { get; set; }
-        public string Notes { get; set; }
-        public string Address { get; set; }
-        public int StateID { get; set; }
-        public decimal Salary { get; set; }
-        public bool IsAlcoholic { get; set; }
 
-        public static explicit operator Worker(Workers v)
-        {
-            if (v != null)
-            {
-                Worker a = new Worker();
-            a.Id = v.Id;
-            a.FirstName = v.FirstName;
-            a.LastName = v.LastName;
-            a.Prefix = v.Prefix;
-            a.Position = v.Position;
-            a.BirthDate = v.BirthDate;
-            a.Notes = v.Notes;
-            a.Address = v.Address;
-            a.StateID = v.StateID;
-            a.Salary = v.Salary;
-            a.IsAlcoholic = v.IsAlcoholic;
-            return a;
-            }
-            else
-            { return null; }
 
-        }
-        public static explicit operator Worker(WorkersSmall v)
-        {
-            if (v != null)
-            {
-                Worker a = new Worker();
-                a.Id = v.Id;
-                a.FirstName = v.FirstName;
-                a.LastName = v.LastName;
-                a.Prefix = v.Prefix;
-                a.Position = v.Position;
-                a.BirthDate = v.BirthDate;
-                a.Notes = v.Notes;
-                a.Address = v.Address;
-                a.StateID = v.StateID;
-                a.Salary = v.Salary;
-                a.IsAlcoholic = v.IsAlcoholic;
-                return a;
-            }
-            else
-            { return null;  }
-
-        }
-        //   public int Salary { get; set; }
-        //  public bool IsAlcoholic { get; set; }
     }
     public class PageInfo
     {
@@ -103,6 +47,69 @@ namespace MVCGrid.Models
         {
             get { return (int)Math.Ceiling((decimal)TotalItems / PageSize); }
         }
+    }
+    [Table("WorkersSmall")]
+    public partial class WorkersSmall
+    {
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [ScaffoldColumn(false)]
+        public int Id { get; set; }
+        [Required]
+        [Display(Name = "Имя")]
+        [MaxLength(20, ErrorMessage = "Превышена допустимая длина строки.")]
+        [Column(TypeName = "nvarchar")]
+        [StringLength(20)]
+        public string FirstName { get; set; }
+
+        [Required]
+        [Display(Name = "Фамилия")]
+        [MaxLength(50, ErrorMessage = "Превышена допустимая длина строки.")]
+        [StringLength(50)]
+        public string LastName { get; set; }
+
+        [Required]
+        [StringLength(5)]
+        [MaxLength(5, ErrorMessage = "Превышена допустимая длина строки.")]
+        [Display(Name = "Префикс")]
+        [Column(TypeName = "nvarchar")]
+        public string Prefix { get; set; }
+
+        [Required]
+        [Display(Name = "Должность")]
+        [MaxLength(50, ErrorMessage = "Превышена допустимая длина строки.")]
+        [StringLength(50)]
+        public string Position { get; set; }
+
+        [Required]
+        [Column(TypeName = "smalldatetime")]
+        [Display(Name = "Дата Рождения")]
+        public DateTime BirthDate { get; set; }
+
+        [StringLength(500)]
+        [Display(Name = "Заметки")]
+        [MaxLength(500, ErrorMessage = "Превышена допустимая длина строки.")]
+        public string Notes { get; set; }
+
+        [Required]
+        [Display(Name = "Адрес")]
+        [StringLength(200)]
+        [MaxLength(200, ErrorMessage = "Превышена допустимая длина строки.")]
+        public string Address { get; set; }
+
+        [Required]
+        [Display(Name = "Номер")]
+        public int StateID { get; set; }
+
+        [Required]
+        [Column(TypeName = "money")]
+        [Display(Name = "Зар. плата")]
+
+        [Range(1, 2000, ErrorMessage = "Значение должно быть в пределах 1-2000")]
+        public decimal Salary { get; set; }
+
+        [Display(Name = "Алкоголик")]
+        public bool IsAlcoholic { get; set; }
     }
     public class IndexViewModel
     {
