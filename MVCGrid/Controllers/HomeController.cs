@@ -10,13 +10,13 @@ namespace MVCGrid.Controllers
     public class HomeController : Controller
     {
 
-        DataContext _DB = new DataContext();
+       Model1 _DB = new Model1();
         public ActionResult Index(int page = 1)
         {
 
             int pageSize = 10; // количество объектов на страницу          
-            IEnumerable<WorkersSmall> workersForPage = _DB.WorkersSmall.OrderBy(k => k.Id).Skip((page - 1) * pageSize).Take(pageSize);
-            PageInfo pageInfo = new PageInfo { PageNumber = page, PageSize = pageSize, TotalItems = _DB.WorkersSmall.Count() };
+            IEnumerable<Workers> workersForPage = _DB.Workers.OrderBy(k => k.Id).Skip((page - 1) * pageSize).Take(pageSize);
+            PageInfo pageInfo = new PageInfo { PageNumber = page, PageSize = pageSize, TotalItems = _DB.Workers.Count() };
             IndexViewModel ivm = new IndexViewModel { PageInfo = pageInfo, Workers = workersForPage };
 
             return View(ivm);
@@ -28,7 +28,7 @@ namespace MVCGrid.Controllers
             return View();
         }
         [HttpPost]
-        public ActionResult Create(WorkersSmall worker)
+        public ActionResult Create(Workers worker)
         {
             if (worker == null)
             {
@@ -58,7 +58,7 @@ namespace MVCGrid.Controllers
             {
                 return HttpNotFound();
             }
-            WorkersSmall worker = _DB.WorkersSmall.Find(id);
+            Workers worker = _DB.Workers.Find(id);
             if (worker != null)
             {
                 return View(worker);
@@ -70,7 +70,7 @@ namespace MVCGrid.Controllers
 
         }
         [HttpPost]
-        public ActionResult EditWorker([Bind(Include ="Id, FirstName, LastName, Position, Salary")] WorkersSmall worker)
+        public ActionResult EditWorker([Bind(Include ="Id, FirstName, LastName, Position, Salary")] Workers worker)
         {
             if (worker == null)
             {
@@ -80,7 +80,7 @@ namespace MVCGrid.Controllers
             {
                 if (ModelState.IsValidField("FirstName") && ModelState.IsValidField("LastName") && ModelState.IsValidField("Position") && ModelState.IsValidField("Salary"))
                 {
-                    var workerToSave = _DB.WorkersSmall.Select(k => k).Where(k => k.Id == worker.Id).FirstOrDefault();
+                    var workerToSave = _DB.Workers.Select(k => k).Where(k => k.Id == worker.Id).FirstOrDefault();
                     workerToSave.FirstName = worker.FirstName;
                     workerToSave.LastName = worker.LastName;
                     workerToSave.Position = worker.Position;
@@ -91,7 +91,7 @@ namespace MVCGrid.Controllers
                 }
                 else
                 {
-                    WorkersSmall worker1 = _DB.WorkersSmall.Find(worker.Id);
+                    Workers worker1 = _DB.Workers.Find(worker.Id);
                     return View(worker1);
                 }
             }
@@ -101,7 +101,7 @@ namespace MVCGrid.Controllers
         public ActionResult Delete(int id)
         {
             
-                WorkersSmall worker = _DB.WorkersSmall.Find(id);            
+                Workers worker = _DB.Workers.Find(id);            
                 if (worker == null)
                 {
                     return HttpNotFound();
@@ -116,7 +116,7 @@ namespace MVCGrid.Controllers
         [HttpPost, ActionName("Delete")]
         public ActionResult DeleteConfirmed(int id)
         {
-            WorkersSmall worker = _DB.WorkersSmall.Find(id);
+            Workers worker = _DB.Workers.Find(id);
 
             if (worker == null)
             {
@@ -124,7 +124,7 @@ namespace MVCGrid.Controllers
             }
             else
             {
-                _DB.WorkersSmall.Remove(worker);
+                _DB.Workers.Remove(worker);
                 _DB.SaveChanges();
                 return RedirectToAction("Index");
             }
@@ -135,7 +135,7 @@ namespace MVCGrid.Controllers
         [HttpPost]
         public JsonResult JSONWorkerSearch(string firstName)
         {
-            var jsondata = _DB.WorkersSmall.Where(a => a.FirstName==firstName).ToList();           
+            var jsondata = _DB.Workers.Where(a => a.FirstName==firstName).ToList();           
             return Json(jsondata, JsonRequestBehavior.AllowGet);
         }
         private void SendMessage(string message)
@@ -146,8 +146,8 @@ namespace MVCGrid.Controllers
         }
         public ActionResult ShowAlcoholics()
         {
-            var alcoholics = _DB.WorkersSmall.Where(a => a.IsAlcoholic).ToList();
-            List<WorkersSmall> alcoholicsList = new List<WorkersSmall>();
+            var alcoholics = _DB.Workers.Where(a => a.IsAlcoholic).ToList();
+            List<Workers> alcoholicsList = new List<Workers>();
             foreach (var item in alcoholics)
             {
                 alcoholicsList.Add(item);
