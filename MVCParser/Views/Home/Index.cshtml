@@ -1,0 +1,51 @@
+﻿
+          @{ ViewBag.Title = "Index"; }
+
+
+
+
+<html>
+<head>
+    @Scripts.Render("~/scripts/jquery-3.4.1.min.js")
+    @Scripts.Render("~/scripts/jquery.unobtrusive-ajax.min.js")
+</head>
+<body>
+  <script>
+
+
+      $(document).ready(function () {
+          $.ajax(
+              {
+                  type: 'POST',
+                  url: "WorkerSearch",
+                  dataType: "JSON",
+                  contentType: "application/json; charset=utf-8",
+                  success: function (response)
+                  {
+                      let data = response;
+                      OnSuccess(data);
+                  }
+              })
+      });
+      function OnSuccess(data)
+      {
+          var el = document.getElementById('results');
+          el.innerHTML='';
+          for (var i = 0; i < data.length; i++)
+          {
+              var newEl = document.createElement('li');
+              newEl.innerHTML = data[i].FirstName;
+              el.append(newEl);
+          }
+      }
+
+
+  </script>
+    
+    
+    
+    <div id="results"></div>
+  
+   
+</body>
+</html>
