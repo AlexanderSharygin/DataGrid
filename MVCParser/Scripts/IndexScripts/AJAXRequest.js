@@ -40,6 +40,14 @@ function OnColumnsLoad(data) {
     columns.appendChild(button);
     button.onclick = function ()
     {
+        var table = document.getElementById('table');
+       table.remove();
+        var newTable = document.createElement('table');
+        newTable.id = 'table';
+        var div = document.getElementById('grid');
+        div.append(newTable);
+      
+      
         ColumnsToLoad = [];
         var items = document.querySelectorAll('input[type="checkbox"]');
         for (let item of items)
@@ -50,6 +58,23 @@ function OnColumnsLoad(data) {
 
             }
         }
+        if (items.length > 0)
+        {
+            $.ajax(
+                {
+                    type: 'POST',
+                    url: "Home/GetData",
+                    dataType: "JSON",
+                    contentType: "application/json; charset=utf-8",
+                    traditional: true,
+                    data: JSON.stringify({ myKey: ColumnsToLoad }),
+                    success: function (response) {
+                        let data = response;
+                        OnSuccess(data);
+                    }
+                })
+        }
+
 
     }
 
@@ -57,13 +82,16 @@ function OnColumnsLoad(data) {
 
 
 function OnSuccess(data) {
-   
+  
+    
+    Rows = [];
+    Columns.clear();
     for (var i = 0; i < data.length; i++) {
         let item = data[i];
         let row = new Map(Object.entries(item));
 
-        for (let j = 0; j < Object.keys(item).length; j++) {
-            Columns.add(Object.keys(item)[j]);
+        for (let j = 0; j < ColumnsToLoad.length; j++) {
+            Columns.add(ColumnsToLoad[j]);
         }  
         Rows.push(row);
     }
@@ -102,5 +130,9 @@ function OnSuccess(data) {
             tr.appendChild(td);
         }
         table.appendChild(tr);
+    }
+    let div = document.getElementById('grid');
+    if (table.offsetWidth < 800) {
+        div.style.width = table.offsetWidth + 'px';
     }
 }

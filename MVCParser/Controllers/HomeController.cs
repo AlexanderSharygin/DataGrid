@@ -29,10 +29,24 @@ namespace MVCParser.Controllers
         
 
         [HttpPost]
-        public ActionResult WorkerSearch()
+        public ActionResult GetData(List<string> myKey)
         {
 
             var jsonResult = Db.Workers.OrderBy(k => k.Id).Take(100).Select(k => k).ToList();
+            foreach (var item in jsonResult)
+            {
+                PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(item);
+                foreach (PropertyDescriptor property in properties)
+                {
+                    if (!myKey.Contains(property.Name))
+                    {
+                        property.SetValue(item, null);
+
+                    }
+                    
+                }
+
+            }
             return Json(jsonResult, JsonRequestBehavior.AllowGet);
         }
 

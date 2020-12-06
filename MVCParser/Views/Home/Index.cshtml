@@ -7,13 +7,22 @@
     @Scripts.Render("~/scripts/jquery-3.4.1.min.js")
     @Scripts.Render("~/scripts/jquery.unobtrusive-ajax.min.js")
     <style>
-        #table
-         
 
-        {
+        #table {
             border-collapse: collapse; /*убираем пустые промежутки между ячейками*/
             border: 3px solid grey; /*устанавливаем для таблицы внешнюю границу серого цвета толщиной 1px*/
-
+           
+         
+        }
+        #grid
+        {
+            margin-top:30px;
+            margin-bottom:30px;
+            margin-left: 30px;
+            padding-right: 30px;
+            height: 500px;
+            width: 800px;
+            overflow:auto;
         }
         th {
             border: 2px solid black;

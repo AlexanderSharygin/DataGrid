@@ -25,7 +25,7 @@ namespace MVCParser.Models
     public partial class Workers
     {
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         [Required]
         [StringLength(20)]
@@ -44,7 +44,7 @@ namespace MVCParser.Models
         public string Position { get; set; }
 
         [Column(TypeName = "smalldatetime")]
-        public DateTime BirthDate { get; set; }
+        public DateTime? BirthDate { get; set; }
 
         [StringLength(500)]
         public string Notes { get; set; }
@@ -53,11 +53,11 @@ namespace MVCParser.Models
         [StringLength(200)]
         public string Address { get; set; }
 
-        public int StateID { get; set; }
+        public int? StateID { get; set; }
 
         [Column(TypeName = "money")]
-        public decimal Salary { get; set; }
+        public decimal? Salary { get; set; }
 
-        public bool IsAlcoholic { get; set; }
+        public bool? IsAlcoholic { get; set; }
     }
 }
