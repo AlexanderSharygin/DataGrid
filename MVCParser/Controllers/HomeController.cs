@@ -88,7 +88,7 @@ namespace MVCParser.Controllers
     }
     public class Column
     {
-        public String Name { get; set; }
+        public string Name { get; set; }
         public string Type { get; set; }
       
 
