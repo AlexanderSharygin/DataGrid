@@ -3,6 +3,8 @@ let GridRows = new Array();
 let GridColumns = new Set();
 let GridWidth = 800;
 let GridHeight = 400;
+let defaultSortCoumnName = 'Id';
+let defaultSortDirection = 'ASC';
 
 $(document).ready(function () {
     $.ajax(
@@ -62,7 +64,7 @@ function CreateGrid()
                 dataType: "JSON",
                 contentType: "application/json; charset=utf-8",
                 traditional: true,
-                data: JSON.stringify({ myKey: ColumnsToShowInTheGrid }),
+                data: JSON.stringify({ myKey: ColumnsToShowInTheGrid, sortColumn: defaultSortCoumnName, sortDirection: defaultSortDirection }),
                 success: function (response) {
                     let data = response;
                     FillGrid(data, ColumnsToShowInTheGrid);

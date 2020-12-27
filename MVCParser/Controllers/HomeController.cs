@@ -1,14 +1,8 @@
-﻿using System;
+﻿using MVCParser.Models;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Json;
-using System.Web;
 using System.Web.Mvc;
-using System.Web.Script.Serialization;
-using MVCParser.Models;
-using Newtonsoft.Json;
 
 namespace MVCParser.Controllers
 {
@@ -21,46 +15,84 @@ namespace MVCParser.Controllers
 
         public ActionResult Index()
         {
-           
-          
-            return View("Index");
 
+            return View("Index");
         }
-        
+
 
         [HttpPost]
-        public ActionResult GetData(List<string> myKey)
+        public ActionResult GetData(List<string> myKey, string sortColumn, string sortDirection)
         {
+            bool isSortedColumnExist = false;
+            var item = Db.Workers.FirstOrDefault();           
+            PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(item);
+            foreach (PropertyDescriptor property in properties)
+            {
+                if (property.Name==sortColumn)
+                {
+                    isSortedColumnExist= true;
+                    break;
 
-            var jsonResult = Db.Workers.OrderBy(k => k.Id).Take(100).Select(k => k).ToList();
-            foreach (var item in jsonResult)
+                }
+
+            }
+            if (!isSortedColumnExist)
+            {
+                return HttpNotFound("Incoorect Column Name");
+            }
+            switch (sortDirection)
+            {
+                case "ASC":
+                    {
+
+                        var jsonResult = Db.Workers.OrderBy(sortColumn).Skip(0).Take(100).AsParallel().AsOrdered().ToList();
+                        HideFields(jsonResult, myKey);
+                        return Json(jsonResult, JsonRequestBehavior.AllowGet);
+                    }
+                case "DESC":
+                    {
+                        var jsonResult = Db.Workers.OrderByDescending(sortColumn).Skip(0).Take(100).AsParallel().AsOrdered().ToList();
+                        HideFields(jsonResult, myKey);
+                        return Json(jsonResult, JsonRequestBehavior.AllowGet);
+                    }
+                default:
+                    {
+                        return HttpNotFound("Incoorect Sort Direction");
+                    }
+            }
+           
+            
+
+
+
+        }
+       private void HideFields(IEnumerable<object> source, List<string> notHiddenFields)
+        {
+            foreach (var item in source)
             {
                 PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(item);
                 foreach (PropertyDescriptor property in properties)
                 {
-                    if (!myKey.Contains(property.Name))
+                    if (!notHiddenFields.Contains(property.Name))
                     {
                         property.SetValue(item, null);
 
                     }
-                    
+
                 }
 
             }
-            return Json(jsonResult, JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult GetAllColumns()
         {
             GetColumnsInfo();
-
-           
             return Json(Columns, JsonRequestBehavior.AllowGet);
 
         }
         private void GetColumnsInfo()
         {
-          
+
             var data = Db.Workers.FirstOrDefault();
             PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(data);
             foreach (PropertyDescriptor property in properties)
@@ -84,14 +116,11 @@ namespace MVCParser.Controllers
             }
         }
 
-
     }
-    public class Column
-    {
-        public string Name { get; set; }
-        public string Type { get; set; }
-      
+   
 
-    }
+  
+
+
 }
 
