@@ -4,7 +4,7 @@ let GridColumns = new Set();
 let GridWidth = 800;
 let GridHeight = 400;
 let defaultSortCoumnName = 'Id';
-let defaultSortDirection = 'ASC';
+let defaultSortDirection = 'DESC';
 
 $(document).ready(function () {
     $.ajax(

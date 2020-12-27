@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Web;
@@ -38,5 +39,25 @@ namespace MVCParser.Controllers
 
 
         }
+
+        public static IEnumerable<TEntity> HideFields<TEntity>(this IEnumerable<TEntity> source, List<string> notHiddenFields)
+        {
+            foreach (var item in source)
+            {
+                PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(item);
+                foreach (PropertyDescriptor property in properties)
+                {
+                    if (!notHiddenFields.Contains(property.Name))
+                    {
+                        property.SetValue(item, null);
+
+                    }
+
+                }
+
+            }
+            return source;
+        }
+
     }
 }

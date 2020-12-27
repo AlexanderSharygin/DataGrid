@@ -45,14 +45,12 @@ namespace MVCParser.Controllers
                 case "ASC":
                     {
 
-                        var jsonResult = Db.Workers.OrderBy(sortColumn).Skip(0).Take(100).AsParallel().AsOrdered().ToList();
-                        HideFields(jsonResult, myKey);
+                        var jsonResult = Db.Workers.OrderBy(sortColumn).Skip(0).Take(100).AsParallel().AsOrdered().ToList().HideFields(myKey);
                         return Json(jsonResult, JsonRequestBehavior.AllowGet);
                     }
                 case "DESC":
                     {
-                        var jsonResult = Db.Workers.OrderByDescending(sortColumn).Skip(0).Take(100).AsParallel().AsOrdered().ToList();
-                        HideFields(jsonResult, myKey);
+                        var jsonResult = Db.Workers.OrderByDescending(sortColumn).Skip(0).Take(100).AsParallel().AsOrdered().ToList().HideFields(myKey);
                         return Json(jsonResult, JsonRequestBehavior.AllowGet);
                     }
                 default:
@@ -66,7 +64,7 @@ namespace MVCParser.Controllers
 
 
         }
-       private void HideFields(IEnumerable<object> source, List<string> notHiddenFields)
+       private void HideFields<T>(IEnumerable<T> source, List<string> notHiddenFields)
         {
             foreach (var item in source)
             {
