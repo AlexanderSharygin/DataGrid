@@ -3,8 +3,8 @@ let GridRows = new Array();
 let GridColumns = new Set();
 let GridWidth = 800;
 let GridHeight = 400;
-let defaultSortCoumnName = 'Id';
-let defaultSortDirection = 'DESC';
+let SortColumnName = 'Id';
+let SortDirection = 'ASC';
 
 $(document).ready(function () {
     $.ajax(
@@ -15,16 +15,15 @@ $(document).ready(function () {
             contentType: "application/json; charset=utf-8",
             success: function (response) {
                 let data = response;
-                ShowSourceColumns(data);
+                ShowAllExistedColumns(data);
             }
         })
 });
 
-function ShowSourceColumns(data)
+function ShowAllExistedColumns(data)
 {
-
     let columns = document.getElementById('columns');
-    for (var i = 0; i < data.length; i++) {
+    for (let i = 0; i < data.length; i++) {
         let item = data[i];
         let label = document.createElement('label');
         label.classList.add('container');
@@ -47,43 +46,91 @@ function ShowSourceColumns(data)
 }
 function CreateGrid()
 {
-
     ClearGrid();
-    let ColumnsToShowInTheGrid = new Array();
-    var items = document.querySelectorAll('input[type="checkbox"]');
+    let ColumnsToShow = GetSelectedColumns();
+    if (ColumnsToShow.length > 0) {
+        GetGridDataByAjax(ColumnsToShow);
+    }
+    let table = document.getElementById('table');
+    table.onclick = function (event)
+    {
+        let target = event.target;
+        if (target.tagName == 'TH')
+        {      
+            if (target.innerHTML != SortColumnName) {
+                SortDirection = 'ASC';
+                SortColumnName = target.innerHTML;          
+            }
+            else
+            {
+                if (SortDirection == 'ASC')
+                {
+                    SortDirection = 'DESC';
+                }
+                else if (SortDirection == 'DESC')
+                {
+                    SortDirection = 'ASC';
+                }
+
+            }
+        }
+        ClearGrid();
+        GetGridDataByAjax(ColumnsToShow);
+    };   
+}
+
+function GetSelectedColumns()
+{
+    let ColumnsToShow = new Array();
+    let items = document.querySelectorAll('input[type="checkbox"]');
     for (let item of items) {
         if (item.checked) {
-            ColumnsToShowInTheGrid.push(item.parentElement.innerText);
+            ColumnsToShow.push(item.parentElement.innerText);
         }
     }
-    if (items.length > 0) {
-        $.ajax(
-            {
-                type: 'POST',
-                url: "Home/GetData",
-                dataType: "JSON",
-                contentType: "application/json; charset=utf-8",
-                traditional: true,
-                data: JSON.stringify({ myKey: ColumnsToShowInTheGrid, sortColumn: defaultSortCoumnName, sortDirection: defaultSortDirection }),
-                success: function (response) {
-                    let data = response;
-                    FillGrid(data, ColumnsToShowInTheGrid);
-                }
-            })
-    }
+    return ColumnsToShow;
+}
 
+
+
+function GetGridDataByAjax(selectedColumns)
+{
+    $.ajax(
+        {
+            type: 'POST',
+            url: "Home/GetData",
+            dataType: "JSON",
+            contentType: "application/json; charset=utf-8",
+            traditional: true,
+            data: JSON.stringify({ myKey: selectedColumns, sortColumn: SortColumnName, sortDirection: SortDirection }),
+            success: function (response) {
+                let data = response;
+                FillGrid(data, selectedColumns);
+            }
+        });
 
 }
+
+
+
 
 function ClearGrid()
 
 {
-    var table = document.getElementById('table');
-    table.remove();
-    var newTable = document.createElement('table');
-    newTable.id = 'table';
-    var div = document.getElementById('grid');
-    div.append(newTable);
+    let table = document.getElementById('table');
+    let tableItems = table.querySelectorAll('td');
+    [].forEach.call(tableItems, function (elem) {
+        elem.remove();
+    });
+    tableItems = table.querySelectorAll('tr');
+    [].forEach.call(tableItems, function (elem) {
+        elem.remove();
+    });
+  tableItems = table.querySelectorAll('th');
+    [].forEach.call(tableItems, function (elem) {
+      elem.remove();
+   }); 
+
 }
 
 
@@ -91,7 +138,7 @@ function FillGrid(data, collumnsToShow) {
       
     GridRows = [];
     GridColumns.clear();
-    for (var i = 0; i < data.length; i++) {
+    for (let i = 0; i < data.length; i++) {
         let item = data[i];
         let row = new Map(Object.entries(item));
 
@@ -106,6 +153,17 @@ function FillGrid(data, collumnsToShow) {
         let th = document.createElement('th');
         th.innerHTML = item;
         table.appendChild(th);
+        if (th.innerHTML == SortColumnName)
+        {
+            if (SortDirection == 'DESC')
+            {
+                 th.classList.add('DESCsorted');
+               
+            }
+            else if (SortDirection =='ASC') {
+                 th.classList.add('ASCsorted');                                    
+            }           
+        }
     }
     for (let row of GridRows)
     {
@@ -131,13 +189,16 @@ function FillGrid(data, collumnsToShow) {
         }
         table.appendChild(tr);
     }
-    let div = document.getElementById('grid');
-    div.style.height = GridHeight+'px';
+     
 
-    if (table.offsetWidth < GridWidth)
-    {
-        div.style.width = table.offsetWidth + 'px';
+    let div = document.getElementById('grid');
+   div.style.height = GridHeight+'px';
+
+   if (table.offsetWidth < GridWidth)
+   {
+       div.style.width = table.offsetWidth + 'px';
     }
+    
 }
 
 function formatDate(value)
@@ -153,3 +214,5 @@ function formatDate(value)
     let formatedDate = day + '/' + month + '/' + date.getFullYear();
     return formatedDate;
 }
+
+
