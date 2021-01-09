@@ -5,6 +5,8 @@ let GridWidth = 800;
 let GridHeight = 400;
 let SortColumnName = 'Id';
 let SortDirection = 'ASC';
+let ColumnWithDisabledSorting = new Set(['Notes']);
+let PageSize = 100;
 
 $(document).ready(function () {
     $.ajax(
@@ -45,8 +47,7 @@ function ShowAllExistedColumns(data)
     button.addEventListener('click', CreateGrid);
 }
 function CreateGrid()
-{
-    ClearGrid();
+{ 
     let ColumnsToShow = GetSelectedColumns();
     if (ColumnsToShow.length > 0) {
         GetGridDataByAjax(ColumnsToShow);
@@ -56,7 +57,11 @@ function CreateGrid()
     {
         let target = event.target;
         if (target.tagName == 'TH')
-        {      
+        {
+            if (ColumnWithDisabledSorting.has(target.innerHTML))
+            {
+                return;
+            }
             if (target.innerHTML != SortColumnName) {
                 SortDirection = 'ASC';
                 SortColumnName = target.innerHTML;          
@@ -74,7 +79,7 @@ function CreateGrid()
 
             }
         }
-        ClearGrid();
+       
         GetGridDataByAjax(ColumnsToShow);
     };   
 }
@@ -100,13 +105,22 @@ function GetGridDataByAjax(selectedColumns)
             type: 'POST',
             url: "Home/GetData",
             dataType: "JSON",
+          
+             beforeSend: function () { // Before we send the request, remove the .hidden class from the spinner and default to inline-block.
+              $('#overlay').fadeIn(300);　
+           },
             contentType: "application/json; charset=utf-8",
             traditional: true,
-            data: JSON.stringify({ myKey: selectedColumns, sortColumn: SortColumnName, sortDirection: SortDirection }),
+            data: JSON.stringify({ myKey: selectedColumns, sortColumn: SortColumnName, sortDirection: SortDirection, pageSize: PageSize }),
             success: function (response) {
                 let data = response;
-                FillGrid(data, selectedColumns);
-            }
+                ClearGrid();
+                FillGrid(data[0], selectedColumns);
+            },
+           complete: function () { // Set our complete callback, adding the .hidden class and hiding the spinner.
+               $("#overlay").fadeOut(300);
+          },
+          
         });
 
 }

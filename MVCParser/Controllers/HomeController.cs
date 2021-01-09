@@ -1,8 +1,10 @@
 ﻿using MVCParser.Models;
+
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Web.Mvc;
+
 
 namespace MVCParser.Controllers
 {
@@ -21,7 +23,7 @@ namespace MVCParser.Controllers
 
 
         [HttpPost]
-        public ActionResult GetData(List<string> myKey, string sortColumn, string sortDirection)
+        public ActionResult GetData(List<string> myKey, string sortColumn, string sortDirection, int pageSize)
         {
             bool isSortedColumnExist = false;
             var item = Db.Workers.FirstOrDefault();           
@@ -44,14 +46,21 @@ namespace MVCParser.Controllers
             {
                 case "ASC":
                     {
-
-                        var jsonResult = Db.Workers.OrderBy(sortColumn).Skip(0).Take(100).AsParallel().AsOrdered().ToList().HideFields(myKey);
-                        return Json(jsonResult, JsonRequestBehavior.AllowGet);
+                        var totalItemsCount = Db.Workers.Count();
+                        var selectedItems = Db.Workers.OrderBy(sortColumn).Skip(0).Take(pageSize).AsParallel().AsOrdered().ToList().HideFields(myKey);
+                        List<object> dataToReturn = new List<object>();
+                        dataToReturn.Add(selectedItems);
+                        dataToReturn.Add(totalItemsCount);                  
+                        return Json(dataToReturn, JsonRequestBehavior.AllowGet);
                     }
                 case "DESC":
                     {
-                        var jsonResult = Db.Workers.OrderByDescending(sortColumn).Skip(0).Take(100).AsParallel().AsOrdered().ToList().HideFields(myKey);
-                        return Json(jsonResult, JsonRequestBehavior.AllowGet);
+                        var totalItemsCount = Db.Workers.Count();
+                        var selectedItems = Db.Workers.OrderByDescending(sortColumn).Skip(0).Take(pageSize).AsParallel().AsOrdered().ToList().HideFields(myKey);
+                        List<object> dataToReturn = new List<object>();
+                        dataToReturn.Add(selectedItems);
+                        dataToReturn.Add(totalItemsCount);
+                        return Json(dataToReturn, JsonRequestBehavior.AllowGet);
                     }
                 default:
                     {
